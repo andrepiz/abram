@@ -1,0 +1,3 @@
+[submodule "ext/histweight"]
+	path = ext/histweight
+	url = https://github.com/andrepiz/histweight
