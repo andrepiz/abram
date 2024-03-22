@@ -46,15 +46,25 @@ switch case_scenario
 
      case 3
         % Lumio trajectory from Corto inputs 
-        tExp = 0.02e-3;
+        tExp = 0.015e-3;
         % tExp_scenario = 0.02e-3;
         inputs_corto = [0 0 0 0 1 0 0 0 -32.264191721 -17.750344807 24.851316611 0.671986 0.409186 -0.15516 -0.597434 73851.064541941 -129877.91788227 3112.940542782];
         %inputs_corto = [99000 0 0 0 1 0 0 0 -33.468792237 -41.159669801 11.866820706 -0.180603 -0.485102 -0.382835 0.765177 40346.992979572 -143820.646844016 3155.862765357];
         %inputs_corto = [259200 0 0 0 1 0 0 0 -45.174965796 -52.774718132 -17.3767064 0.506134 0.761711 -0.049207 -0.401502 -18003.387576574 -148222.629718458 3212.749117793];
-        inputs_corto = [0 0 0 0 1 0 0 0 -16 -9 12 0.671986 0.409186 -0.15516 -0.597434 73851.064541941 -129877.91788227 3112.940542782];
+        %inputs_corto = [0 0 0 0 1 0 0 0 -16 -9 12 0.671986 0.409186 -0.15516 -0.597434 73851.064541941 -129877.91788227 3112.940542782];
         [alpha, d_body2sc, d_body2star, q_CSF2IAU, q_CAMI2CAM] = inputs_corto2matlab(inputs_corto, 1e6, false);
             % post-process
             dcm_CAMI2CAM = quat_to_dcm(q_CAMI2CAM);
             dcm_CSF2IAU = quat_to_dcm(q_CSF2IAU);
-        
+
+     case 4
+        % Lumio trajectory from given inputs
+        tExp = 76.81e-3;
+        alpha = deg2rad(65.6);
+        d_body2sc = 60510e3;
+        eul_CAMI2CAM = [0;0;0];                     % [rad] Camera euler angles off-pointing (rpy). Note that yaw is optical axis
+        eul_CSF2IAU = [0;0;0];                      % to integrate with spice
+            % post-process
+            dcm_CAMI2CAM = euler_to_dcm(eul_CAMI2CAM);
+            dcm_CSF2IAU = euler_to_dcm(eul_CSF2IAU);
 end
