@@ -92,8 +92,8 @@ switch case_camera
         fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
         
         % AD Converter
-        %G_DA_nbit = 8;
-        G_DA_nbit = 16;
+        G_DA_nbit = 8;
+        %G_DA_nbit = 16;
         G_DA = fwc/(2^G_DA_nbit-1);
         G_AD = 1/G_DA;
         G_AD_nbit = G_DA_nbit;
@@ -126,6 +126,41 @@ switch case_camera
         G_DA = fwc/(2^G_DA_nbit-1);
         G_AD = 1/G_DA;
         G_AD_nbit = 8;
+        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        snr = log10(fwc/noise_floor);   % definition
+
+    case 5
+                
+        %% TINYV3RSE
+        
+        % Lens Assembly
+        lambda_min = (425:50:975)*1e-9;
+        lambda_max = (475:50:1025)*1e-9;
+        nbw = length(lambda_min); % number of bandwidths
+        T = ones(1, nbw); % Lens transmittance per BW
+        QE = ones(1, nbw); % Quantum Efficiency per BW
+        % T = [0.410, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992]; % Lens transmittance per BW
+        % QE = [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.30, 0.23, 0.16, 0.09, 0.04, 0.02]; % Quantum Efficiency per BW
+
+        % Focal plane
+        % FOV and f# as before
+        fov = 2*atan((1024*18e-6/2)/50.7e-3);
+        fNum = 50.7e-3/33.9e-3;
+        muPixel = 44.1e-6; % [m] pixel size
+        res_px = 1440; % [px] Resolution in pixel
+        % to change in requirements
+        f = res_px*muPixel/2/tan(fov/2); % focal length
+        dpupil = f/fNum;
+        fov_shape = 'square';
+
+        % Detector
+        fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
+        
+        % AD Converter
+        G_DA_nbit = 8;
+        G_DA = fwc/(2^G_DA_nbit-1);
+        G_AD = 1/G_DA;
+        G_AD_nbit = G_DA_nbit;
         noise_floor = G_DA; % assumed conservatively as equal to the DN difference
         snr = log10(fwc/noise_floor);   % definition
 end

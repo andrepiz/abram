@@ -24,4 +24,4 @@ Apupil = pi*(dpupil/2)^2; % [m^2] area of the pupil
 ifov = fov/res_px; % [rad] angular extension of a pixel
 
 % Projection Matrix
-K = [f/muPixel 0 res_px/2; 0 f/muPixel res_px/2; 0 0 1];
+K = [f/muPixel 0 res_px/2 + 0.5; 0 f/muPixel res_px/2 + 0.5; 0 0 1];

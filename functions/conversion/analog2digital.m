@@ -13,10 +13,14 @@ img_digital_temp = img_analog*G_AD/(2^nbit_in-1)*(2^nbit_out-1);
 switch nbit_out
     case 8
         img_digital = uint8(img_digital_temp);
+
     case 12
         warning('No uint12 type present in MATLAB')
         img_digital = round(img_digital_temp);
+
     case 16
         img_digital = uint16(img_digital_temp);
 
+    otherwise
+        img_digital = round(img_digital_temp);
 end

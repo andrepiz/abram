@@ -1,3 +1,6 @@
 [submodule "ext/histweight"]
 	path = ext/histweight
 	url = https://github.com/andrepiz/histweight
+[submodule "validation/amiextractor"]
+	path = validation/amiextractor
+	url = https://github.com/andrepiz/amiextractor
