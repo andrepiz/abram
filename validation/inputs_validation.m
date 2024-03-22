@@ -1,13 +1,13 @@
 %% PARAMETERS
 % Select parameters
-reflectance_model = 'lambert';          % 'lambert'
+reflectance_model = 'oren';          % 'lambert'
                                         % 'lommel'
                                         % 'area'
                                         % 'oren': specify roughness
                                         % 'specular': specify shineness 
                                         % 'phong': specify shineness and lambert/specular weights
                                         % 'hapke': TBD
-                                        roughness = 0.5;    % roughness in oren model (>> more rough)
+                                        roughness = 0.3;    % roughness in oren model (>> more rough)
                                         shineness = 1;      % shineness in specular model (>> more shine)
                                         wl = 0.5; ws = 2;   % weight of lambert and specular components in Phong model            
 adaptive_discretization = false;        % adaptive selects a number of sectors depending on the maximum projected arc
@@ -32,48 +32,53 @@ granularity = 1;                        % Down-sampling of pixels
 apply_observation_correction = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
 
 %% STAR 
-% Select star
-get_star()
+Tstar = 5782;     % [K]
+Rstar = 695000e3; % [m]
 
 %% BODY
-% Select body
-% 0. 1m sphere @1 AU
-% 1. Moon
-% 2. Mars
-% 3. Bennu
-% 10. Moon w/o texture
-% 20. Mars w/o texture
-case_body = 1;
-
-get_body()
+% Moon w/o texture
+d_body2star = params.d_body2sun;
+Rbody = 1.7374e6; % [m] body radius
+pGeom = 0.10; 
+[pGeom, pNorm, pBond] = extrapolate_albedo(pGeom, 'geometric', reflectance_model);
+%albedo_map = [];
+        albedo_map = 'lroc_color_poles_2k.tif';
+        albedo_nbit = 8;
+        rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 
 %% CAMERA
-% Select camera
-% 1. LUMIO CAM - VIS
-% 2. LUMIO CAM - NIR
-% 3. LEONARDO AA-STR        
-% 4. MARS COLOR CAMERA (ISRU)
-% 5. TINYV3ERSE
-case_camera = 5;
+% From User Manual:
+%Saturation 300 000 electrons
+%Spectral response 650 nm, 50% at 500nm and 800nm
+%Efficiency >15% at 640 nm
+%Dynamic 80 dB
 
-get_camera();
+lambda_min = params.lambda_min:100e-9:params.lambda_max-100e-9;
+lambda_max = params.lambda_min+100e-9:100e-9:params.lambda_max;
+nbw = length(lambda_min);
+T = get_amie_spectral_response(lambda_min, lambda_max);
+QE = 0.15; % as stated in the user manual
+
+f = params.f;
+fNum = params.fNum;
+dpupil = f/fNum;
+muPixel = params.muPixel; % [m] pixel size
+res_px = params.res_px; % [px] Resolution in pixel
+fov = params.fov;
+fov_shape = 'square';
+
+fwc = 300e3; % as stated in the user manual
+G_DA_nbit = 10;
+G_DA = params.G_DA;
+G_AD = 1/G_DA;
+G_AD_nbit = G_DA_nbit;
 
 %% SCENARIO
-% Select scenario
-% 1. Leonardo STR imaging @23/11/2023
-% 2. Mars imaging by ISRU
-% 3. Extraction from Corto inputs
-% 4. Lumio
-case_scenario = 3; 
-
-get_scenario();
-
-% Overwrite if needed
-% tExp = 0.02e-3;
-% alpha = 0;
-% d_body2sc = 38.58327e6;
-% eul_CAMI2CAM = [0;0;0];                     % [rad] Camera euler angles off-pointing (rpy). Note that yaw is optical axis
-% eul_CSF2IAU = [0; deg2rad(0); deg2rad(0)];  % [rad] Body-fixed frame rotation wrt CSF frame
-%     % post-process
-%     q_CAMI2CAM = cp_euler_to_quat(eul_CAMI2CAM);
-%     q_CSF2IAU = cp_euler_to_quat(eul_CSF2IAU);
+tExp = params.tExp;
+alpha = params.alpha;
+d_body2sc = params.d_body2cam;
+q_CSF2IAU = params.q_CSF2IAU;
+q_CAMI2CAM = params.q_CAMI2CAM;
+    % post-process
+    dcm_CAMI2CAM = quat_to_dcm(q_CAMI2CAM);
+    dcm_CSF2IAU = quat_to_dcm(q_CSF2IAU);
