@@ -4,3 +4,6 @@
 [submodule "validation/amiextractor"]
 	path = validation/amiextractor
 	url = https://github.com/andrepiz/amiextractor
+[submodule "validation/amie/amiextractor"]
+	path = validation/amie/amiextractor
+	url = https://github.com/andrepiz/amiextractor.git
