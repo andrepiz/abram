@@ -7,7 +7,7 @@ switch case_body
         % Lambertian sphere of 1m @1 AU
         d_body2star = AU;
         Rbody = 1; % [m] body radius
-        pBond = 0.10; % [-] Bond albedo
+        pBond = 0.1; % [-] Bond albedo
         [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
         albedo_map = [];
 
@@ -15,8 +15,8 @@ switch case_body
         % Moon
         d_body2star = AU;
         Rbody = 1.7374e6; % [m] body radius
-        pGeom = 0.10; 
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pGeom, 'geometric', reflectance_model);
+        pBond = 0.18;  % [-] Bond albedo
+        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
         albedo_map = 'lroc_color_poles_2k.tif';
         albedo_nbit = 8;
         rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
@@ -25,8 +25,8 @@ switch case_body
         % Mars
         d_body2star = 1.52*AU;
         Rbody = 3389.5e3; % [m] body radius
-        pGeom = 0.25; % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pGeom, 'geometric', reflectance_model);
+        pBond = 0.25; % [-] Bond albedo
+        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
         albedo_map = 'TES_Lambert_Albedo_mola.png';
         albedo_nbit = 8;
         rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
@@ -35,7 +35,7 @@ switch case_body
         % Bennu
         d_body2star = 1.1264*AU;
         Rbody = 262.5; % [m] body radius
-        pBond = 0.05;  
+        pBond = 0.05;   % [-] Bond albedo
         [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
         albedo_map = [];
 
@@ -43,7 +43,7 @@ switch case_body
         % Moon w/o texture
         d_body2star = AU;
         Rbody = 1.7374e6; % [m] body radius
-        pBond = 0.12; 
+        pBond = 0.18; % [-] Bond albedo
         [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
         albedo_map = [];
 
