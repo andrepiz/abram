@@ -1,57 +1,60 @@
-% Physical constants
-AU = 149597870707; % [m]
-
 % Body
 switch case_body
     case 0
-        % Lambertian sphere of 1m @1 AU
-        d_body2star = AU;
+        % Lambertian sphere of 1m
         Rbody = 1; % [m] body radius
-        pBond = 0.1; % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = [];
+        albedo = 0.1; % [-] Bond albedo
+        albedo_type = 'bond';
+        albedo_filename = [];
 
     case 1        
         % Moon
-        d_body2star = AU;
         Rbody = 1.7374e6; % [m] body radius
-        pBond = 0.18;  % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = 'lroc_color_poles_2k.tif';
-        albedo_nbit = 8;
-        rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+        albedo = 0.18; % [-] Bond albedo
+        albedo_type = 'geometric';
+        albedo_filename = 'lroc_color_poles_2k.tif';
+        albedo_depth = 8;
+        albedo_mean = 0.12;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 
     case 2
         % Mars
-        d_body2star = 1.52*AU;
         Rbody = 3389.5e3; % [m] body radius
-        pBond = 0.25; % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = 'TES_Lambert_Albedo_mola.png';
-        albedo_nbit = 8;
-        rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+        albedo = 0.25; % [-] Bond albedo
+        albedo_type = 'bond';
+        albedo_filename = 'TES_Lambert_Albedo_mola.png';
+        albedo_depth = 8;
+        albedo_mean = 'albedo_geometric';                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 
     case 3
         % Bennu
-        d_body2star = 1.1264*AU;
         Rbody = 262.5; % [m] body radius
-        pBond = 0.05;   % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = [];
+        albedo = 0.05; % [-] Bond albedo
+        albedo_type = 'bond';
+        albedo_filename = [];
 
     case 10
         % Moon w/o texture
-        d_body2star = AU;
         Rbody = 1.7374e6; % [m] body radius
-        pBond = 0.18; % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = [];
+        albedo = 0.18; % [-] Bond albedo
+        albedo_type = 'bond';
+        albedo_filename = [];
 
     case 20
         % Mars w/o texture
-        d_body2star = 1.52*AU;
         Rbody = 3389.5e3; % [m] body radius
-        pBond = 0.25; % [-] Bond albedo
-        [pGeom, pNorm, pBond] = extrapolate_albedo(pBond, 'bond', reflectance_model);
-        albedo_map = [];        
+        albedo = 0.25; % [-] Bond albedo
+        albedo_type = 'bond';
+        albedo_filename = [];        
 end
+
+% Radiometry
+radiometry_model = 'lambert';          % 'lambert'
+                                        % 'lommel'
+                                        % 'area'
+                                        % 'oren': specify roughness
+                                        % 'specular': specify shineness 
+                                        % 'phong': specify shineness and lambert/specular weights
+                                        % 'hapke': TBD
+                                        radiometry_ro = 0.5;    % roughness in oren model (>> more rough)
+                                        radiometry_sh = 1;      % shineness in specular model (>> more shine)
+                                        radiometry_wl = 0.5; radiometry_ws = 2;   % weight of lambert and specular components in Phong model            
