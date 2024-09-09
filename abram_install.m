@@ -15,6 +15,7 @@ end
 
 % Path
 addpath(genpath(abram_home))
+rmpath(genpath(fullfile(abram_home,'debug')))
 
 % DISPLAY
-fprintf(['ABRAM installed. Have fun!\n'])
+fprintf(['*** ABRAM installed. Have fun! ***\n'])

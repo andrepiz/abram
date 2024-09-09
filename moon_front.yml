@@ -1,0 +1,48 @@
+star: {temperature: 5782.0, radius: 6.95E8}
+body:
+  radius: 1737400.0
+  albedo: 0.12
+  albedo_type: geometric
+  map:
+    albedo: {filename: lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}
+    displacement: {filename: ldem_4.tif, depth: 1, scale: 1000.0}
+    normal: {filename: lnormal_4.png, depth: 16.0}
+  radiometry: {model: lambert, roughness: 0.5, shineness: 1.0, weight_lambert: 0.5,
+    weight_specular: 2.0}
+camera:
+  exposure_time: 1.5E-3
+  f: 0.105
+  f_number: 4.0
+  pixel_width: 5.5E-6
+  resolution: [1024.0, 1024.0]
+  full_well_capacity: 100000.0
+  gain_analog2digital: 0.6553
+  lambda_min: [4.25E-7, 4.75E-7, 5.250000000000001E-7, 5.75E-7, 6.25E-7, 6.75E-7,
+    7.25E-7, 7.750000000000001E-7, 8.25E-7, 8.750000000000001E-7, 9.25E-7, 9.75E-7]
+  lambda_max: [4.75E-7, 5.250000000000001E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7,
+    7.750000000000001E-7, 8.25E-7, 8.750000000000001E-7, 9.25E-7, 9.75E-7, 1.0250000000000001E-6]
+  quantum_efficiency: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09,
+    0.04, 0.02]
+  transmittivity: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987,
+    0.989, 0.992]
+  lambda_interpolation: constant
+scenario:
+  distance_body2star: 1.49597870707E11
+  distance_body2cam: 1E8 #3.6695314E8
+  phase_angle: 0.5236 #0.8762980611683407
+  rollpitchyaw_cami2cam:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+  rollpitchyaw_csf2iau:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+params:
+  discretization: {method: fixed, number_points: 2E6}
+  #discretization: {method: adaptive, accuracy: medium, number_points: 500000.0}
+  sampling: {method: projective, ignore_unobservable: true}
+  integration: {method: trapz, number_points: 10.0, correct_incidence: true}
+  binning: {method: weightedsum, algorithm: area, interpolation: linear, granularity: 1.0}
+  processing: {distortion: false, diffraction: false, blooming: false, noise: false}
+  saving: {image_depth: 16, image_filename = example, image_format = png}
