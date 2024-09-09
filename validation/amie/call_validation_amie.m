@@ -1,25 +1,26 @@
-clear
-clc
-close all
+abram_install();
 
-%% ADD PATHS
-user_name = 'andpi';
-abram_path = ['C:\Users\',user_name,'\OneDrive - Politecnico di Milano\03_PhD\06_Work\3_Radiometric Model\abram'];
-addpath(genpath(abram_path));
-
+%% AMIE EXTRACTOR
+% Note: change path to yours in init.m and metakernel.tm
 init();
 
-%% AMIE
-imgfile_path = fullfile(img_path,'AMI_EE3_040819_00208_00030.IMG'); % Working
-%imgfile_path = fullfile(img_path,'04-10-28\AMI_EE3_041028_00268_00030.IMG');
-%imgfile_path = fullfile(img_path,'04-11-11\AMI_EE3_041111_00070_00018.IMG'); % Working
-%imgfile_path = fullfile(img_path,'test\AMI_EE3_040819_00169_00010.IMG'); % Working
+img_name = 'AMI_EE3_040819_00208_00030.IMG'; % Working 
+%img_name = 'AMI_EE3_041111_00070_00018.IMG'; % Working
+% img_name = 'AMI_EE3_040819_00169_00010.IMG'; % Working
+% img_name = 'AMI_EE3_041111_00008_00040.IMG';
+% img_name = 'AMI_EE3_040504_00038_00020.IMG';
+imgfile_path = fullfile(img_path, img_name); 
 
-% imgfile_path = fullfile(img_path,'04-11-11\AMI_EE3_041111_00008_00040.IMG');
-% imgfile_path = fullfile(img_path,'04-10-28\AMI_EE3_041028_00268_00030.IMG');
-[params, label, bimg, img_real] = extract_IMG(imgfile_path, metakernel_path, true);
+mfbias_path = 'mf\mfbias.mat';
+mfdc_path = 'mf\mfdc.mat';
+
+[params, label, bimg_real] = extract_IMG(imgfile_path, metakernel_path, false);
+[img_real, img_real_corrected, EC_real, EC_real_corrected] = correct_IMG(imgfile_path, metakernel_path, mfbias_path, mfdc_path, false);
 
 %% ABRAM
+flag_displacement = true;
+flag_normal = true;
+
 inputs_validation_amie();
 run_model();
 
