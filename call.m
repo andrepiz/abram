@@ -1,16 +1,20 @@
-clear
-clc
-close all
-
-user_name = 'andpi';
-abram_path = ['C:\Users\',user_name,'\OneDrive - Politecnico di Milano\03_PhD\06_Work\3_Radiometric Model\abram'];
-addpath(genpath(abram_path));
+%% INSTALL
+abram_install();
 
 %% INPUTS
-inputs();
+
+% USE YML
+filename_yml = 'example.yml';
+%filename_yml = 'moon_front.yml'; % moon in front covering most of fov
+%filename_yml = 'moon_limb.yml'; % limb of the moon at close distance
+inputs_yml();
+
+% % USE MATLAB
+% inputs();
 
 %% MODEL
 run_model();
 
 %% POSTPRO
 postpro();
+%postpro_3d();

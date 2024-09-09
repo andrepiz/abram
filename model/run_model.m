@@ -1,11 +1,15 @@
 %% ABRAM %% 
 % Astronomical Bodies Radiometric Model
 
-%-- INIT
-% BRDF functions
+fprintf('\n### RENDERING STARTED ###\n')
+
+%-- Preparation
+% Load BRDF functions
 get_brdf();
-% Process inputs and compute useful data
-prepro();
+% Discretization and sampling
+get_sectors();
+% Interpolant maps
+get_maps();
 
 %-- Power P [W] to Radiance L [W/(m2 sr)] ratio
 % Compute the coefficient relating the emitted Radiance with the reflected
@@ -24,3 +28,8 @@ get_radiance_per_bw();
 % Compute the photon count rate, the electron count rate per pixel per bandwidth in e-/s
 % Generate the digital image in DN
 get_power_per_pixel_per_bw();
+
+%-- Image [DN]
+get_image();
+
+fprintf('\n### RENDERING FINISHED ###\n')
