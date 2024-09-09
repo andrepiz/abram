@@ -1,50 +1,26 @@
-%% PARAMETERS
-% Select parameters
-reflectance_model = 'oren';          % 'lambert'
-                                        % 'lommel'
-                                        % 'area'
-                                        % 'oren': specify roughness
-                                        % 'specular': specify shineness 
-                                        % 'phong': specify shineness and lambert/specular weights
-                                        % 'hapke': TBD
-                                        roughness = 0.3;    % roughness in oren model (>> more rough)
-                                        shineness = 1;      % shineness in specular model (>> more shine)
-                                        wl = 0.5; ws = 2;   % weight of lambert and specular components in Phong model            
-adaptive_discretization = false;        % adaptive selects a number of sectors depending on the maximum projected arc
-                                        accuracy_discretization = 'low';
-                                        nsec = 2e6; % number of total pixel sectors on sphere
-integration_method = 'trapz';           % 'integral': integral2 is used
-                                        % 'trapz':    trapz is used. much faster with less than 1% of error
-                                        nint = 10;  % number of evaluation points for trapz
-ignore_unobservable = true;             % ignore sectors that fall outside the tangency circle
-method_sphere_sampling = 'projective';  % 'uniform' sampling of longitude and latitude points uniformly on the sphere
-                                        % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
-method_binning = 'weightedsum';         % 'sum' sums all the intensity values falling within the same pixel
-                                        % 'weightedsum' weighs each intensity value spreading it across the neighbouring pixels
-                                        % 'interpolation' interpolate the intensity value at the sector midpoints (NOTE: Not physically consistent!)
-                                        method_weightedsum = 'area';            % 'invsquared' Inverse squared distance with each vertex
-                                                                                % 'diff' 1 minus distance normalized over maximum distance
-                                                                                % 'area' use [1x1] boxes for computing the weights
-                                        method_interpolation = 'linear';        % 'nearest' 
-                                                                                % 'linear' 
-                                                                                % 'cubic'
-granularity = 1;                        % Down-sampling of pixels
-apply_observation_correction = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
-
 %% STAR 
 Tstar = 5782;     % [K]
 Rstar = 695000e3; % [m]
 
 %% BODY
 % Moon w/o texture
-d_body2star = params.d_body2sun;
 Rbody = 1.7374e6; % [m] body radius
-pGeom = 0.10; 
-[pGeom, pNorm, pBond] = extrapolate_albedo(pGeom, 'geometric', reflectance_model);
-%albedo_map = [];
-        albedo_map = 'lroc_color_poles_2k.tif';
-        albedo_nbit = 8;
-        rescale_albedo = true;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+radiometry_model = 'oren'; 
+radiometry_ro = 0.3;    % roughness in oren model (>> more rough)
+albedo = 0.10; 
+albedo_type = 'geometric';
+albedo_filename = 'lroc_color_poles_2k.tif';
+albedo_depth = 8;
+albedo_mean = 0.10;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+if flag_displacement
+    displacement_filename = 'ldem_4.tif';
+    displacement_depth = 1;
+    displacement_scale = 1000;
+end
+if flag_normal
+    normal_filename = 'lnormal_4.png';
+    normal_depth = 16;
+end
 
 %% CAMERA
 % From User Manual:
@@ -63,22 +39,43 @@ f = params.f;
 fNum = params.fNum;
 dpupil = f/fNum;
 muPixel = params.muPixel; % [m] pixel size
-res_px = params.res_px; % [px] Resolution in pixel
-fov = params.fov;
-fov_shape = 'square';
+res_px = [params.res_px params.res_px]; % [px] Resolution in pixel
 
 fwc = 300e3; % as stated in the user manual
-G_DA_nbit = 10;
 G_DA = params.G_DA;
 G_AD = 1/G_DA;
-G_AD_nbit = G_DA_nbit;
 
 %% SCENARIO
 tExp = params.tExp;
 alpha = params.alpha;
+d_body2star = params.d_body2sun;
 d_body2sc = params.d_body2cam;
 q_CSF2IAU = params.q_CSF2IAU;
 q_CAMI2CAM = params.q_CAMI2CAM;
     % post-process
     dcm_CAMI2CAM = quat_to_dcm(q_CAMI2CAM);
     dcm_CSF2IAU = quat_to_dcm(q_CSF2IAU);
+
+%% PARAMETERS
+% Select parameters
+discretization_method = 'fixed';
+discretization_np = 1e6;            % number of total pixel sectors on sphere
+sampling_method = 'projective'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
+sampling_ignore_unobservable = true;             % ignore sectors that fall outside the tangency circle
+integration_method = 'trapz';           
+integration_np = 10;                % number of evaluation points for trapz
+integration_correct_incidence = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
+binning_method = 'weightedsum';        % 'weightedsum' weighs each intensity value spreading it across the neighbouring pixels
+binning_algorithm = 'area';
+binning_interpolation = 'linear'; 
+binning_granularity = 1;                        % Down-sampling of pixels
+processing_distortion = false;
+processing_diffraction = false;
+processing_noise = false;
+processing_blooming = false;
+image_depth = 10;
+image_filename = 'validation_amie';
+image_format = 'png';
+
+%% PRE-PROCESSING
+prepro()
