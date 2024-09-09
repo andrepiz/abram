@@ -15,7 +15,7 @@ function [alpha, d_body2cam, d_body2sun, q_CSF2IAU, q_CAMI2CAM] = inputs_corto2m
 %   Astronomical Reference Frame - Texture is defined wrt it
 % CSF frame
 %   centered at the planet COM
-%   z-axis along normal to the sun-body-camera plane
+%   z-axis cross vector between sun direction and camera direction
 %   x-axis along sun direction
 %   y-axis completes the frame
 % CAMI frame
@@ -71,8 +71,8 @@ q_BL2CAMI = dcm_to_quat(dcm_BL2CAMI);
 
 % CAM Frame
 dcm_BL2BLCAM = quat_to_dcm(q_BL2BLCAM);
-xCAM_BL = -dcm_BL2BLCAM(1,1:3,:);  % Blender camera has x-axis opposite to x-axis of CAM
-yCAM_BL =  dcm_BL2BLCAM(2,1:3,:);
+xCAM_BL =  dcm_BL2BLCAM(1,1:3,:);  
+yCAM_BL = -dcm_BL2BLCAM(2,1:3,:); % Blender camera has y-axis opposite to x-axis of CAM
 zCAM_BL = -dcm_BL2BLCAM(3,1:3,:); % Blender camera has z-axis opposite to z-axis of CAM
 dcm_BL2CAM(1,1:3,:) = reshape(xCAM_BL, 3, []);
 dcm_BL2CAM(2,1:3,:) = reshape(yCAM_BL, 3, []);
@@ -86,17 +86,17 @@ q_CSF2IAU = quat_mult(quat_conj(q_BL2CSF), q_BL2IAU);
 if flag_debug
     ix = 1;
     R_frames2ref(:,:,1) = dcm_BL2CSF(:,:,ix)';
-    R_frames2ref(:,:,2) = dcm_BL2CAMI(:,:,ix)';
-    R_frames2ref(:,:,3) = quat_to_dcm(q_BL2CAM(:,ix))';
-    R_frames2ref(:,:,4) = quat_to_dcm(q_BL2IAU(:,ix));
-    R_frames2ref(:,:,5) = quat_to_dcm(q_BL2BLCAM(:,ix))';
-    R_pos_ref = zeros(3, 5);
+    R_frames2ref(:,:,2) = quat_to_dcm(q_BL2IAU(:,ix))';
+    R_frames2ref(:,:,3) = quat_to_dcm(q_BL2BLCAM(:,ix))';
+    R_frames2ref(:,:,4) = dcm_BL2CAMI(:,:,ix)';
+    R_frames2ref(:,:,5) = quat_to_dcm(q_BL2CAM(:,ix))';
+    R_pos_ref = 3*[zeros(3, 3), dir_body2cam_BL, dir_body2cam_BL];
     v_ref = 2*[dir_body2sun_BL(:,ix), dir_body2cam_BL(:,ix)];
     v_pos_ref = zeros(3, 2);
     fh  = figure(); grid on; hold on; axis equal
     plot_frames_and_vectors(R_frames2ref, R_pos_ref, v_ref, v_pos_ref,...
         fh,...
-        {'CSF','CAMI','CAM','IAU','BLCAM'},{'Sun','SC'});
+        {'CSF','IAU','BLCAM','CAMI','CAM'},{'Sun','SC'});
 end
 
 end

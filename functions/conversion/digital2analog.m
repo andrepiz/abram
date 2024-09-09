@@ -9,7 +9,7 @@ function img_analog = digital2analog(img_digital, G_DA, nbit_in, nbit_out)
 % 
 % G_DA is expressed in e- (how many digital numbers make an electron)
 
-img_digital_resampled = round(double(img_digital)/(2^nbit_in-1)*(2^nbit_out-1));
+img_digital_resampled = double(img_digital)/(2^nbit_in-1)*(2^nbit_out-1);
 img_analog = img_digital_resampled * G_DA;
 
 end
