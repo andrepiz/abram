@@ -1,6 +1,9 @@
 [submodule "ext/histweight"]
 	path = ext/histweight
 	url = https://github.com/andrepiz/histweight
+[submodule "ext/yamlmatlab"]
+	path = ext/yamlmatlab
+	url = https://github.com/ewiger/yamlmatlab.git
 [submodule "validation/amiextractor"]
 	path = validation/amiextractor
 	url = https://github.com/andrepiz/amiextractor
