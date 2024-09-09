@@ -1,7 +1,7 @@
 function [phi1, phi2, hphi, err] = sample_sphere_points_uniform_projection(alpha, nhphi)
-% This function sample points along the boundaries of an
+% This function sample points between the boundaries of an
 % illuminated sphere at phase angle alpha such that the projection of the
-% arcs spanned by the intervals is constant on the image plane
+% arcs spanned by the angle intervals is constant on the image plane
 
 % Procedure: 
 % solve the equation linking the consecutive angles with the projection 
