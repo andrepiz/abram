@@ -21,6 +21,9 @@ switch nbit_out
     case 16
         img_digital = uint16(img_digital_temp);
 
+    case 32
+        img_digital = uint32(img_digital_temp);
+
     otherwise
-        img_digital = round(img_digital_temp);
+        img_digital = img_digital_temp;
 end

@@ -1,6 +1,6 @@
 function [bins, counts, edges] = quantization(coords, values, limits, granularity, method)
 % Group and sum scattered data points into fixed-size quantiles with specified granularity.
-% Each point value is kept in the bearest-neighbour sector or
+% Each point value is kept in the nearest-neighbour sector or
 % interpolated with a different method
 
 coords_scaled = coords*granularity;
@@ -27,7 +27,7 @@ edges = {unique([xsubedges{:}]), unique([ysubedges{:}])};
 c = 0;
 
 % Binning
-disp('   Binning...')
+
 % fh = figure();
 % grid on; hold on
 % view([90, 90])
