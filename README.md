@@ -1,6 +1,19 @@
 # ABRAM
 _Astronomical Bodies RAdiometric Model_
 
+**Installation** 
+Clone the repository and the linked submodules by running the following git commands:
+
+`git clone https://gitlab.polimi.it/DAER/DART/abram`
+
+`git submodule init`
+
+`git submodule update`
+
+
+Then, simply run the script _call()_ to generate your first rendering.
+
+**Description**
 This tool allows to render with radiometric consistency celestial spherical objects considering any camera pointing and orientation or sun direction. The tool is based on radiometric equations and is NOT a ray tracer. An example of rendering of Mars from 74 500 km using the ISRU Mars Color Camera is shown in the following picture:
 
 ![cover](https://github.com/andrepiz/abram/assets/75851004/8163552c-7de7-4488-b037-895141902ab2)
