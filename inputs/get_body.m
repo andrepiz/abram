@@ -10,11 +10,11 @@ switch case_body
     case 1        
         % Moon
         Rbody = 1.7374e6; % [m] body radius
-        albedo = 0.18; % [-] Bond albedo
+        albedo = 0.12; % [-] geometric albedo
         albedo_type = 'geometric';
         albedo_filename = 'lroc_color_poles_2k.tif';
         albedo_depth = 8;
-        albedo_mean = 0.12;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+        albedo_mean = 0.12;                 % Rescale albedo map to return this mean
 
     case 2
         % Mars
@@ -23,28 +23,25 @@ switch case_body
         albedo_type = 'bond';
         albedo_filename = 'TES_Lambert_Albedo_mola.png';
         albedo_depth = 8;
-        albedo_mean = 'albedo_geometric';                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+        albedo_mean = 0.25;                 % Rescale albedo map to return this mean
 
     case 3
         % Bennu
         Rbody = 262.5; % [m] body radius
         albedo = 0.05; % [-] Bond albedo
         albedo_type = 'bond';
-        albedo_filename = [];
 
     case 10
         % Moon w/o texture
         Rbody = 1.7374e6; % [m] body radius
         albedo = 0.18; % [-] Bond albedo
         albedo_type = 'bond';
-        albedo_filename = [];
 
     case 20
         % Mars w/o texture
         Rbody = 3389.5e3; % [m] body radius
         albedo = 0.25; % [-] Bond albedo
-        albedo_type = 'bond';
-        albedo_filename = [];        
+        albedo_type = 'bond';  
 end
 
 % Radiometry

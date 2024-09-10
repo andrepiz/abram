@@ -7,53 +7,52 @@ Rbody = extract_struct(inputs.body, 'radius', 1.7374e6);
 albedo = extract_struct(inputs.body, 'albedo', 0.12);
 albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric');
 % MAPS
-% Albedo
-if isfield(inputs.body.map, 'albedo')
-    albedo_filename = extract_struct(inputs.body.map.albedo, 'filename', 'lroc_color_poles_2k.tif');
-    if ~isempty(albedo_filename)
-        albedo_depth = extract_struct(inputs.body.map.albedo, 'depth', 8);
-        if isempty(albedo_depth)
-            albedo_depth = 1;
+albedo_filename = [];
+displacement_filename = [];
+normal_filename = [];
+if isfield(inputs.body, 'map')
+    % Albedo
+    if isfield(inputs.body.map, 'albedo')
+        albedo_filename = extract_struct(inputs.body.map.albedo, 'filename', 'lroc_color_poles_2k.tif');
+        if ~isempty(albedo_filename)
+            albedo_depth = extract_struct(inputs.body.map.albedo, 'depth', 8);
+            if isempty(albedo_depth)
+                albedo_depth = 1;
+            end
+            albedo_mean = extract_struct(inputs.body.map.albedo, 'mean', 0.12);
+            albedo_scale = extract_struct(inputs.body.map.albedo, 'scale', []);
+            albedo_domain = extract_struct(inputs.body.map.albedo, 'domain', []);
+            albedo_gamma = extract_struct(inputs.body.map.albedo, 'gamma', []);
         end
-        albedo_mean = extract_struct(inputs.body.map.albedo, 'mean', 0.12);
-        albedo_scale = extract_struct(inputs.body.map.albedo, 'scale', []);
-        albedo_domain = extract_struct(inputs.body.map.albedo, 'domain', []);
-        albedo_gamma = extract_struct(inputs.body.map.albedo, 'gamma', []);
     end
-else
-    albedo_filename = [];
-end
-% Displacement
-if isfield(inputs.body.map, 'displacement')
-    displacement_filename = extract_struct(inputs.body.map.displacement, 'filename', 'ldem_4.tif');
-    if ~isempty(displacement_filename)
-        displacement_depth = extract_struct(inputs.body.map.displacement, 'depth', 1);
-        if isempty(displacement_depth)
-            displacement_depth = 1;
+    % Displacement
+    if isfield(inputs.body.map, 'displacement')
+        displacement_filename = extract_struct(inputs.body.map.displacement, 'filename', 'ldem_4.tif');
+        if ~isempty(displacement_filename)
+            displacement_depth = extract_struct(inputs.body.map.displacement, 'depth', 1);
+            if isempty(displacement_depth)
+                displacement_depth = 1;
+            end
+            displacement_mean = extract_struct(inputs.body.map.displacement, 'mean', []);
+            displacement_scale = extract_struct(inputs.body.map.displacement, 'scale', 1e3);
+            displacement_domain = extract_struct(inputs.body.map.displacement, 'domain', []);
+            displacement_gamma = extract_struct(inputs.body.map.displacement, 'gamma', []);
         end
-        displacement_mean = extract_struct(inputs.body.map.displacement, 'mean', []);
-        displacement_scale = extract_struct(inputs.body.map.displacement, 'scale', 1e3);
-        displacement_domain = extract_struct(inputs.body.map.displacement, 'domain', []);
-        displacement_gamma = extract_struct(inputs.body.map.displacement, 'gamma', []);
     end
-else
-    displacement_filename = [];
-end
-% Normal
-if isfield(inputs.body.map, 'normal')
-    normal_filename = extract_struct(inputs.body.map.normal, 'filename', 'ldem_4_normal.png');
-    if ~isempty(normal_filename)
-        normal_depth = extract_struct(inputs.body.map.normal, 'depth', 16);
-        if isempty(normal_depth)
-            normal_depth = 1;
+    % Normal
+    if isfield(inputs.body.map, 'normal')
+        normal_filename = extract_struct(inputs.body.map.normal, 'filename', 'ldem_4_normal.png');
+        if ~isempty(normal_filename)
+            normal_depth = extract_struct(inputs.body.map.normal, 'depth', 16);
+            if isempty(normal_depth)
+                normal_depth = 1;
+            end
+            normal_mean = extract_struct(inputs.body.map.normal, 'mean', []);
+            normal_scale = extract_struct(inputs.body.map.normal, 'scale', []);
+            normal_domain = extract_struct(inputs.body.map.normal, 'domain', []);
+            normal_gamma = extract_struct(inputs.body.map.normal, 'gamma', []);
         end
-        normal_mean = extract_struct(inputs.body.map.normal, 'mean', []);
-        normal_scale = extract_struct(inputs.body.map.normal, 'scale', []);
-        normal_domain = extract_struct(inputs.body.map.normal, 'domain', []);
-        normal_gamma = extract_struct(inputs.body.map.normal, 'gamma', []);
     end
-else
-    normal_filename = [];
 end
 % Radiometry
 radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert');
@@ -63,6 +62,7 @@ switch radiometry_model
     case 'specular'
         radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
     case 'phong'
+        radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
         radiometry_wl = extract_struct(inputs.body.radiometry, 'weight_lambert',0.5);
         radiometry_ws = extract_struct(inputs.body.radiometry, 'weight_specular',0.5);
 end
@@ -80,7 +80,6 @@ lambda_min = extract_struct(inputs.camera, 'lambda_min', (425:50:975)*1e-9);
 lambda_max = extract_struct(inputs.camera, 'lambda_max', (475:50:1025)*1e-9);
 QE = extract_struct(inputs.camera, 'quantum_efficiency', ones(1, length(lambda_min)));
 T = extract_struct(inputs.camera, 'transmittivity', ones(1, length(lambda_min)));
-lambda_interpolation = extract_struct(inputs.camera, 'lambda_interpolation', 'constant');
 noise_floor = extract_struct(inputs.camera, 'noise_floor', 1/G_AD);
 
 %% SCENE
@@ -121,5 +120,9 @@ processing_blooming = extract_struct(inputs.params.processing, 'blooming', false
 processing_noise = extract_struct(inputs.params.processing, 'noise', false);
 % Saving
 image_depth = extract_struct(inputs.params.saving, 'image_depth', 8);
-image_format = extract_struct(inputs.params.saving, 'image_format', 'png');
-image_filename = extract_struct(inputs.params.saving, 'image_filename', 'rendering');
+image_filename = [];
+if isfield(inputs.params.saving,'image_filename')
+    image_filename = extract_struct(inputs.params.saving, 'image_filename', 'rendering');
+    image_format = extract_struct(inputs.params.saving, 'image_format', 'png');
+end
+    

@@ -1,4 +1,4 @@
-cmap = 'jet'
+cmap = 'jet';
 
 %% Geometry
 R_frames2ref(:,:,1) = eye(3);
@@ -96,8 +96,8 @@ col = colorbar;
 col.Label.String = 'PF [m^2]';
 xlabel('u [px]')
 ylabel('v [px]')
-xlim([0, res_px])
-ylim([0, res_px])
+xlim([0, res_px(1)])
+ylim([0, res_px(2)])
 %title('Reflected Power PCR on image plane [W]');
 
 a1 = axes();
@@ -128,8 +128,8 @@ col.Label.String = 'PF [m^2]';
 xlabel('u [px]')
 ylabel('v [px]')
 pbaspect([1, 1, 10])
-xlim([0 res_px]) 
-ylim([0 res_px])
+xlim([0 res_px(1)]) 
+ylim([0 res_px(2)])
 
 a2 = axes(fh2);
 a2.Units = 'normalized';

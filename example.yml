@@ -1,48 +1,51 @@
-star: {temperature: 5782.0, radius: 6.95E8}
+star:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
 body:
-  radius: 1737400.0
-  albedo: 0.12
-  albedo_type: geometric
-  map:
-    albedo: {filename: lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}
-    displacement: {filename: ldem_4.tif, depth: 1, scale: 1000.0}
-    normal: {filename: lnormal_4.png, depth: 16.0}
-  radiometry: {model: lambert, roughness: 0.5, shineness: 1.0, weight_lambert: 0.5,
-    weight_specular: 2.0}
+  radius: 1737400.0          # [m]
+  albedo: 0.12               # [-]
+  albedo_type: geometric     # ['bond'/'geometric'/'normal']
+  map: 
+    albedo: {filename: lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}     # Albedo map
+    displacement: {filename: ldem_4.tif, depth: 1, scale: 1000.0}           # Displacement map (BW = -+)
+    normal: {filename: lnormal_4.png, depth: 16.0}                          # Normal map (RGB = XYZ)
+  radiometry: {model: lambert}                                                             # Lambert reflection
+  #radiometry: {model: oren, roughness: 0.5}                                               # Oren-Nayar reflection (rough surfaces)
+  #radiometry: {model: specular, shineness: 1.0}                                           # Specular reflection (shiny surfaces) 
+  #radiometry: {model: phong, shineness: 1.0, weight_lambert: 0.5, weight_specular: 2.0}   # Phong reflection (blend of Lambert and Specular)
 camera:
-  exposure_time: 1.5E-3
-  f: 0.105
-  f_number: 4.0
-  pixel_width: 5.5E-6
-  resolution: [1024.0, 1024.0]
-  full_well_capacity: 100000.0
-  gain_analog2digital: 0.6553
-  lambda_min: [4.25E-7, 4.75E-7, 5.250000000000001E-7, 5.75E-7, 6.25E-7, 6.75E-7,
-    7.25E-7, 7.750000000000001E-7, 8.25E-7, 8.750000000000001E-7, 9.25E-7, 9.75E-7]
-  lambda_max: [4.75E-7, 5.250000000000001E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7,
-    7.750000000000001E-7, 8.25E-7, 8.750000000000001E-7, 9.25E-7, 9.75E-7, 1.0250000000000001E-6]
-  quantum_efficiency: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09,
-    0.04, 0.02]
-  transmittivity: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987,
-    0.989, 0.992]
-  lambda_interpolation: constant
+  exposure_time: 1.5E-3             # [s]
+  focal_length: 0.105               # [m]
+  f_number: 4.0                     # [-]
+  pixel_width: 5.5E-6               # [m]
+  resolution: [1024.0, 1024.0]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+  lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7]    # [m] Detector wavebands lower limits
+  lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6]   # [m] Detector wavebands upper limits
+  quantum_efficiency: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09, 0.04, 0.02]                                 # [-]
+  transmittivity: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992]                         # [-]  
 scenario:
-  distance_body2star: 1.49597870707E11
-  distance_body2cam: 3.6695314E8
-  phase_angle: 0.8762980611683407
-  rollpitchyaw_cami2cam:
+  distance_body2star: 1.49597870707E11      # [m]
+  distance_body2cam: 3.6695314E8            # [m]
+  phase_angle: 0.8762980611683407           # [rad]
+  rollpitchyaw_cami2cam:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
   - [0.0]
   - [0.0]
   - [0.0]
-  rollpitchyaw_csf2iau:
+  rollpitchyaw_csf2iau:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
   - [0.0]
   - [0.0]
   - [0.0]
 params:
-  #discretization: {method: fixed, number_points: 5E5}
-  discretization: {method: adaptive, accuracy: medium}
-  sampling: {method: projective, ignore_unobservable: true}
-  integration: {method: trapz, number_points: 10.0, correct_incidence: true}
-  binning: {method: weightedsum, algorithm: area, interpolation: linear, granularity: 1.0}
-  processing: {distortion: false, diffraction: false, blooming: false, noise: false}
-  saving: {image_depth: 16, image_filename = example, image_format = png}
+  #discretization: {method: fixed, number_points: 5E5}                                  # Fixed discretization with specified number of points
+  discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with specified degree of accuracy
+  #sampling: {method: constant, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
+  sampling: {method: projective, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
+  #integration: {method: integral, correct_incidence: true}                             # Normal integration
+  integration: {method: trapz, number_points: 10.0, correct_incidence: true}            # Trapz integration with specified number of integration points (faster)
+  #binning: {method: sum, granularity: 1.0}                                             # Sum of the point values falling into the same pixel
+  binning: {method: weightedsum, algorithm: area, granularity: 1.0}                     # Weighted sum of the point values falling into the same pixel with an ['area'/'diff'/'invsquared'] algorithm
+  #binning: {method: interpolation, interpolation: linear, granularity: 1.0}            # Interpolation of the point values at each pixel with a ['linear'/'nearest'/'natural'/'cubic'] interpolation
+  processing: {distortion: false, diffraction: false, blooming: false, noise: false}    # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
+  saving: {image_depth: 16, image_filename = example, image_format = png}               # Image saving with a specified bit depth, filename and format

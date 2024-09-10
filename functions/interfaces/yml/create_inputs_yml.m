@@ -25,7 +25,7 @@ body.radiometry.weight_specular = 2;
 
 %% CAMERA
 camera.exposure_time = 200e-3;
-camera.f = 105e-3; % [m] focal length 
+camera.focal_length = 105e-3; % [m] focal length 
 camera.f_number = 4; % [-] F-number (focal length over diameter)
 camera.pixel_width = 5.5e-6; % [m] pixel size (single value: circle fov, two values: square fov)
 camera.resolution = [1024 1024]; % [px] Resolution in pixel (single value: circle fov, two values: square fov)
