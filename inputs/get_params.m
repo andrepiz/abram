@@ -31,3 +31,7 @@ processing_distortion = false;               % Apply distortion to the output im
 processing_diffraction = false;              % Apply a point-spread function to the output image
 processing_blooming = false;                 % Apply blooming effect (saturation)
 processing_noise = false;                    % Apply detector-level noises (DC, PRNU, SN, DSNU, RN)
+
+% Saving
+image_filename = 'example';
+image_format = 'png';

@@ -28,11 +28,8 @@ switch case_camera
         fwc = 80e3; 
         
         % AD Converter
-        G_DA_nbit = 8;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = G_DA_nbit;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 8;
+        G_AD = (2^image_depth-1)/fwc;
 
     case 2
 
@@ -60,11 +57,8 @@ switch case_camera
         fwc = 80e3; 
         
         % AD Converter
-        G_DA_nbit = 8;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = G_DA_nbit;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 8;
+        G_AD = (2^image_depth-1)/fwc;
 
     case 3
                 
@@ -92,12 +86,8 @@ switch case_camera
         fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
         
         % AD Converter
-        G_DA_nbit = 8;
-        %G_DA_nbit = 16;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = G_DA_nbit;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 12;
+        G_AD = (2^image_depth-1)/fwc;
 
     case 4
         %% MARS COLOR CAMERA (ISRU)
@@ -123,11 +113,8 @@ switch case_camera
         fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
         
         % AD Converter
-        G_DA_nbit = 8;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = 8;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 8;
+        G_AD = (2^image_depth-1)/fwc;
 
     case 5
                 
@@ -147,19 +134,15 @@ switch case_camera
         muPixel = 44.1e-6; % [m] pixel size (u,v)
         res_px = [1440 1440]; % [px] Resolution (u,v)
         fov = 2*atan((res_px.*muPixel/2)/f); % [rad] Field of view (u,v)
-        % f# as before
-        fNum = 50.7e-3/33.9e-3;
+        fNum = f/33.9e-3; % same pupil diameter of the aastr
         dpupil = f/fNum;
 
         % Detector
         fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
         
         % AD Converter
-        G_DA_nbit = 16;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = G_DA_nbit;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 8;
+        G_AD = (2^image_depth-1)/fwc;
 
     case 6
                 
@@ -186,10 +169,7 @@ switch case_camera
         fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf
         
         % AD Converter
-        G_DA_nbit = 8;
-        G_DA = fwc/(2^G_DA_nbit-1);
-        G_AD = 1/G_DA;
-        G_AD_nbit = G_DA_nbit;
-        noise_floor = G_DA; % assumed conservatively as equal to the DN difference
+        image_depth = 8;
+        G_AD = (2^image_depth-1)/fwc;
 end
 

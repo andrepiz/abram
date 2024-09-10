@@ -71,15 +71,3 @@ xline(1e3*tExp,'k--','LineWidth',2)
 xlabel('Time [ms]')
 ylabel('Cumulative Active Saturated Pixels [%]')
 legend('Exposure time before saturation','Exposure time used')
-
-%% SAVE IMAGE
-image_savename = [image_filename,'.',image_format];
-image_label = 1;
-while isfile(image_savename)
-    image_savename = [image_filename, num2str(image_label),'.',image_format];
-    if isempty(image_label)
-        image_label = 1;
-    end
-    image_label = image_label + 1;
-end
-imwrite(IMG, image_savename)
