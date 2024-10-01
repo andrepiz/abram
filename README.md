@@ -22,6 +22,10 @@ Several BRDFs are implemented and the user can mix them to find the more realist
 
 ![image](https://github.com/user-attachments/assets/5affe851-186d-4cd4-b9d6-60eaf67562ba)
 
+The user can provide also texture maps to increase the fidelity of the model at close range. Examples of renderings using only albedo (left), albedo + displacement (middle) and albedo + displacement + normal (right) are shown in the following: 
+
+![maps](https://github.com/user-attachments/assets/71246857-b470-411a-86f1-170953365072)
+
 ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission.
 
 ![compar](https://github.com/user-attachments/assets/f2c9e409-5b99-4dc6-af20-30b4b5f90616)
