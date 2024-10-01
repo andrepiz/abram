@@ -1,5 +1,12 @@
 cmap = 'jet';
 
+% Additional quantities
+Om_sec = Apupil*cos(ang_offpoint)./(d_sc2sec.^2);
+PF_point = PL_point ./ (pi * Rstar^2/(d_body2star^2));
+L_bw_temp(1,:,:) = L_bw;
+PL_pixel = sum(P_pixel_bw./L_bw_temp, 3);
+PF_pixel = PL_pixel ./ (pi * Rstar^2/(d_body2star^2));
+
 %% Geometry
 R_frames2ref(:,:,1) = eye(3);
 R_frames2ref(:,:,2) = dcm_CSF2IAU';
@@ -26,7 +33,6 @@ ylabel('y')
 zlabel('z')
 view([1,1,1])
 
-
 %% PL
 figure()
 grid on, hold on
@@ -45,8 +51,6 @@ ylabel('y [m]')
 zlabel('z [m]')
 
 %% Spherical angle
-Om_sec = Apupil*cos(ang_offpoint)./(d_sc2sec.^2);
-
 figure()
 grid on, hold on
 axis equal
@@ -65,8 +69,6 @@ ylabel('y [m]')
 zlabel('z [m]')
 
 %% PF
-PF_point = PL_point ./ (pi * Rstar^2/(d_body2star^2));
-
 figure()
 grid on, hold on
 axis equal
@@ -77,7 +79,7 @@ quiver3(0,0,0,ampl*dir_body2sc_CSF(1),ampl*dir_body2sc_CSF(2),ampl*dir_body2sc_C
 colormap(cmap);
 col = colorbar;
 col.Label.String = 'PF [m^2]';
-legend('IF','Sun','Observer')
+legend('PF','Sun','Observer')
 view([120, 10])
 xlabel('x [m]')
 ylabel('y [m]')
@@ -102,25 +104,19 @@ ylim([0, res_px(2)])
 
 a1 = axes();
 a1.Units = 'normalized';
-a1.Position = [200 700 200 200]/1024; % xlocation, ylocation, xsize, ysize
+a1.Position = [200 200 200 200]/1024; % xlocation, ylocation, xsize, ysize
 scatter(a1, coords(2,:), coords(1,:), [], PF_point)
 %annotation('rectangle',[400 300 20 20]/1024)
 %annotation('arrow',[.1 .2],[.1 .2])
 axis tight equal
 a1.YDir = 'reverse';
-xlim([460, 470])
-ylim([255, 265])
+xlim([515, 530])
+ylim([350, 365])
 
 %% PF binned
-L_bw_temp(1,:,:) = L_bw;
-PL_pixel = sum(P_pixel_bw./L_bw_temp, 3);
-PF_pixel = PL_pixel ./ (pi * Rstar^2/(d_body2star^2));
-%PF_img = pagetranspose(PF_pixel);
-PF_img = PF_pixel;
-
 fh2 = figure();
 grid on, hold on
-imagesc(PF_img)
+imagesc(PF_pixel)
 fh2.CurrentAxes.YDir = 'reverse';
 colormap(cmap)
 col = colorbar;
@@ -133,12 +129,13 @@ ylim([0 res_px(2)])
 
 a2 = axes(fh2);
 a2.Units = 'normalized';
-a2.Position = [200 700 200 200]/1024; % xlocation, ylocation, xsize, ysize
+a2.Position = [200 200 200 200]/1024; % xlocation, ylocation, xsize, ysize
 a2.YDir = 'reverse';
-imagesc(PF_img)
+imagesc(PF_pixel)
 %annotation('rectangle',[400 300 20 20]/1024)
 %annotation('arrow',[.1 .2],[.1 .2])
 pbaspect([1, 1, 10])
 axis equal
-xlim([460, 470])
-ylim([255, 265])
+xlim([515, 530])
+ylim([350, 365])
+

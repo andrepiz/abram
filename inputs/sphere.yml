@@ -1,0 +1,54 @@
+star:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
+body:
+  radius: 1          # [m]
+  albedo: 0.12               # [-]
+  albedo_type: geometric     # ['bond'/'geometric'/'normal']
+  map: 
+    #albedo: {filename: TES_Lambert_Albedo_mola.png, depth: 8.0, mean: 0.25}     # Albedo map
+    #displacement: {filename: ldem_4.tif, depth: 1, scale: 1000.0}           # Displacement map (BW = -+)
+    #normal: {filename: lnormal_4.png, depth: 16.0}                          # Normal map (RGB = XYZ)
+  radiometry: {model: lambert}                                                            # Lambert reflection
+  #radiometry: {model: lommel}                                                             # Lommel-Seeliger reflection
+  #radiometry: {model: area}                                                                # Area reflection
+  #radiometry: {model: oren, roughness: 0.5}                                               # Oren-Nayar reflection (rough surfaces)
+  #radiometry: {model: specular, shineness: 0.5}                                           # Specular reflection (shiny surfaces) 
+  #radiometry: {model: phong, shineness: 3, weight_lambert: 0.3, weight_specular: 0.7}   # Phong reflection (blend of Lambert and Specular)
+camera:
+  exposure_time: 0.04E-3             # [s]
+  focal_length: 0.127               # [m]
+  f_number: 2.5                     # [-]
+  pixel_width: 13.3E-6               # [m]
+  resolution: [1024.0, 1024.0]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+  lambda_min: 450E-9    # [m] Detector wavebands lower limits
+  lambda_max: 820E-9   # [m] Detector wavebands upper limits
+  quantum_efficiency: 1                                 # [-]
+  transmittivity: 1                         # [-]  
+scenario:
+  distance_body2star: 1.49597870707E11      # [m]
+  distance_body2cam: 64 #32            # [m]
+  phase_angle: 1.0472           # [rad]
+  rollpitchyaw_cami2cam:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  - [0]
+  - [0]
+  - [0]
+  rollpitchyaw_csf2iau:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
+  - [0]
+  - [0]
+  - [0]
+params:
+  discretization: {method: fixed, number_points: 2e6}                                  # Fixed discretization with specified number of points
+  #discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with specified degree of accuracy
+  #sampling: {method: projective, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
+  sampling: {method: uniform, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
+  #integration: {method: integral, correct_incidence: true}                             # Normal integration
+  integration: {method: trapz, number_points: 10.0, correct_incidence: true}            # Trapz integration with specified number of integration points (faster)
+  #gridding: {method: sum}                                                                # Sum of the point values falling into the same pixel.
+  #reconstruction: {granularity: auto, filter: bilinear, antialiasing: false}              # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
+  gridding: {method: weightedsum, algorithm: area}                                      # Sum of the point values falling into the same pixel.
+  reconstruction: {granularity: 1}                                                      # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
+  processing: {distortion: false, diffraction: false, blooming: false, noise: false}    # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
+  saving: {image_depth: 16, image_filename: sphere, image_format: png}               # Image saving with a specified bit depth, filename and format

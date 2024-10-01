@@ -1,27 +1,26 @@
+tExp_vec = tExp*logspace(-1, 2, 40);
+flag_create_gif = true;
+gif_filename = 'example.gif';
+
+%%
 [x_pixel, y_pixel] = meshgrid([1:res_px], [1:res_px]);
-
-flag_create_gif = false;
-
-tExp_vec = 1e-3*logspace(-5, -1, 40);
-ECR_img = mat2image(sum(ECR_pixel_bw, 3));
 % Maximum exposure time to avoid saturation
-ECR_img_temp = ECR_img;
-ECR_img_temp(ECR_img_temp == 0) = nan;
-tSat_img = fwc./ECR_img_temp;
+tSat_pixel = fwc./ECR_pixel;
+tSat_pixel(tSat_pixel == inf) = nan;
 
+%%
 figure('units','normalized','Position',[0.1 0.2 0.7 0.7])
-
 ax1 = subplot(1,2,1);
 grid on, hold on
 colormap('gray')
 colorbar
-clim([0, 2^G_AD_nbit-1])
+clim([0, 2^image_depth-1])
 xlabel('u [px]')
 ylabel('v [px]')
-title([num2str(G_AD_nbit),'-bit Image [DN]']);
+title([num2str(image_depth),'-bit Image [DN]']);
 pbaspect([1, 1, 10])
-xlim([0 res_px]) 
-ylim([0 res_px])
+xlim([0 res_px(1)]) 
+ylim([0 res_px(2)])
 
 ax2 = subplot(1,2,2);
 grid on, hold on
@@ -34,25 +33,25 @@ xlabel('u [px]')
 ylabel('v [px]')
 title('Pixel saturated Y/N [-]');
 pbaspect([1, 1, 10])
-xlim([0 res_px])
-ylim([0 res_px])
+xlim([0 res_px(1)])
+ylim([0 res_px(2)])
 
 if flag_create_gif
-    gif('test.gif')
+    gif(gif_filename)
 end
 
 for ix = 1:length(tExp_vec)
 
-    tExp = tExp_vec(ix);
+    tExp_plot = tExp_vec(ix);
 
-    sgtitle(['Exposure time: ', num2str(round(tExp*1e3, 7)),'ms'])
-    EC_img_plot = ECR_img*tExp;
-    IMG_plot = analog2digital(EC_img_plot, G_AD, G_AD_nbit, G_AD_nbit);
+    sgtitle(['Exposure time: ', num2str(round(tExp_plot*1e3, 7)),'ms'])
+    EC_img_plot = ECR_pixel*tExp_plot;
+    IMG_plot = analog2digital(EC_img_plot, G_AD, image_depth, image_depth);
 
-    tSat_segmentation_mask = tSat_img;
-    tSat_segmentation_mask(tExp >= tSat_img) = 1;
-    tSat_segmentation_mask(tExp < tSat_img) = 0;
-    tSat_segmentation_mask(isnan(tSat_img)) = -1;
+    tSat_segmentation_mask = tSat_pixel;
+    tSat_segmentation_mask(tExp_plot >= tSat_pixel) = 1;
+    tSat_segmentation_mask(tExp_plot < tSat_pixel) = 0;
+    tSat_segmentation_mask(isnan(tSat_pixel)) = -1;
 
     % Digital image
     subplot(ax1)
