@@ -4,9 +4,7 @@ abram_install();
 %% INPUTS
 
 % USE YML
-filename_yml = 'example.yml';
-%filename_yml = 'moon_front.yml'; % moon in front covering most of fov
-%filename_yml = 'moon_limb.yml'; % limb of the moon at close distance
+filename_yml = 'sphere.yml';
 inputs_yml();
 
 % % USE MATLAB
@@ -17,4 +15,4 @@ run_model();
 
 %% POSTPRO
 postpro();
-postpro_3d();
+% postpro_3d();

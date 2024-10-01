@@ -6,7 +6,7 @@ body:
   map:
     albedo: {filename: lroc_color_poles_8k.tif, depth: 8.0, mean: 0.12}
     displacement: {filename: ldem_16.tif, depth: 1, scale: 1000.0}
-    #normal: {filename: lnormal_16.png, depth: 16.0}
+    normal: {filename: lnormal_16.png, depth: 16.0}
   radiometry: {model: lambert, roughness: 0.5, shineness: 1.0, weight_lambert: 0.5,
     weight_specular: 2.0}
 camera:
@@ -42,6 +42,9 @@ params:
   #discretization: {method: adaptive, accuracy: medium, number_points: 500000.0}
   sampling: {method: uniform, ignore_unobservable: true}
   integration: {method: trapz, number_points: 10.0, correct_incidence: true}
-  binning: {method: weightedsum, algorithm: area, interpolation: linear, granularity: 1.0}
+  #gridding: {method: sum}                                                                # Sum of the point values falling into the same pixel.
+  #reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}              # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
+  gridding: {method: weightedsum, algorithm: area}                                      # Sum of the point values falling into the same pixel.
+  reconstruction: {granularity: 1}                                                      # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
   processing: {distortion: false, diffraction: false, blooming: false, noise: false}
-  saving: {image_depth: 16, image_filename = example, image_format = png}
+  saving: {image_depth: 16, image_filename: example, image_format: png}

@@ -38,10 +38,13 @@ scenario:
   - [0.0]
   - [0.0]
 params:
-  discretization: {method: fixed, number_points: 2E6}
+  discretization: {method: fixed, number_points: 2E7}
   #discretization: {method: adaptive, accuracy: medium, number_points: 500000.0}
   sampling: {method: projective, ignore_unobservable: true}
   integration: {method: trapz, number_points: 10.0, correct_incidence: true}
-  binning: {method: weightedsum, algorithm: area, interpolation: linear, granularity: 1.0}
+  #gridding: {method: sum}                                                                # Sum of the point values falling into the same pixel.
+  #reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}              # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
+  gridding: {method: weightedsum, algorithm: area}                                      # Sum of the point values falling into the same pixel.
+  reconstruction: {granularity: 1}                                                      # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
   processing: {distortion: false, diffraction: false, blooming: false, noise: false}
-  saving: {image_depth: 16, image_filename = example, image_format = png}
+  saving: {image_depth: 16, image_filename: example, image_format: png}
