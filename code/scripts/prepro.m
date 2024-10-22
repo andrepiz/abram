@@ -26,11 +26,11 @@ K = [f./muPixel(1) 0                res_px(1)/2 + 0.5;...
      0             f./muPixel(2)    res_px(2)/2 + 0.5;...
      0             0                1]; % [-] projection matrix
 ifov = fov./res_px; % [rad] angular extension of a pixel
-gsd = d_body2sc*muPixel/f; % [m] ground sampling distance
-bodyAngSize = atan(2*Rbody/d_body2sc); % [rad] angular size of the body
+gsd = d_body2cam*muPixel/f; % [m] ground sampling distance
+bodyAngSize = atan(2*Rbody/d_body2cam); % [rad] angular size of the body
 bodyPxSize = 2*Rbody./gsd;
 pxActive = pi*(max(bodyPxSize)/2).^2*(1+cos(alpha))/2;
-[bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(d_body2sc, Rbody);
+[bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(d_body2cam, Rbody);
 
 if ~exist('image_depth','var')
     warning('Assumed Image depth equal to 8 bits')
@@ -54,21 +54,22 @@ end
 if ~exist('dcm_CSF2IAU','var')
     dcm_CSF2IAU = euler_to_dcm(eul_CSF2IAU);
 end
-dir_body2sc_CSF = [cos(alpha); sin(alpha); 0];
-pos_body2sc_CSF = d_body2sc*dir_body2sc_CSF; % [m] Camera position wrt Body in body frame
-dir_body2sun_CSF = [1;0;0];
-pos_body2sun_CSF = d_body2star*dir_body2sun_CSF;  % [m] Sun position wrt Body in body frame
-pos_sc2body_CSF = -pos_body2sc_CSF;
+dir_body2cam_CSF = [cos(alpha); sin(alpha); 0];
+pos_body2cam_CSF = d_body2cam*dir_body2cam_CSF; % [m] Camera position wrt Body in body frame
+dir_body2star_CSF = [1;0;0];
+pos_body2star_CSF = d_body2star*dir_body2star_CSF;  % [m] Sun position wrt Body in body frame
+pos_cam2body_CSF = -pos_body2cam_CSF;
+pos_star2body_CSF = -pos_body2star_CSF;
 
-zCAMI_CSF = pos_sc2body_CSF/d_body2sc;
+zCAMI_CSF = pos_cam2body_CSF/d_body2cam;
 yCAMI_CSF = [0; 0; -1];
 xCAMI_CSF = vecnormalize(cross(yCAMI_CSF, zCAMI_CSF));
 dcm_CSF2CAMI = [xCAMI_CSF, yCAMI_CSF, zCAMI_CSF]';
 
 dcm_CSF2CAM = dcm_CAMI2CAM*dcm_CSF2CAMI;
-pos_sc2body_CAM = dcm_CSF2CAM*pos_sc2body_CSF;
+pos_cam2body_CAM = dcm_CSF2CAM*pos_cam2body_CSF;
 los_CAM = [0; 0; 1];
-ang_offpoint = acos(pos_sc2body_CAM'*los_CAM/norm(pos_sc2body_CAM));
+ang_offpoint = acos(pos_cam2body_CAM'*los_CAM/norm(pos_cam2body_CAM));
 
 % Display ancillary data
 xy_sep = '\';
@@ -88,7 +89,7 @@ disp(['   Dynamic Range: ', num2str(dnr),' dB'])
 
 disp('+++ SCENARIO +++')
 disp(['   Distance from star: ', num2str(1e-3*d_body2star),' km'])
-disp(['   Distance from camera: ', num2str(1e-3*d_body2sc),' km'])
+disp(['   Distance from camera: ', num2str(1e-3*d_body2cam),' km'])
 disp(['   Phase angle: ', num2str(rad2deg(alpha)),' deg'])
 disp(['   Off-pointing angle: ', num2str(rad2deg(ang_offpoint)),' deg'])
 disp(['   Body angular size: ', num2str(rad2deg(bodyAngSize)),' deg'])
@@ -97,6 +98,11 @@ disp(['   Body dimension: ', char(strjoin(string(bodyPxSize),xy_sep)),' px, ', .
     char(strjoin(string(1e2*bodyPxSize./res_px),xy_sep)),'% of resolution'])
 
 disp('+++ PARAMS +++')
+if general_parallelization
+    disp(['   ', general_environment,' environment, parallelized with ', num2str(general_workers), ' workers'])
+else
+    disp(['   ', general_environment,' environment, single thread'])
+end
 disp(['   ', radiometry_model,' reflection model'])
 switch gridding_method
     case 'sum'
@@ -105,6 +111,10 @@ switch gridding_method
         gridding_txt = ['sum weigthed on ',gridding_algorithm];
     case 'interpolation'
         gridding_txt = [gridding_interpolation ' interpolated'];
+    case 'shiftedsum'
+        gridding_txt = ['mean sum on ',num2str(gridding_shift),'-px shifted clouds'];
+    case 'weightedshiftedsum'
+        gridding_txt = ['weighted mean sum on ',num2str(gridding_shift),'-px shifted clouds with ',gridding_filter,' filter'];
 end
 switch reconstruction_granularity
     case 1
