@@ -84,12 +84,16 @@ noise_floor = extract_struct(inputs.camera, 'noise_floor', 1/G_AD);
 
 %% SCENE
 d_body2star = extract_struct(inputs.scenario, 'distance_body2star', 149597870707);
-d_body2sc = extract_struct(inputs.scenario, 'distance_body2cam', 366953.14e3);
+d_body2cam = extract_struct(inputs.scenario, 'distance_body2cam', 366953.14e3);
 alpha = extract_struct(inputs.scenario, 'phase_angle', rad2deg(50));
 eul_CAMI2CAM = reshape(extract_struct(inputs.scenario, 'rollpitchyaw_cami2cam', [0;0;0]), 3, 1);
 eul_CSF2IAU = reshape(extract_struct(inputs.scenario, 'rollpitchyaw_csf2iau', [0;0;0]), 3, 1);
 
 %% PARAMS
+% General
+general_environment = extract_struct(inputs.params.general, 'environment','matlab');
+general_parallelization = extract_struct(inputs.params.general, 'parallelization', false);
+general_workers = extract_struct(inputs.params.general, 'workers', 4);
 % Discretization
 discretization_method = extract_struct(inputs.params.discretization, 'method','adaptive');
 switch discretization_method
@@ -99,7 +103,7 @@ switch discretization_method
         discretization_accuracy = extract_struct(inputs.params.discretization, 'accuracy','medium');
 end
 % Sampling
-sampling_method = extract_struct(inputs.params.sampling, 'method', 'projective');
+sampling_method = extract_struct(inputs.params.sampling, 'method', 'projecteduniform');
 sampling_ignore_unobservable = extract_struct(inputs.params.sampling, 'ignore_unobservable', true);
 % Integration
 integration_method = extract_struct(inputs.params.integration, 'method','trapz');
@@ -108,10 +112,14 @@ switch integration_method
         integration_np = extract_struct(inputs.params.integration, 'number_points', 10);
 end
 integration_correct_incidence = extract_struct(inputs.params.integration, 'correct_incidence', true);
+integration_correct_reflection = extract_struct(inputs.params.integration, 'correct_reflection', true);
 % Gridding
 gridding_method = extract_struct(inputs.params.gridding, 'method', 'weightedsum');
 gridding_algorithm = extract_struct(inputs.params.gridding, 'algorithm', 'area');
 gridding_scheme = extract_struct(inputs.params.gridding, 'scheme', 'linear');
+gridding_shift = extract_struct(inputs.params.gridding, 'shift', 1);
+gridding_filter = extract_struct(inputs.params.gridding, 'filter', 'gaussian');
+% Reconstruction
 reconstruction_granularity = 1;
 if isfield(inputs.params,'reconstruction')
     % Reconstruction
