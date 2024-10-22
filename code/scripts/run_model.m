@@ -1,9 +1,11 @@
 %% ABRAM %% 
 % Astronomical Bodies Radiometric Model
 
-fprintf('\n### RENDERING STARTED ###\n')
+fprintf('\n### RENDERING STARTED ###')
 
 %-- Preparation
+% Prepare parallel pool
+get_parpool();
 % Load BRDF functions
 get_brdf();
 % Discretization and sampling
@@ -14,9 +16,7 @@ get_maps();
 %-- Power P [W] to Radiance L [W/(m2 sr)] ratio
 % Compute the coefficient relating the emitted Radiance with the reflected
 % Power for each sampled point
-get_pointCloud();
-% Compute the pixel mask of the projected point cloud of coefficients
-get_pointMatrix();
+get_matrix();
 
 %-- Radiance L [W/(m2 sr)] per bandwidth
 % Compute the emitted star radiance for each bandwidth defined by lower and
