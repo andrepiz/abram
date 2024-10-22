@@ -3,6 +3,9 @@ abram_install()
 %% Choose camera
 flag_camera = 1; % Camera 1: 50 mm, Camera 2: 25 mm
 
+%% Atmosphere reduction
+flag_account_for_atmosphere = true;
+
 %% Inputs
 inputs_validation_opensky_bfs();     
 

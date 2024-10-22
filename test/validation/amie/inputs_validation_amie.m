@@ -7,11 +7,11 @@ Rstar = 695000e3; % [m]
 Rbody = 1.7374e6; % [m] body radius
 radiometry_model = 'oren'; 
 radiometry_ro = 0.3;    % roughness in oren model (>> more rough)
-albedo = 0.10; 
+albedo = 0.1; 
 albedo_type = 'geometric';
 albedo_filename = 'lroc_color_poles_2k.tif';
 albedo_depth = 8;
-albedo_mean = 0.10;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
+albedo_mean = albedo;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 if flag_displacement
     displacement_filename = 'ldem_4.tif';
     displacement_depth = 1;
@@ -49,7 +49,7 @@ G_AD = 1/G_DA;
 tExp = params.tExp;
 alpha = params.alpha;
 d_body2star = params.d_body2sun;
-d_body2sc = params.d_body2cam;
+d_body2cam = params.d_body2cam;
 q_CSF2IAU = params.q_CSF2IAU;
 q_CAMI2CAM = params.q_CAMI2CAM;
     % post-process
@@ -58,13 +58,17 @@ q_CAMI2CAM = params.q_CAMI2CAM;
 
 %% PARAMETERS
 % Select parameters
+general_environment = 'matlab';
+general_parallelization = true;
+general_workers = 4;
 discretization_method = 'fixed';
 discretization_np = 1e6;            % number of total pixel sectors on sphere
-sampling_method = 'projective'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
+sampling_method = 'projecteduniform'; % 'projecteduniform' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
 sampling_ignore_unobservable = true;             % ignore sectors that fall outside the tangency circle
 integration_method = 'trapz';           
 integration_np = 10;                % number of evaluation points for trapz
-integration_correct_incidence = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
+integration_correct_incidence = true;    % Correct incidence angle with true incidence angle
+integration_correct_reflection = true;    % Correct reflection angle with true reflection angle
 gridding_method = 'weightedsum';        % 'weightedsum' weighs each intensity value spreading it across the neighbouring pixels
 gridding_algorithm = 'area';
 gridding_interpolation = 'linear'; 

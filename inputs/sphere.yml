@@ -40,10 +40,11 @@ scenario:
   - [0]
   - [0]
 params:
-  discretization: {method: fixed, number_points: 2e6}                                  # Fixed discretization with specified number of points
+  general: {environment: matlab, parallelization: true}                                 # Choose environment and parallelization 
+  discretization: {method: fixed, number_points: 5e6}                                  # Fixed discretization with specified number of points
   #discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with specified degree of accuracy
-  #sampling: {method: projective, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
-  sampling: {method: uniform, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
+  sampling: {method: projecteduniform, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
+  #sampling: {method: uniform, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
   #integration: {method: integral, correct_incidence: true}                             # Normal integration
   integration: {method: trapz, number_points: 10.0, correct_incidence: true}            # Trapz integration with specified number of integration points (faster)
   #gridding: {method: sum}                                                                # Sum of the point values falling into the same pixel.

@@ -36,7 +36,11 @@ dnr_bits = 11.91; % BFS-PGE-31S4M-C Sony IMX265
 ampl_DB = 15; % BFS-PGE-31S4M-C Sony IMX265
 ampl_lin = (ampl_DB/10)^10;
 G_AD = (2^dnr_bits)/fwc*ampl_lin;
-atm_red_factor = 0.7; % assumed a reduction factor caused by the atmosphere on the gain
+if flag_account_for_atmosphere
+    atm_red_factor = 0.7; % assumed a reduction factor caused by the atmosphere on the gain
+else
+    atm_red_factor = 1;
+end
 G_AD = atm_red_factor*G_AD;
 image_depth = 16;
 
@@ -46,7 +50,7 @@ d_body2star = 1*AU;
 tExp = 80e-6;
 percAreaIlluminated = 0.819; % https://www.mooncalc.org/#/43.8256,11.1334,13/2022.04.11/22:00/1/3
 alpha = acos(2*percAreaIlluminated - 1);
-d_body2sc = 378396e3;
+d_body2cam = 378396e3;
 if flag_camera == 1
     %eul_CAMI2CAM = [deg2rad(-0.44);deg2rad(0.48);deg2rad(-35)];                     % [rad] Camera euler angles off-pointing (rpy). Note that yaw is optical axis
     eul_CAMI2CAM = [deg2rad(0.44);deg2rad(-0.48);deg2rad(145)];                     % [rad] Camera euler angles off-pointing (rpy). Note that yaw is optical axis
@@ -65,13 +69,16 @@ dcm_CSF2IAU = euler_to_dcm(eul_CSF2IAU);
 
 %% PARAMETERS
 % Select parameters
+general_environment = 'matlab';
+general_parallelization = false;
 discretization_method = 'fixed';
 discretization_np = 5e5;            % number of total pixel sectors on sphere
-sampling_method = 'projective'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
+sampling_method = 'projecteduniform'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
 sampling_ignore_unobservable = true;             % ignore sectors that fall outside the tangency circle
 integration_method = 'trapz';           
 integration_np = 10;                % number of evaluation points for trapz
 integration_correct_incidence = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
+integration_correct_reflection = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
 gridding_method = 'weightedsum';        % 'weightedsum' weighs each intensity value spreading it across the neighbouring pixels
 gridding_algorithm = 'area';
 reconstruction_granularity = 1;                        % Down-sampling of pixels

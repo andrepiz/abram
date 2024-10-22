@@ -1,11 +1,14 @@
 abram_install();
 
+flag_displacement = true; % Use displacement map in ABRAM rendering
+flag_normal = true;       % Use normal map in ABRAM rendering
+
 %% AMIE EXTRACTOR
 % Note: change path to yours in init.m and metakernel.tm
 init();
 
-% img_name = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
-img_name = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
+ img_name = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
+%img_name = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
 % img_name = 'AMI_EE3_040819_00169_00010.IMG'; noise_level = 41; % Working
 %img_name = 'AMI_EE3_041028_00269_00005.IMG'; noise_level = 116; % Working
 %img_name = 'AMI_EE3_041111_00008_00040.IMG';
@@ -19,9 +22,6 @@ mfdc_path = 'mf\mfdc.mat';
 [img_real, img_real_corrected, EC_real, EC_real_corrected] = correct_IMG(imgfile_path, metakernel_path, mfbias_path, mfdc_path, false);
 
 %% ABRAM
-flag_displacement = true;
-flag_normal = true;
-
 inputs_validation_amie();
 run_model();
 

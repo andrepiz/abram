@@ -36,15 +36,16 @@ scenario:
   - [0]
   - [0]
 params:
-  discretization: {method: fixed, number_points: 1E6}                                  # Fixed discretization with specified number of points
-  #discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with specified degree of accuracy
-  #sampling: {method: constant, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
-  sampling: {method: projective, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
-  #integration: {method: integral, correct_incidence: true}                             # Normal integration
-  integration: {method: trapz, number_points: 10.0, correct_incidence: true}            # Trapz integration with specified number of integration points (faster)
-  #gridding: {method: sum}                                                                # Sum of the point values falling into the same pixel.
+  general: {environment: matlab, parallelization: true}                                 # Choose environment and parallelization 
+  discretization: {method: fixed, number_points: 1e7}                                  # Fixed discretization with specified number of points
+  discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with specified degree of accuracy
+  #sampling: {method: uniform, ignore_unobservable: true}                              # Homogenous longitude/latitude sampling
+  sampling: {method: projecteduniform, ignore_unobservable: true}                             # Projected-homogenous longitude/latitude sampling
+  #integration: {method: integral, correct_incidence: true}                                         # Normal integration
+  integration: {method: trapz, number_points: 10.0, correct_incidence: true, parallelization: true}     # Trapz integration with specified number of integration points (faster)
+  #gridding: {method: sum}                                                                          # Sum of the point values falling into the same pixel.
   #reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}              # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
-  gridding: {method: weightedsum, algorithm: area}                                      # Sum of the point values falling into the same pixel.
+  gridding: {method: weightedsum, algorithm: area, parallelization: true}               # Sum of the point values falling into the same pixel.
   reconstruction: {granularity: 1}                                                      # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
   processing: {distortion: false, diffraction: false, blooming: false, noise: false}    # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
   saving: {image_depth: 16, image_filename: mars, image_format: png}               # Image saving with a specified bit depth, filename and format
