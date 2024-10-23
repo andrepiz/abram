@@ -1,5 +1,7 @@
 **/src
 *.mat
+*.png
+*.yml
 debug
 results
 trash
