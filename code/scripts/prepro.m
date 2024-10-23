@@ -54,9 +54,13 @@ end
 if ~exist('dcm_CSF2IAU','var')
     dcm_CSF2IAU = euler_to_dcm(eul_CSF2IAU);
 end
+d_cam2body = d_body2cam;
+d_star2body = d_body2star;
 dir_body2cam_CSF = [cos(alpha); sin(alpha); 0];
+dir_cam2body_CSF = -dir_body2cam_CSF;
 pos_body2cam_CSF = d_body2cam*dir_body2cam_CSF; % [m] Camera position wrt Body in body frame
 dir_body2star_CSF = [1;0;0];
+dir_star2body_CSF = -dir_body2star_CSF;
 pos_body2star_CSF = d_body2star*dir_body2star_CSF;  % [m] Sun position wrt Body in body frame
 pos_cam2body_CSF = -pos_body2cam_CSF;
 pos_star2body_CSF = -pos_body2star_CSF;
