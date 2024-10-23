@@ -6,8 +6,6 @@ fprintf('\n### RENDERING STARTED ###')
 %-- Preparation
 % Prepare parallel pool
 get_parpool();
-% Load BRDF functions
-get_brdf();
 % Discretization and sampling
 get_sectors();
 % Interpolant maps
