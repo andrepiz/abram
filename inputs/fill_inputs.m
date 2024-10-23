@@ -26,7 +26,7 @@ if ~exist('G_AD','var')
 end
 if ~exist('noise_floor','var')
     warning('Assumed Noise Floor equal to D/A Gain')
-    noise_floor = G_DA;
+    noise_floor = 1/G_AD;
 end
 if ~exist('dcm_CAMI2CAM','var')
     dcm_CAMI2CAM = euler_to_dcm(eul_CAMI2CAM);
