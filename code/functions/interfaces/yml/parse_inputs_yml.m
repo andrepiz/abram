@@ -56,16 +56,10 @@ if isfield(inputs.body, 'map')
 end
 % Radiometry
 radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert');
-switch radiometry_model
-    case 'oren'
-        radiometry_ro = extract_struct(inputs.body.radiometry, 'roughness',0.5);
-    case 'specular'
-        radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
-    case 'phong'
-        radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
-        radiometry_wl = extract_struct(inputs.body.radiometry, 'weight_lambert',0.5);
-        radiometry_ws = extract_struct(inputs.body.radiometry, 'weight_specular',0.5);
-end
+radiometry_ro = extract_struct(inputs.body.radiometry, 'roughness',0.5);
+radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
+radiometry_wl = extract_struct(inputs.body.radiometry, 'weight_lambert',0.5);
+radiometry_ws = extract_struct(inputs.body.radiometry, 'weight_specular',0.5);
 
 %% CAMERA
 tExp = extract_struct(inputs.camera, 'exposure_time', 200e-3);
