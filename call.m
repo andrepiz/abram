@@ -2,18 +2,23 @@
 abram_install();
 
 %% INPUTS
+%filename_yml = 'example.yml';
+filename_yml = 'example_parallelized.yml'; % fast version with parallellization
 
-% USE YML
-filename_yml = 'example.yml';
-%filename_yml = 'example_parallelized.yml'; 
-inputs_yml();
+%% OOP CALL
+% Use this syntax to call the rendering functions using the
+% object-oriented architecture
 
-% % USE MATLAB
-% inputs();
+rend = abram.render(filename_yml);
+rend.rendering();
 
-%% MODEL
-run_model();
-
-%% POSTPRO
-postpro();
-% postpro_3d();
+% %% SCRIPTS CALL
+% % Use this syntax to call the rendering scripts and make available the
+% % entire workspace
+% 
+% inputs_yml();
+% run_model();
+% 
+% % Post-processing scripts
+% postpro();
+% %postpro_3d();

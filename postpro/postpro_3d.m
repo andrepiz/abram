@@ -1,13 +1,14 @@
 cmap = 'jet';
 
+% Extract 3D cloud
+PL_point = cloud.values(cloud.ixsValid)*cloud.adim;
+PL_pixel = matrix.values*matrix.adim;
+
 % Additional quantities
 d_cam2sec = vecnorm(coordsXYZ);
 pos_body2sec_CSF = pos_body2cam_CSF + dcm_CSF2CAM'*coordsXYZ;
-PL_point = PLref*valsPoint;
 Om_sec = Apupil*cos(ang_offpoint)./(d_cam2sec.^2);
 PF_point = PL_point ./ (pi * Rstar^2/(d_body2star^2));
-L_bw_temp(1,:,:) = L_bw;
-PL_pixel = sum(P_pixel_bw./L_bw_temp, 3);
 PF_pixel = PL_pixel ./ (pi * Rstar^2/(d_body2star^2));
 
 %% Geometry
@@ -34,7 +35,7 @@ cameratoolbar
 xlabel('x')
 ylabel('y')
 zlabel('z')
-view([1,1,1])
+view([10,30])
 
 %% PL
 figure()
@@ -113,8 +114,10 @@ scatter(a1, coordsRCP(2,:), coordsRCP(1,:), [], PF_point)
 %annotation('arrow',[.1 .2],[.1 .2])
 axis tight equal
 a1.YDir = 'reverse';
-xlim([515, 530])
-ylim([350, 365])
+% xlim([515, 530])
+% ylim([350, 365])
+xlim([460, 465])
+ylim([465, 470])
 
 %% PF binned
 fh2 = figure();
@@ -139,6 +142,8 @@ imagesc(PF_pixel)
 %annotation('arrow',[.1 .2],[.1 .2])
 pbaspect([1, 1, 10])
 axis equal
-xlim([515, 530])
-ylim([350, 365])
+% xlim([515, 530])
+% ylim([350, 365])
+xlim([460, 465])
+ylim([465, 470])
 

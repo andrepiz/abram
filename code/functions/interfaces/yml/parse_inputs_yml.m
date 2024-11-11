@@ -1,141 +1,122 @@
 %% STAR
-Tstar  = extract_struct(inputs.star, 'temperature', 5782);
-Rstar = extract_struct(inputs.star, 'radius', 695000e3);
+Tstar  = extract_struct(inputs.star, 'temperature', 5782, true);
+Rstar = extract_struct(inputs.star, 'radius', 695000e3, true);
+star_type = extract_struct(inputs.star, 'type', 'bb');
 
 %% BODY
-Rbody = extract_struct(inputs.body, 'radius', 1.7374e6);
-albedo = extract_struct(inputs.body, 'albedo', 0.12);
-albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric');
-% MAPS
-albedo_filename = [];
-displacement_filename = [];
-normal_filename = [];
-if isfield(inputs.body, 'map')
-    % Albedo
-    if isfield(inputs.body.map, 'albedo')
-        albedo_filename = extract_struct(inputs.body.map.albedo, 'filename', 'lroc_color_poles_2k.tif');
-        if ~isempty(albedo_filename)
-            albedo_depth = extract_struct(inputs.body.map.albedo, 'depth', 8);
-            if isempty(albedo_depth)
-                albedo_depth = 1;
-            end
-            albedo_mean = extract_struct(inputs.body.map.albedo, 'mean', 0.12);
-            albedo_scale = extract_struct(inputs.body.map.albedo, 'scale', []);
-            albedo_domain = extract_struct(inputs.body.map.albedo, 'domain', []);
-            albedo_gamma = extract_struct(inputs.body.map.albedo, 'gamma', []);
-        end
-    end
-    % Displacement
-    if isfield(inputs.body.map, 'displacement')
-        displacement_filename = extract_struct(inputs.body.map.displacement, 'filename', 'ldem_4.tif');
-        if ~isempty(displacement_filename)
-            displacement_depth = extract_struct(inputs.body.map.displacement, 'depth', 1);
-            if isempty(displacement_depth)
-                displacement_depth = 1;
-            end
-            displacement_mean = extract_struct(inputs.body.map.displacement, 'mean', []);
-            displacement_scale = extract_struct(inputs.body.map.displacement, 'scale', 1e3);
-            displacement_domain = extract_struct(inputs.body.map.displacement, 'domain', []);
-            displacement_gamma = extract_struct(inputs.body.map.displacement, 'gamma', []);
-        end
-    end
-    % Normal
-    if isfield(inputs.body.map, 'normal')
-        normal_filename = extract_struct(inputs.body.map.normal, 'filename', 'ldem_4_normal.png');
-        if ~isempty(normal_filename)
-            normal_depth = extract_struct(inputs.body.map.normal, 'depth', 16);
-            if isempty(normal_depth)
-                normal_depth = 1;
-            end
-            normal_mean = extract_struct(inputs.body.map.normal, 'mean', []);
-            normal_scale = extract_struct(inputs.body.map.normal, 'scale', []);
-            normal_domain = extract_struct(inputs.body.map.normal, 'domain', []);
-            normal_gamma = extract_struct(inputs.body.map.normal, 'gamma', []);
-        end
-    end
-end
+inputs.body = add_missing_field(inputs.body, 'maps');
+inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal'});
+
+Rbody = extract_struct(inputs.body, 'radius');
+albedo = extract_struct(inputs.body, 'albedo');
+albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
+% maps
+
+        albedo_filename = extract_struct(inputs.body.maps.albedo, 'filename',[]);
+        albedo_depth = extract_struct(inputs.body.maps.albedo, 'depth', 1);
+        albedo_mean = extract_struct(inputs.body.maps.albedo, 'mean', []);
+        albedo_scale = extract_struct(inputs.body.maps.albedo, 'scale', []);
+        albedo_domain = extract_struct(inputs.body.maps.albedo, 'domain', []);
+        albedo_gamma = extract_struct(inputs.body.maps.albedo, 'gamma', []);
+        displacement_filename = extract_struct(inputs.body.maps.displacement, 'filename',[]);
+        displacement_depth = extract_struct(inputs.body.maps.displacement, 'depth', 1);
+        displacement_mean = extract_struct(inputs.body.maps.displacement, 'mean', []);
+        displacement_scale = extract_struct(inputs.body.maps.displacement, 'scale', []);
+        displacement_domain = extract_struct(inputs.body.maps.displacement, 'domain', []);
+        displacement_gamma = extract_struct(inputs.body.maps.displacement, 'gamma', []);
+        normal_filename = extract_struct(inputs.body.maps.normal, 'filename',[]);
+        normal_depth = extract_struct(inputs.body.maps.normal, 'depth', 1);
+        normal_mean = extract_struct(inputs.body.maps.normal, 'mean', []);
+        normal_scale = extract_struct(inputs.body.maps.normal, 'scale', []);
+        normal_domain = extract_struct(inputs.body.maps.normal, 'domain', []);
+        normal_gamma = extract_struct(inputs.body.maps.normal, 'gamma', []);
 % Radiometry
-radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert');
-radiometry_ro = extract_struct(inputs.body.radiometry, 'roughness',0.5);
-radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness',1);
-radiometry_wl = extract_struct(inputs.body.radiometry, 'weight_lambert',0.5);
-radiometry_ws = extract_struct(inputs.body.radiometry, 'weight_specular',0.5);
+radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert', true);
+radiometry_ro = extract_struct(inputs.body.radiometry, 'roughness', 0.5);
+radiometry_sh = extract_struct(inputs.body.radiometry, 'shineness', 1);
+radiometry_wl = extract_struct(inputs.body.radiometry, 'weight_lambert', 0.5);
+radiometry_ws = extract_struct(inputs.body.radiometry, 'weight_specular', 0.5);
 
 %% CAMERA
-tExp = extract_struct(inputs.camera, 'exposure_time', 200e-3);
-f = extract_struct(inputs.camera, 'focal_length', 105e-3);
-fNum = extract_struct(inputs.camera, 'f_number', 4);
-muPixel = extract_struct(inputs.camera, 'pixel_width', 5.5e-6);
-res_px = extract_struct(inputs.camera, 'resolution', [1024 1024]);
-fwc = extract_struct(inputs.camera, 'full_well_capacity', 100e3);
-image_depth = extract_struct(inputs.camera,'image_depth', 8);
-G_AD = extract_struct(inputs.camera, 'gain_analog2digital', (2^image_depth-1)/fwc);
-lambda_min = extract_struct(inputs.camera, 'lambda_min', (425:50:975)*1e-9);
-lambda_max = extract_struct(inputs.camera, 'lambda_max', (475:50:1025)*1e-9);
-QE = extract_struct(inputs.camera, 'quantum_efficiency', ones(1, length(lambda_min)));
-T = extract_struct(inputs.camera, 'transmittivity', ones(1, length(lambda_min)));
+inputs.camera = add_missing_field(inputs.camera, {'quantum_efficiency','transmittance'});
+
+tExp = extract_struct(inputs.camera, 'exposure_time');
+f = extract_struct(inputs.camera, 'focal_length');
+fNum = extract_struct(inputs.camera, 'f_number');
+muPixel = extract_struct(inputs.camera, 'pixel_width');
+res_px = extract_struct(inputs.camera, 'resolution');
+fwc = extract_struct(inputs.camera, 'full_well_capacity');
+G_AD = extract_struct(inputs.camera, 'gain_analog2digital');
+% if ~isfield(inputs.camera, 'quantum_efficiency')
+%     inputs.camera.quantum_efficiency = [];
+% end
+QE_lambda_min = extract_struct(inputs.camera.quantum_efficiency, 'lambda_min', 450E-9);
+QE_lambda_max = extract_struct(inputs.camera.quantum_efficiency, 'lambda_max', 820E-9);
+QE_sampling = extract_struct(inputs.camera.quantum_efficiency, 'sampling', 'piecewise');
+QE_values = extract_struct(inputs.camera.quantum_efficiency, 'values', ones(1, length(QE_lambda_min)));
+% if ~isfield(inputs.camera, 'transmittance')
+%     inputs.camera.transmittance = [];
+% end
+T_lambda_min = extract_struct(inputs.camera.transmittance, 'lambda_min', 450E-9);
+T_lambda_max = extract_struct(inputs.camera.transmittance, 'lambda_max', 820E-9);
+T_sampling = extract_struct(inputs.camera.transmittance, 'sampling', 'piecewise');
+T_values = extract_struct(inputs.camera.transmittance, 'values', ones(1, length(T_lambda_min)));
 noise_floor = extract_struct(inputs.camera, 'noise_floor', 1/G_AD);
 
 %% SCENE
-d_body2star = extract_struct(inputs.scenario, 'distance_body2star', 149597870707);
-d_body2cam = extract_struct(inputs.scenario, 'distance_body2cam', 366953.14e3);
-alpha = extract_struct(inputs.scenario, 'phase_angle', rad2deg(50));
-eul_CAMI2CAM = reshape(extract_struct(inputs.scenario, 'rollpitchyaw_cami2cam', [0;0;0]), 3, 1);
-eul_CSF2IAU = reshape(extract_struct(inputs.scenario, 'rollpitchyaw_csf2iau', [0;0;0]), 3, 1);
+d_body2star = extract_struct(inputs.scene, 'distance_body2star');
+d_body2cam = extract_struct(inputs.scene, 'distance_body2cam');
+alpha = extract_struct(inputs.scene, 'phase_angle');
+rpy_CAMI2CAM = reshape(extract_struct(inputs.scene, 'rollpitchyaw_cami2cam', zeros(1,3), true), 3, 1);
+rpy_CSF2IAU = reshape(extract_struct(inputs.scene, 'rollpitchyaw_csf2iau', zeros(1,3), true), 3, 1);
 
-%% PARAMS
+%% SETTING
+inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','integration','gridding','reconstruction','saving'});
+
 % General
-general_environment = extract_struct(inputs.params.general, 'environment','matlab');
-general_parallelization = extract_struct(inputs.params.general, 'parallelization', false);
-general_workers = extract_struct(inputs.params.general, 'workers', 4);
+general_environment = extract_struct(inputs.setting.general, 'environment','matlab');
+general_parallelization = extract_struct(inputs.setting.general, 'parallelization', false);
+general_workers = extract_struct(inputs.setting.general, 'workers', 4);
 % Discretization
-discretization_method = extract_struct(inputs.params.discretization, 'method','adaptive');
-switch discretization_method
-    case 'fixed'
-        discretization_np = extract_struct(inputs.params.discretization, 'number_points', 1e5);
-    case 'adaptive'
-        discretization_accuracy = extract_struct(inputs.params.discretization, 'accuracy','medium');
-end
+discretization_method = extract_struct(inputs.setting.discretization, 'method','adaptive');
+discretization_np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);
+discretization_accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
 % Sampling
-sampling_method = extract_struct(inputs.params.sampling, 'method', 'projecteduniform');
-sampling_ignore_unobservable = extract_struct(inputs.params.sampling, 'ignore_unobservable', true);
+sampling_method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
+sampling_ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
 % Integration
-integration_method = extract_struct(inputs.params.integration, 'method','trapz');
-switch integration_method
-    case 'trapz'
-        integration_np = extract_struct(inputs.params.integration, 'number_points', 10);
-end
-integration_correct_incidence = extract_struct(inputs.params.integration, 'correct_incidence', true);
-integration_correct_reflection = extract_struct(inputs.params.integration, 'correct_reflection', true);
+integration_method = extract_struct(inputs.setting.integration, 'method','trapz');
+integration_np = extract_struct(inputs.setting.integration, 'number_points', 10);
+integration_correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
+integration_correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
 % Gridding
-gridding_method = extract_struct(inputs.params.gridding, 'method', 'weightedsum');
-gridding_algorithm = extract_struct(inputs.params.gridding, 'algorithm', 'area');
-gridding_scheme = extract_struct(inputs.params.gridding, 'scheme', 'linear');
-gridding_shift = extract_struct(inputs.params.gridding, 'shift', 1);
-gridding_filter = extract_struct(inputs.params.gridding, 'filter', 'gaussian');
+gridding_method = extract_struct(inputs.setting.gridding, 'method', 'weightedsum');
+gridding_algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'area');
+gridding_scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
+gridding_shift = extract_struct(inputs.setting.gridding, 'shift', 1);
+gridding_filter = extract_struct(inputs.setting.gridding, 'filter', 'gaussian');
 % Reconstruction
 reconstruction_granularity = 1;
-if isfield(inputs.params,'reconstruction')
+if isfield(inputs.setting,'reconstruction')
     % Reconstruction
-    reconstruction_granularity = extract_struct(inputs.params.reconstruction, 'granularity', 1);
+    reconstruction_granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
     if ~strcmp(reconstruction_granularity,'auto')
         if mod(reconstruction_granularity, 1) ~= 0
             error('Reconstruction granularity must be an integer equal or larger than 1')
         end
     end
-    reconstruction_filter = extract_struct(inputs.params.reconstruction, 'filter', 'lanczos3');
-    reconstruction_antialiasing = extract_struct(inputs.params.reconstruction, 'antialiasing', 'true');
+    reconstruction_filter = extract_struct(inputs.setting.reconstruction, 'filter', 'bilinear');
+    reconstruction_antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', 'true');
 end
 % Processing
-processing_distortion = extract_struct(inputs.params.processing, 'distortion', false);
-processing_diffraction = extract_struct(inputs.params.processing, 'diffraction', false);
-processing_blooming = extract_struct(inputs.params.processing, 'blooming', false);
-processing_noise = extract_struct(inputs.params.processing, 'noise', false);
+processing_distortion = extract_struct(inputs.setting.processing, 'distortion', false);
+processing_diffraction = extract_struct(inputs.setting.processing, 'diffraction', false);
+processing_blooming = extract_struct(inputs.setting.processing, 'blooming', false);
+processing_noise = extract_struct(inputs.setting.processing, 'noise', false);
 % Saving
-image_depth = extract_struct(inputs.params.saving, 'image_depth', 8);
-image_filename = [];
-if isfield(inputs.params.saving,'image_filename')
-    image_filename = extract_struct(inputs.params.saving, 'image_filename', 'rendering');
-    image_format = extract_struct(inputs.params.saving, 'image_format', 'png');
+saving_depth = extract_struct(inputs.setting.saving, 'depth', 8);
+saving_filename = [];
+if isfield(inputs.setting.saving, 'filename')
+    saving_filename = extract_struct(inputs.setting.saving, 'filename', '000000');
+    saving_format = extract_struct(inputs.setting.saving, 'format', 'png');
 end
-    

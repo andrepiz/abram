@@ -1,12 +1,13 @@
-%% Plot
-img_corto = imread(image_filepath_corto);
-img_analytical = IMG;
-
 [x_pixel, y_pixel] = meshgrid([1:res_px], [1:res_px]);
 
+img_corto = imread(image_filepath_corto);
+img_abram = IMG;
+img_depth = saving_depth;
+
+%% Plot
 figure(), 
 subplot(1,2,1)
-imshow(img_analytical)
+imshow(img_abram)
 title('ABRAM')
 
 subplot(1,2,2)
@@ -15,14 +16,14 @@ title('CORTO')
 
 %%
 figure(), grid on, hold on, 
-histogram(img_analytical(:)), 
+histogram(img_abram(:)), 
 histogram(img_corto(:))
 legend('Model','Real')
 
 %%
 [img_diff_normalized_corto_analytical, img_diff_corto_analytical, ...
 err_diff_normalized_corto_analytical, err_diff_corto_analytical] = ...
-    diff_images(img_corto, img_analytical);
+    diff_images(img_corto, img_abram);
 
 cmap = colormap('gray');
 cmap(1,:) = [0, 1, 0];
@@ -37,14 +38,14 @@ ylabel(cb, '[DN]')
 figure()
 grid on, hold on
 scatter(reshape(img_corto,[],res_px(1)*res_px(2)), ...
-    reshape(img_analytical,[],res_px(1)*res_px(2)))
-plot([1:2^image_depth],[1:2^image_depth],'r--')
+    reshape(img_abram,[],res_px(1)*res_px(2)))
+plot([1:2^img_depth],[1:2^img_depth],'r--')
 title('Scatter plot intensity')
 xlabel('Corto')
 ylabel('Analytical')
 
 % Histogram
-nh2 = 2^image_depth;
+nh2 = 2^img_depth;
 
 figure()
 hold on, grid on
@@ -52,5 +53,5 @@ histogram(img_diff_corto_analytical(:), nh2,'EdgeColor','none');
 title('Diff Images Corto-Analytical')
 xlabel('[DN]')
 set(gca,'YScale','log')
-xlim([0, 2^image_depth])
+xlim([0, 2^img_depth])
 ylabel('count')
