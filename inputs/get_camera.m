@@ -77,6 +77,7 @@ switch case_camera
         % the requirement refers to the baffle
         f = 50.7e-3;
         dpupil = 33.9e-3;
+        fNum = f/dpupil;
         muPixel = 18e-6; % [m] pixel size (u,v)
         res_px = [1024 1024]; % [px] Resolution (u,v)
         fov = 2*atan((res_px.*muPixel/2)/f); % [rad] Field of view (u,v)

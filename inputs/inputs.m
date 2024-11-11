@@ -22,7 +22,7 @@ get_body()
 % 4. MARS COLOR CAMERA (ISRU)
 % 5. TINYV3ERSE
 % 6. IDEAL
-case_camera = 6;
+case_camera = 3;
 
 get_camera();
 

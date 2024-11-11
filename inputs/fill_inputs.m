@@ -16,23 +16,17 @@ if length(res_px) == 1 && length(muPixel) == 2
     end
     res_px(2) = res_px(1);
 end
-if ~exist('image_depth','var')
-    warning('Assumed Image depth equal to 8 bits')
-    image_depth = 8;
+if ~exist('saving_depth','var')
+    warning('Assumed saving depth equal to 8 bits')
+    saving_depth = 8;
 end
 if ~exist('G_AD','var')
     warning('Assumed A/D Gain equal to (2^image_depth-1)/FWC')
-    G_AD = (2^image_depth-1)/fwc;
+    G_AD = (2^saving_depth-1)/fwc;
 end
 if ~exist('noise_floor','var')
     warning('Assumed Noise Floor equal to D/A Gain')
     noise_floor = 1/G_AD;
-end
-if ~exist('dcm_CAMI2CAM','var')
-    dcm_CAMI2CAM = euler_to_dcm(eul_CAMI2CAM);
-end
-if ~exist('dcm_CSF2IAU','var')
-    dcm_CSF2IAU = euler_to_dcm(eul_CSF2IAU);
 end
 if ~exist('radiometry_ro','var')
     radiometry_ro = 1;
@@ -60,4 +54,7 @@ if ~exist('radiometry_ws','var')
     if strcmp(radiometry_model,'phong')
         warning('Missing weight of Specular in Phong model. Assuming 0.5')
     end
+end
+if ~exist('discretization_accuracy','var')
+    discretization_accuracy = 'medium';
 end

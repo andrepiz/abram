@@ -2,6 +2,7 @@ abram_install();
 
 %% Choose scenario
 flag_scenario = 1; % Scenario 1: start of trajectory, Scenario 2: mid of trajectory, , Scenario 3: end of trajectory
+flag_albedo = true;
 flag_displacement = true;
 flag_normal = true;
 

@@ -7,12 +7,12 @@ flag_normal = true;       % Use normal map in ABRAM rendering
 % Note: change path to yours in init.m and metakernel.tm
 init();
 
- img_name = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
+img_name = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
 %img_name = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
-% img_name = 'AMI_EE3_040819_00169_00010.IMG'; noise_level = 41; % Working
+%img_name = 'AMI_EE3_040819_00169_00010.IMG'; noise_level = 41; % Working
 %img_name = 'AMI_EE3_041028_00269_00005.IMG'; noise_level = 116; % Working
 %img_name = 'AMI_EE3_041111_00008_00040.IMG';
-% img_name = 'AMI_EE3_040504_00038_00020.IMG';
+%img_name = 'AMI_EE3_040504_00038_00020.IMG';
 imgfile_path = fullfile(img_path, img_name); 
 
 mfbias_path = 'mf\mfbias.mat';
