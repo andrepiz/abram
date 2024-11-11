@@ -72,7 +72,7 @@ q_BL2CAMI = dcm_to_quat(dcm_BL2CAMI);
 % CAM Frame
 dcm_BL2BLCAM = quat_to_dcm(q_BL2BLCAM);
 xCAM_BL =  dcm_BL2BLCAM(1,1:3,:);  
-yCAM_BL = -dcm_BL2BLCAM(2,1:3,:); % Blender camera has y-axis opposite to x-axis of CAM
+yCAM_BL = -dcm_BL2BLCAM(2,1:3,:); % Blender camera has y-axis opposite to y-axis of CAM
 zCAM_BL = -dcm_BL2BLCAM(3,1:3,:); % Blender camera has z-axis opposite to z-axis of CAM
 dcm_BL2CAM(1,1:3,:) = reshape(xCAM_BL, 3, []);
 dcm_BL2CAM(2,1:3,:) = reshape(yCAM_BL, 3, []);

@@ -1,32 +1,38 @@
 %% STAR 
 Tstar = 5782;     % [K]
 Rstar = 695000e3; % [m]
+star_type = 'bb';
 
 %% BODY
 radiometry_model = 'lambert';
 Rbody = 1.7374e6; % [m] body radius
 albedo = 0.18; % [-] albedo
 albedo_type = 'bond';
-albedo_filename = 'lroc_color_poles_2k.tif';
-albedo_depth = 8;
-albedo_mean = 0.18;
+if flag_albedo
+    albedo_filename = 'moon\lroc_cgi\lroc_color_poles_2k.tif';
+    albedo_depth = 8;
+    albedo_mean = 0.18;
+end
 if flag_displacement
-    displacement_filename = 'ldem_4.tif';
+    displacement_filename = 'moon\ldem_4.tif';
     displacement_depth = 1;
     displacement_scale = 1000;
 end
 if flag_normal
-    normal_filename = 'lnormal_4.png';
+    normal_filename = 'moon\lnormal_4.png';
     normal_depth = 16;
 end
 
 %% CAMERA  
 tExp = 0.015e-3;
-lambda_min = (425:50:975)*1e-9;
-lambda_max = (475:50:1025)*1e-9;
-nbw = length(lambda_min); % number of bandwidths
-T = [0.410, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992]; % Lens transmittance per BW
-QE = [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.30, 0.23, 0.16, 0.09, 0.04, 0.02]; % Quantum Efficiency per BW
+QE_lambda_min = (425:50:975)*1e-9;
+QE_lambda_max = (475:50:1025)*1e-9;
+QE_values = [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.30, 0.23, 0.16, 0.09, 0.04, 0.02]; % Quantum Efficiency per BW
+QE_sampling = 'piecewise';
+T_lambda_min = QE_lambda_min;
+T_lambda_max = QE_lambda_max;
+T_values = [0.410, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992]; % Lens transmittance per BW
+T_sampling = 'piecewise';
 fwc = 100e3; % [e-] from https://upverter.com/datasheet/1dbf6474f4834c5ac73294b488ac44ae8ac1f8ca.pdf 
 f = 50.7e-3;
 dpupil = 33.9e-3;
@@ -35,8 +41,8 @@ muPixel = 18e-6; % [m] pixel size
 res_px = 1024; % [px] Resolution in pixel
 fov = 2*atan((res_px*muPixel/2)/f); % focal length
 fov_shape = 'circle';
-image_depth = 16;
-G_AD = (2^image_depth-1)/fwc;
+saving_depth = 16;
+G_AD = (2^saving_depth-1)/fwc;
 
 %% SCENARIO
 % Lumio trajectory from Corto inputs 
@@ -56,13 +62,13 @@ end
 %% PARAMETERS
 % Select parameters
 general_environment = 'matlab';
-general_parallelization = true;
+general_parallelization = false;
 general_workers = 6;
-discretization_method = 'constant';
-discretization_np = 4e5;            % number of total pixel sectors on sphere
+discretization_method = 'fixed';
+discretization_np = 1e6;            % number of total pixel sectors on sphere
 sampling_method = 'projecteduniform'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
 sampling_ignore_unobservable = true;             
-integration_method = 'trapz';           
+integration_method = 'constant';%'trapz';           
 integration_np = 10;                % number of evaluation points for trapz
 integration_correct_incidence = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
 integration_correct_reflection = true;    % Correct reflection angle with true reflection angle with low distance-to-radius ratios
@@ -73,9 +79,9 @@ processing_distortion = false;
 processing_diffraction = false;
 processing_noise = false;
 processing_blooming = false;
-image_filename = 'validation_corto';
-image_format = 'png';
-image_depth = 16;
+saving_filename = 'validation_corto';
+saving_format = 'png';
+saving_depth = 16;
 
 %% 
 prepro();

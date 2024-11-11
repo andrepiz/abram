@@ -1,6 +1,7 @@
 %% STAR 
 Tstar = 5782;     % [K]
 Rstar = 695000e3; % [m]
+star_type = 'bb';
 
 %% BODY
 % Moon w/o texture
@@ -9,16 +10,16 @@ radiometry_model = 'oren';
 radiometry_ro = 0.3;    % roughness in oren model (>> more rough)
 albedo = 0.1; 
 albedo_type = 'geometric';
-albedo_filename = 'lroc_color_poles_2k.tif';
+albedo_filename = 'moon\lroc_cgi\lroc_color_poles_2k.tif';
 albedo_depth = 8;
 albedo_mean = albedo;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 if flag_displacement
-    displacement_filename = 'ldem_4.tif';
+    displacement_filename = 'moon\ldem_4.tif';
     displacement_depth = 1;
     displacement_scale = 1000;
 end
 if flag_normal
-    normal_filename = 'lnormal_4.png';
+    normal_filename = 'moon\lnormal_4.png';
     normal_depth = 16;
 end
 
@@ -29,11 +30,14 @@ end
 %Efficiency >15% at 640 nm
 %Dynamic 80 dB
 
-lambda_min = params.lambda_min:100e-9:params.lambda_max-100e-9;
-lambda_max = params.lambda_min+100e-9:100e-9:params.lambda_max;
-nbw = length(lambda_min);
-T = get_amie_spectral_response(lambda_min, lambda_max);
-QE = 0.15; % as stated in the user manual
+QE_lambda_min = params.lambda_min:100e-9:params.lambda_max-100e-9;
+QE_lambda_max = params.lambda_min+100e-9:100e-9:params.lambda_max;
+QE_values = 0.15*ones(1, length(QE_lambda_max)); % as stated in the user manual
+QE_sampling = 'piecewise';
+T_lambda_min = QE_lambda_min;
+T_lambda_max = QE_lambda_max;
+T_values = get_amie_spectral_response(QE_lambda_min, QE_lambda_max);
+T_sampling = 'piecewise';
 
 f = params.f;
 fNum = params.fNum;
@@ -59,7 +63,7 @@ q_CAMI2CAM = params.q_CAMI2CAM;
 %% PARAMETERS
 % Select parameters
 general_environment = 'matlab';
-general_parallelization = true;
+general_parallelization = false;
 general_workers = 4;
 discretization_method = 'fixed';
 discretization_np = 1e6;            % number of total pixel sectors on sphere
@@ -77,9 +81,9 @@ processing_distortion = false;
 processing_diffraction = false;
 processing_noise = false;
 processing_blooming = false;
-image_depth = 10;
-image_filename = 'validation_amie';
-image_format = 'png';
+saving_depth = 10;
+saving_filename = 'validation_amie';
+saving_format = 'png';
 
 %% PRE-PROCESSING
 prepro()

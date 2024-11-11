@@ -1,7 +1,8 @@
-%% Plot
-[x_pixel, y_pixel] = meshgrid([1:res_px], [1:res_px]);
-clims = [min(EC_real,[],'all'), max(EC_real,[],'all')];
+[x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
+img_depth = saving_depth;
 
+%% Plot
+clims = [min(EC_real,[],'all'), max(EC_real,[],'all')];
 fh = figure('Units','normalized','Position',[0.1 0.1 0.8 0.7]); 
 subplot(1,2,1)
 grid on, hold on
@@ -34,7 +35,7 @@ title(['ABRAM Electron Count, t_{exp} = ', num2str(1e3*tExp),' ms'])
 %% Actual Images Comparison and diff
 figure(), 
 subplot(1,2,1)
-imshow(double(DN_pixel)/(2^image_depth-1))
+imshow(double(DN_pixel)/(2^img_depth-1))
 title('ABRAM')
 
 subplot(1,2,2)
@@ -45,7 +46,7 @@ figure()
 imshow(bimg_real/(2^8-1))
 
 figure(), grid on, hold on, 
-histogram(DN_pixel(DN_pixel>0), 2^image_depth-1,'normalization','pdf', 'EdgeColor','none'), 
+histogram(DN_pixel(DN_pixel>0), 2^img_depth-1,'normalization','pdf', 'EdgeColor','none'), 
 histogram(img_real_corrected(DN_pixel>0), 2^10-1,'normalization','pdf', 'EdgeColor','none')
 legend('Model','Real')
 title('PDF of illuminated pixels')

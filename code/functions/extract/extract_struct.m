@@ -14,11 +14,11 @@ if isfield(st, field)
     end
 else
     if ~exist('def','var')
-        error([field ,' missing!'])
+        error('abram:io',[field ,' missing!'])
     end
     val = def;
     if flag_warning
-        warning([field ,' missing, using default value ', num2str(def)])
+        warning('abram:io',[field ,' missing, using default value ', num2str(def)])
     end
 end
 

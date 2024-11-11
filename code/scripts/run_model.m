@@ -3,13 +3,15 @@
 
 fprintf('\n### RENDERING STARTED ###')
 
-%-- Preparation
+%-- LOADING DATA
 % Prepare parallel pool
 get_parpool();
-% Discretization and sampling
-get_sectors();
 % Interpolant maps
 get_maps();
+
+%-- RENDERING
+% Discretization and sampling
+get_sectors();
 
 %-- Power P [W] to Radiance L [W/(m2 sr)] ratio
 % Compute the coefficient relating the emitted Radiance with the reflected
