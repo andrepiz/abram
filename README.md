@@ -39,6 +39,9 @@ ABRAM has been validated against real space images acquired by the AMIE camera o
 
 ![compar](https://github.com/user-attachments/assets/f2c9e409-5b99-4dc6-af20-30b4b5f90616)
 
+With the addition of occlusions in v1.3, it is now possible to render close-range landing scenarios with good fidelity:
+
+https://github.com/user-attachments/assets/b41429ba-aa4a-4a96-af28-8efbf9769a4e
 
 **Publications** For more details on the implementation and capabilities, check the publications:
 
