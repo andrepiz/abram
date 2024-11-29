@@ -1,5 +1,6 @@
 *.mat
 *.png
-*.yml
-results
-trash
+*.tif
+
+# Folder
+debug/src_backup/*

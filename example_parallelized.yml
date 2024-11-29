@@ -6,9 +6,9 @@ body:
   albedo: 0.12               # [-]
   albedo_type: geometric     # ['bond'/'geometric'/'normal']
   maps: 
-    albedo: {filename: moon\lroc_cgi\lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}      # Albedo map
-    displacement: {filename: moon\ldem_4.tif, depth: 1, scale: 1000.0}                     # Displacement map (BW = -+)
-    normal: {filename: moon\lnormal_4.png, depth: 16.0}                                    # Normal map (RGB = XYZ)
+    albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}      # Albedo map
+    displacement: {filename: moon/ldem_4.tif, depth: 1, scale: 1000.0}                     # Displacement map (BW = -+)
+    normal: {filename: moon/lnormal_4.png, depth: 16.0}                                    # Normal map (RGB = XYZ)
   radiometry: {model: lambert}                                                             # Lambert reflection
   #radiometry: {model: oren, roughness: 0.5}                                                # Oren-Nayar reflection (rough surfaces)
   #radiometry: {model: specular, shineness: 1.0}                                            # Specular reflection (shiny surfaces) 

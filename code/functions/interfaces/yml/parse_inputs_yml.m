@@ -11,25 +11,24 @@ Rbody = extract_struct(inputs.body, 'radius');
 albedo = extract_struct(inputs.body, 'albedo');
 albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
 % maps
-
-        albedo_filename = extract_struct(inputs.body.maps.albedo, 'filename',[]);
-        albedo_depth = extract_struct(inputs.body.maps.albedo, 'depth', 1);
-        albedo_mean = extract_struct(inputs.body.maps.albedo, 'mean', []);
-        albedo_scale = extract_struct(inputs.body.maps.albedo, 'scale', []);
-        albedo_domain = extract_struct(inputs.body.maps.albedo, 'domain', []);
-        albedo_gamma = extract_struct(inputs.body.maps.albedo, 'gamma', []);
-        displacement_filename = extract_struct(inputs.body.maps.displacement, 'filename',[]);
-        displacement_depth = extract_struct(inputs.body.maps.displacement, 'depth', 1);
-        displacement_mean = extract_struct(inputs.body.maps.displacement, 'mean', []);
-        displacement_scale = extract_struct(inputs.body.maps.displacement, 'scale', []);
-        displacement_domain = extract_struct(inputs.body.maps.displacement, 'domain', []);
-        displacement_gamma = extract_struct(inputs.body.maps.displacement, 'gamma', []);
-        normal_filename = extract_struct(inputs.body.maps.normal, 'filename',[]);
-        normal_depth = extract_struct(inputs.body.maps.normal, 'depth', 1);
-        normal_mean = extract_struct(inputs.body.maps.normal, 'mean', []);
-        normal_scale = extract_struct(inputs.body.maps.normal, 'scale', []);
-        normal_domain = extract_struct(inputs.body.maps.normal, 'domain', []);
-        normal_gamma = extract_struct(inputs.body.maps.normal, 'gamma', []);
+albedo_filename = extract_struct(inputs.body.maps.albedo, 'filename',[]);
+albedo_depth = extract_struct(inputs.body.maps.albedo, 'depth', 1);
+albedo_mean = extract_struct(inputs.body.maps.albedo, 'mean', []);
+albedo_scale = extract_struct(inputs.body.maps.albedo, 'scale', []);
+albedo_domain = extract_struct(inputs.body.maps.albedo, 'domain', []);
+albedo_gamma = extract_struct(inputs.body.maps.albedo, 'gamma', []);
+displacement_filename = extract_struct(inputs.body.maps.displacement, 'filename',[]);
+displacement_depth = extract_struct(inputs.body.maps.displacement, 'depth', 1);
+displacement_mean = extract_struct(inputs.body.maps.displacement, 'mean', []);
+displacement_scale = extract_struct(inputs.body.maps.displacement, 'scale', []);
+displacement_domain = extract_struct(inputs.body.maps.displacement, 'domain', []);
+displacement_gamma = extract_struct(inputs.body.maps.displacement, 'gamma', []);
+normal_filename = extract_struct(inputs.body.maps.normal, 'filename',[]);
+normal_depth = extract_struct(inputs.body.maps.normal, 'depth', 1);
+normal_mean = extract_struct(inputs.body.maps.normal, 'mean', []);
+normal_scale = extract_struct(inputs.body.maps.normal, 'scale', []);
+normal_domain = extract_struct(inputs.body.maps.normal, 'domain', []);
+normal_gamma = extract_struct(inputs.body.maps.normal, 'gamma', []);
 % Radiometry
 radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert', true);
 radiometry_ro = extract_struct(inputs.body.radiometry, 'roughness', 0.5);
@@ -47,16 +46,10 @@ muPixel = extract_struct(inputs.camera, 'pixel_width');
 res_px = extract_struct(inputs.camera, 'resolution');
 fwc = extract_struct(inputs.camera, 'full_well_capacity');
 G_AD = extract_struct(inputs.camera, 'gain_analog2digital');
-% if ~isfield(inputs.camera, 'quantum_efficiency')
-%     inputs.camera.quantum_efficiency = [];
-% end
 QE_lambda_min = extract_struct(inputs.camera.quantum_efficiency, 'lambda_min', 450E-9);
 QE_lambda_max = extract_struct(inputs.camera.quantum_efficiency, 'lambda_max', 820E-9);
 QE_sampling = extract_struct(inputs.camera.quantum_efficiency, 'sampling', 'piecewise');
 QE_values = extract_struct(inputs.camera.quantum_efficiency, 'values', ones(1, length(QE_lambda_min)));
-% if ~isfield(inputs.camera, 'transmittance')
-%     inputs.camera.transmittance = [];
-% end
 T_lambda_min = extract_struct(inputs.camera.transmittance, 'lambda_min', 450E-9);
 T_lambda_max = extract_struct(inputs.camera.transmittance, 'lambda_max', 820E-9);
 T_sampling = extract_struct(inputs.camera.transmittance, 'sampling', 'piecewise');
@@ -84,6 +77,9 @@ discretization_accuracy = extract_struct(inputs.setting.discretization, 'accurac
 % Sampling
 sampling_method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
 sampling_ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
+sampling_ignore_occluded = extract_struct(inputs.setting.sampling, 'ignore_occluded', true);
+sampling_occlusion_rays = extract_struct(inputs.setting.sampling, 'occlusion_rays', 10);
+sampling_occlusion_angle = extract_struct(inputs.setting.sampling, 'occlusion_angle', 'auto');
 % Integration
 integration_method = extract_struct(inputs.setting.integration, 'method','trapz');
 integration_np = extract_struct(inputs.setting.integration, 'number_points', 10);
@@ -91,23 +87,20 @@ integration_correct_incidence = extract_struct(inputs.setting.integration, 'corr
 integration_correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
 % Gridding
 gridding_method = extract_struct(inputs.setting.gridding, 'method', 'weightedsum');
+gridding_window = extract_struct(inputs.setting.gridding, 'window', 1);
 gridding_algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'area');
 gridding_scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
 gridding_shift = extract_struct(inputs.setting.gridding, 'shift', 1);
 gridding_filter = extract_struct(inputs.setting.gridding, 'filter', 'gaussian');
 % Reconstruction
-reconstruction_granularity = 1;
-if isfield(inputs.setting,'reconstruction')
-    % Reconstruction
-    reconstruction_granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
-    if ~strcmp(reconstruction_granularity,'auto')
-        if mod(reconstruction_granularity, 1) ~= 0
-            error('Reconstruction granularity must be an integer equal or larger than 1')
-        end
+reconstruction_granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
+if ~strcmp(reconstruction_granularity,'auto')
+    if mod(reconstruction_granularity, 1) ~= 0
+        error('Reconstruction granularity must be an integer equal or larger than 1')
     end
-    reconstruction_filter = extract_struct(inputs.setting.reconstruction, 'filter', 'bilinear');
-    reconstruction_antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', 'true');
 end
+reconstruction_filter = extract_struct(inputs.setting.reconstruction, 'filter', 'bilinear');
+reconstruction_antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', true);
 % Processing
 processing_distortion = extract_struct(inputs.setting.processing, 'distortion', false);
 processing_diffraction = extract_struct(inputs.setting.processing, 'diffraction', false);
@@ -115,8 +108,5 @@ processing_blooming = extract_struct(inputs.setting.processing, 'blooming', fals
 processing_noise = extract_struct(inputs.setting.processing, 'noise', false);
 % Saving
 saving_depth = extract_struct(inputs.setting.saving, 'depth', 8);
-saving_filename = [];
-if isfield(inputs.setting.saving, 'filename')
-    saving_filename = extract_struct(inputs.setting.saving, 'filename', '000000');
-    saving_format = extract_struct(inputs.setting.saving, 'format', 'png');
-end
+saving_filename = extract_struct(inputs.setting.saving, 'filename', '000000');
+saving_format = extract_struct(inputs.setting.saving, 'format', 'png');

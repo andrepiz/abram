@@ -1,7 +1,6 @@
-classdef scene
-    %SCENE Geometry of the scene
-    %   Container for the location and orientation of the light, body and
-    %   camera
+classdef scene < abram.CRenderInput
+    %SCENE Geometry of the scene. Container for the location and orientation
+    %of the light, body and camera.
 
     properties
         alpha
@@ -9,7 +8,7 @@ classdef scene
         d_body2star
     end
 
-    properties (Hidden)
+    properties
         rpy_CAMI2CAM
         rpy_CSF2IAU
     end
@@ -39,10 +38,6 @@ classdef scene
         dir_boresight_CAM = [0; 0; 1];
     end
 
-    properties (Hidden)
-        change
-    end
-    
     methods
         function obj = scene(in)
             %SCENE Construct a scene object by providing an inputs YML
@@ -68,11 +63,9 @@ classdef scene
             obj.d_body2star = extract_struct(inputs.scene,'distance_body2star');
             obj.rpy_CSF2IAU = reshape(extract_struct(inputs.scene,'rollpitchyaw_csf2iau', zeros(1, 3), true), 3, 1);
             obj.rpy_CAMI2CAM = reshape(extract_struct(inputs.scene,'rollpitchyaw_cami2cam', zeros(1, 3), true), 3, 1);
-
-            obj.change = true;
         end
 
-        %% GET %%
+        %% GETTERS
         function val = get.d_star2body(obj)
             val = -obj.d_body2star;
         end

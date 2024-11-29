@@ -55,6 +55,3 @@ if ~exist('radiometry_ws','var')
         warning('Missing weight of Specular in Phong model. Assuming 0.5')
     end
 end
-if ~exist('discretization_accuracy','var')
-    discretization_accuracy = 'medium';
-end
