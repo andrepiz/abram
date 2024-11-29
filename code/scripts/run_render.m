@@ -3,6 +3,7 @@
 abram_install()
 
 yml = 'example.yml';
+yml = 'inputs\yml\moon_front.yml';
 
 %% ---- Step-by-step
 
@@ -33,20 +34,20 @@ star = star.integrateRadiance(spectrum);
 %-- BODY
 % Create body
 body = abram.body(yml);
+% Load maps
+body = abram.body.loadMaps(body);
+% Discretize and sample
 setting = abram.render.setDiscretization(body, camera, scene, setting);
 body = abram.body.sampleSectors(body, camera, scene, setting);
 
-%-- RUN
+%-- RENDER
 matrix = abram.render.renderScene(star, body, camera, scene, setting);
 
 %--IMAGE
-image = processImage(matrix, star, camera, setting);
-saveImage(image, setting);
+image = abram.render.processImage(matrix, star, camera, setting);
+abram.render.saveImage(image, setting);
 
 %% ---- All-in-one
 
-% Parse YML inputs
+% Single command
 rend = abram.render(yml);
-
-% Rendering
-rend = rend.rendering();

@@ -2,6 +2,7 @@ abram_install();
 
 flag_displacement = true; % Use displacement map in ABRAM rendering
 flag_normal = true;       % Use normal map in ABRAM rendering
+flag_occlusions = true;   % Use occlusions
 
 %% AMIE EXTRACTOR
 % Note: change path to yours in init.m and metakernel.tm

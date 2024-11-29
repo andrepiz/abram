@@ -1,6 +1,6 @@
-classdef setting
-    %SETTINGS Render engine settings
-    %   Container for the render engine parameters
+classdef setting < abram.CRenderInput
+    %SETTINGS Render engine settings. Container for the render engine
+    %functioning parameters
 
     properties
         general                                
@@ -11,10 +11,6 @@ classdef setting
         reconstruction                  
         processing      
         saving  
-    end
-
-    properties (Hidden)
-        change
     end
     
     methods
@@ -50,6 +46,9 @@ classdef setting
             % Sampling
             sampling.method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
             sampling.ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
+            sampling.ignore_occluded = extract_struct(inputs.setting.sampling, 'ignore_occluded', true);
+            sampling.occlusion_rays = extract_struct(inputs.setting.sampling, 'occlusion_rays', 10);
+            sampling.occlusion_angle = extract_struct(inputs.setting.sampling, 'occlusion_angle', 'auto');
             % Integration
             integration.method = extract_struct(inputs.setting.integration, 'method','trapz');
             integration.np = extract_struct(inputs.setting.integration, 'number_points', 10);
@@ -57,6 +56,7 @@ classdef setting
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
             % Gridding
             gridding.method = extract_struct(inputs.setting.gridding, 'method', 'weightedsum');
+            gridding.window = extract_struct(inputs.setting.gridding, 'window', 1);
             gridding.algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'area');
             gridding.scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
             gridding.shift = extract_struct(inputs.setting.gridding, 'shift', 1);
@@ -69,7 +69,7 @@ classdef setting
                 end
             end
             reconstruction.filter = extract_struct(inputs.setting.reconstruction, 'filter', 'bilinear');
-            reconstruction.antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', 'true');
+            reconstruction.antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', true);
             % Processing
             processing.distortion = extract_struct(inputs.setting.processing, 'distortion', false);
             processing.diffraction = extract_struct(inputs.setting.processing, 'diffraction', false);
@@ -77,7 +77,7 @@ classdef setting
             processing.noise = extract_struct(inputs.setting.processing, 'noise', false);
             % Saving
             saving.depth = extract_struct(inputs.setting.saving, 'depth', 8);
-            saving.filename = extract_struct(inputs.setting.saving, 'filename','000000');
+            saving.filename = extract_struct(inputs.setting.saving, 'filename',[]);
             saving.format = extract_struct(inputs.setting.saving, 'format', 'png');
 
             obj.general = general;                    
@@ -88,8 +88,6 @@ classdef setting
             obj.reconstruction = reconstruction;            
             obj.processing = processing;
             obj.saving = saving;
-
-            obj.change = true;
         end
         
     end

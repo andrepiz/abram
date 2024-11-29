@@ -11,7 +11,3 @@
 	url = https://github.com/andrepiz/cvt.git
 	branch = develop
 	update = merge
-[submodule "histweight"]
-	path = code/lib/histweight
-	url = https://github.com/andrepiz/histweight.git
-	branch = main

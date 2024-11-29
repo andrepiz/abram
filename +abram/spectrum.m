@@ -1,7 +1,6 @@
 classdef spectrum
-    %SPECTRUM Spectral quantity
-    %   Container for the definition of values and bands of a
-    %   spectral-dependant quantity
+    %SPECTRUM Spectral quantity. Container for the definition of values and
+    %bands of a spectral-dependant quantity
 
     properties
         min

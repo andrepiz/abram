@@ -1,5 +1,5 @@
 function [L, LPCR] = black_body_radiance(temperature, lambda_min, lambda_max)
-% BLACKBODYRADIANCE Integrate the Radiance L [W/(m2*sr)] and Photon Count Rate Radiance 
+% BLACKBODYRADIANCE Compute the Radiance L [W/(m2*sr)] and Photon Count Rate Radiance 
 % LPCR [(e-/s)/(m2*sr)] of a star across each band of a spectrum.
 
 c = 299792458;      % m/s
