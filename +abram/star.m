@@ -1,6 +1,6 @@
-classdef star
-    %STAR Source of light
-    %   Container for the properties of the star
+classdef star < abram.CRenderInput
+    %STAR Source of light. Container for the properties of the star and the
+    %integrated spectrum of light.
 
     properties
         temperature
@@ -8,10 +8,6 @@ classdef star
         type
         L
         LPCR 
-    end
-
-    properties (Hidden)
-        change
     end
 
     methods
@@ -36,8 +32,6 @@ classdef star
             obj.temperature  = extract_struct(inputs.star, 'temperature', 5782, true);
             obj.Rstar = extract_struct(inputs.star, 'radius', 695000e3, true);
             obj.type = extract_struct(inputs.star, 'type', 'bb');
-
-            obj.change = true;
         end
 
         function obj = integrateRadiance(obj, spectrum)

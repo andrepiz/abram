@@ -1,6 +1,7 @@
-classdef body
-    %BODY Illuminated body
-    %   Container for the properties, location and orientation of the body
+classdef body < abram.CRenderInput
+    %BODY Target body to be imaged in the scene. Container for the 
+    %geometric/radiometric properties of the body and 
+    %for the coordinates of the sampled sectors.
 
     properties
         Rbody
@@ -16,10 +17,6 @@ classdef body
         pBond
         pNorm
         H
-    end
-
-    properties (Hidden)
-        change
     end
 
     methods
@@ -46,16 +43,14 @@ classdef body
             inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal'});
 
             % Assign properties
-            obj.Rbody = extract_struct(inputs.body, 'radius');
-            obj.albedo = extract_struct(inputs.body, 'albedo');
+            obj.Rbody       = extract_struct(inputs.body, 'radius');
+            obj.albedo      = extract_struct(inputs.body, 'albedo');
             obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
-            obj.maps = extract_struct(inputs.body, 'maps', []);
-            obj.radiometry = extract_struct(inputs.body, 'radiometry');
-
-            obj.change = true;
+            obj.maps        = extract_struct(inputs.body, 'maps', []);
+            obj.radiometry  = extract_struct(inputs.body, 'radiometry');
         end
 
-        %% GET %%
+        %% GETTERS
         function val = get.H(obj)
             % Absolute magnitude, https://cneos.jpl.nasa.gov/tools/ast_size_est.html        
             val = 5*(3.1236 - log10(2*obj.Rbody) - 0.5*log10(obj.pGeom));
@@ -70,7 +65,7 @@ classdef body
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
 
-        %% SET %%
+        %% SETTERS
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
             obj.radiometry.ro = extract_struct(in, 'roughness', []);

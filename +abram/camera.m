@@ -1,6 +1,6 @@
-classdef camera
-    %CAMERA Sensor observing the scene
-    %   Container for the properties of the camera
+classdef camera < abram.CRenderInput
+    %CAMERA Sensor observing the target body. Container for the properties 
+    %of the camera.
 
     properties
         tExp
@@ -74,18 +74,6 @@ classdef camera
                 res_px(2) = res_px(1);
             end
 
-            % % Fix QE and T spectra
-            % if isfield(inputs.camera,'quantum_efficiency')
-            %     QE = 
-            % else
-            %     QE = abram.spectrum([]);
-            % end
-            % if isfield(inputs.camera,'transmittance')
-            %     T = 
-            % else
-            %     T = abram.spectrum([]);
-            % end
-
             % Assign properties
             obj.tExp = extract_struct(inputs.camera,'exposure_time');
             obj.f = extract_struct(inputs.camera,'focal_length');
@@ -96,11 +84,9 @@ classdef camera
             obj.G_AD = extract_struct(inputs.camera,'gain_analog2digital');
             obj.QE = abram.spectrum(inputs.camera.quantum_efficiency);
             obj.T = abram.spectrum(inputs.camera.transmittance);
-            
-            obj.change = true;
         end
 
-        %% GET %%
+        %% GETTERS
         function val = get.dpupil(obj)
             val = obj.f/obj.fNum;
         end

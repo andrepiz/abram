@@ -55,6 +55,9 @@ setting.discretization.number_points = 5e5;
 
 setting.sampling.method = 'projective';
 setting.sampling.ignore_unobservable = true;
+setting.sampling.ignore_occluded = true;
+setting.sampling.occlusion_rays = 10;
+setting.sampling.occlusion_angle = 'auto';
 
 setting.integration.method = 'trapz';   
 setting.integration.number_points = 10;
@@ -64,6 +67,9 @@ setting.integration.correct_reflection = true;
 setting.gridding.method = 'weightedsum'; 
 setting.gridding.algorithm = 'area';
 setting.gridding.scheme = 'linear';
+setting.gridding.window = 1;
+setting.gridding.shift = 1;
+setting.gridding.filter = 'gaussian';
 
 setting.reconstruction.granularity = 1;
 setting.reconstruction.filter = 'bilinear';
