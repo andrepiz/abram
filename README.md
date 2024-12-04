@@ -35,9 +35,11 @@ The user can provide also texture maps to increase the fidelity of the model at 
 
 ![temp](https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc)
 
-ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission.
+ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission. Examples of real images (left) versus their rendering (right) at the same exposure time are depicted in the following pictures: 
 
-![compar](https://github.com/user-attachments/assets/f2c9e409-5b99-4dc6-af20-30b4b5f90616)
+![validation_group](https://github.com/user-attachments/assets/6acff1fa-8d92-4d34-944a-048c08c8322c)
+
+Detector noises and optical diffraction effects are not considered for the renderings. This explains the brightness differences that can be noticed in the background and the sharpness differences in the morphology. A slight geometrical shift is also present due to inaccuracies in the SPICE kernels used to retrieve the SMART-1 state.
 
 With the addition of occlusions in v1.3, it is now possible to render close-range landing scenarios with good fidelity:
 
