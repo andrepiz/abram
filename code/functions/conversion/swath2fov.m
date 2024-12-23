@@ -1,4 +1,4 @@
-function [fov, phi, err] = swath2fov(swath, distance, radius, offpoint, flag_debug)
+function [fov, phi, err] = swath2fov(swath, distance, radius, offpoint, flag_cap_tangency, flag_debug)
 %SWATH2FOV Find the required FOV to image a certain swath on a sphere of
 %given radius at given distance and off-pointing angle. phi is the
 %angle between the sphere-observer direction and the sphere-intersection
@@ -7,10 +7,12 @@ function [fov, phi, err] = swath2fov(swath, distance, radius, offpoint, flag_deb
 % - when swath is outside the tangency limit, the fov is capped to the
 %   tangency limit
 
-flag_cap_tangency = true;
-
 if ~exist('offpoint','var') 
    offpoint = 0;
+end
+
+if ~exist('flag_cap_tangency','var') 
+   flag_cap_tangency = true;
 end
 
 if ~exist('flag_debug','var') 
@@ -48,7 +50,6 @@ if all(offpoint == 0)
         % Cap the FOV to two times the tangency angle for swath larger than limits
         ixs_over_tangency = swath > swath_tangency;
         if any(ixs_over_tangency)
-            warning('Swath overcomes the tangency limit, FOV will be capped to the tangency angle')
             fov(ixs_over_tangency) = fov_tangency;
         end    
     end
