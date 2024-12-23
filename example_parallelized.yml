@@ -44,8 +44,8 @@ scene:
 setting:
   #general: {parallelization: false}                                                     # Single-thread parallelization 
   general: {parallelization: true, workers: 4}                                          # Multi-thread parallelization with specified number of workers 
-  #discretization: {method: fixed, number_points: 2e5}                                   # Fixed discretization with specified number of points
-  discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with ['high','medium','low'] degree of accuracy
+  discretization: {method: fixed, number_points: 2e5}                                   # Fixed discretization with specified number of points
+  #discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with ['high','medium','low'] degree of accuracy
   #sampling: {method: uniform}                                                           # Uniform longitude/latitude sampling
   sampling: {method: projecteduniform}                                                  # Projected-uniform longitude/latitude sampling
   #integration: {method: integral}                                                       # Normal integration (slow)
