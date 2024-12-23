@@ -2,29 +2,29 @@
 % Astronomical Bodies Radiometric Model
 abram_install()
 
-yml = 'example.yml';
-yml = 'inputs\yml\moon_front.yml';
+filename_yml = 'example.yml';
+filename_yml = 'inputs\yml\moon_front.yml';
 
 %% ---- Step-by-step
 
-inputs = yaml.ReadYaml(yml);
+inputs = yaml.ReadYaml(filename_yml);
 
 %-- SETTING
 % Create setting
-setting = abram.setting(yml);
+setting = abram.setting(filename_yml);
 setting = abram.render.getParPool(setting);
 
 %-- SCENE
 % Create scene
-scene = abram.scene(yml);
+scene = abram.scene(filename_yml);
 
 %-- STAR
 % Create star
-star = abram.star(yml);
+star = abram.star(filename_yml);
 
 %-- CAMERA
 % Create camera
-camera = abram.camera(yml);
+camera = abram.camera(filename_yml);
 % Create spectrum
 spectrum_vec = [camera.QE, camera.T];
 spectrum = spectrum_vec.merge();
@@ -33,11 +33,10 @@ star = star.integrateRadiance(spectrum);
 
 %-- BODY
 % Create body
-body = abram.body(yml);
+body = abram.body(filename_yml);
 % Load maps
 body = abram.body.loadMaps(body);
 % Discretize and sample
-setting = abram.render.setDiscretization(body, camera, scene, setting);
 body = abram.body.sampleSectors(body, camera, scene, setting);
 
 %-- RENDER
@@ -50,4 +49,4 @@ abram.render.saveImage(image, setting);
 %% ---- All-in-one
 
 % Single command
-rend = abram.render(yml);
+rend = abram.render(filename_yml);

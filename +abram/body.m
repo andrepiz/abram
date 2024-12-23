@@ -17,6 +17,18 @@ classdef body < abram.CRenderInput
         pBond
         pNorm
         H
+        % lonMin
+        % lonMax
+        % latMin
+        % latMax
+    end
+
+    properties (Hidden)
+        pixel_swath
+        tangency_angle
+        phase_angle_with_margin
+        lon_lims
+        lat_lims
     end
 
     methods
@@ -64,6 +76,18 @@ classdef body < abram.CRenderInput
         function val = get.pBond(obj)
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
+        % function val = get.lonMin(obj)
+        %     val = min(obj.sampling.lon1_CSF);
+        % end
+        % function val = get.lonMax(obj)
+        %     val = max(obj.sampling.lon2_CSF);
+        % end
+        % function val = get.latMin(obj)
+        %     val = min(obj.sampling.lat1_CSF);
+        % end
+        % function val = get.latMax(obj)
+        %     val = max(obj.sampling.lat2_CSF);
+        % end
 
         %% SETTERS
         function obj = set.radiometry(obj, in)

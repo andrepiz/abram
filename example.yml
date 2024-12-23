@@ -18,7 +18,7 @@ camera:
   focal_length: 0.105               # [m]
   f_number: 4.0                     # [-]
   pixel_width: 5.5E-6               # [m]
-  resolution: [1024.0, 1024.0]      # [px]
+  resolution: [1024.0, 1024.0]      # [px] Horizontal and vertical directions of pixel array
   full_well_capacity: 100000.0      # [e-]
   gain_analog2digital: 0.6553       # [DN/e-]
   quantum_efficiency: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits

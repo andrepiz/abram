@@ -8,7 +8,7 @@ if length(res_px) == 2 && length(muPixel) == 1
     if res_px(1) ~= res_px(2)
         warning('Non-uniform resolution, pixel set to square shape')
     end
-    muPixel(2) = muPixel(1)*res_px(2)/res_px(1);
+    muPixel(2) = muPixel(1);
 end
 if length(res_px) == 1 && length(muPixel) == 2
     if muPixel(1) ~= muPixel(2)

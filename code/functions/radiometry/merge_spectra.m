@@ -16,7 +16,7 @@ x_min = min([sp1(1,:), sp2(1,:)]);
 x_max = max([sp1(2,:), sp2(2,:)]);
 n_min = min(n1, n2);
 n_max = max(n1, n2);
-basis = linspace(x_min, x_max, n_min + 1);
+basis = linspace(x_min, x_max, n_max + 1);
 sp3(1,:) = basis(1:end-1);
 sp3(2,:) = basis(2:end);
 
@@ -27,6 +27,11 @@ xg = linspace(x_min, x_max, n_grid);
 % Set basis interpolation
 switch sampling1
     case 'piecewise'
+        sp1end(1) = sp1(2, end);
+        sp1end(2) = x_max;
+        sp1end(3) = 0;
+        sp1 = [sp1, sp1end'];   % append zero-values element at the end
+        n1 = n1 + 1;
         x1 = sp1(1,:);
         method1 = 'previous';
     case 'midpoint'
@@ -37,6 +42,11 @@ switch sampling1
 end
 switch sampling2
     case 'piecewise'
+        sp2end(1) = sp2(2,end);
+        sp2end(2) = x_max;
+        sp2end(3) = 0;
+        sp2 = [sp2, sp2end'];   % append zero-values element at the end
+        n2 = n2 + 1;
         x2 = sp2(1,:);
         method2 = 'previous';
     case 'midpoint'
@@ -64,12 +74,12 @@ end
 if n1 >= 2
     y1_interp = interp1(x1, sp1(3,:), xg, method1, 0); % Interpolate y1 to x_common
 else
-    y1_interp = sp1(3,:)*ones(1, n_grid);
+    y1_interp = sp1(3,:).*ones(1, n_grid);
 end
 if n2 >= 2
     y2_interp = interp1(x2, sp2(3,:), xg, method2, 0); % Interpolate y2 to x_common
 else
-    y2_interp = sp2(3,:)*ones(1, n_grid);
+    y2_interp = sp2(3,:).*ones(1, n_grid);
 end
 
 % Perform the product using the common grid

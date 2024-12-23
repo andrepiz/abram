@@ -27,6 +27,9 @@ classdef render
 
     properties (Dependent)
         spectrum
+        gsd
+        bodyAngSize
+        bodyPxSize
     end
 
     properties (Hidden)
@@ -36,6 +39,10 @@ classdef render
         update_sectors
         update_methods   
         update_processing
+        time_loading
+        time_sampling
+        time_rendering
+        time_processing
     end
 
     properties (Hidden, Dependent)
@@ -131,101 +138,42 @@ classdef render
         end
 
         function obj = set.star(obj, objInput)
-            % Change update flags only outside of rendering call
-            st = dbstack;
-            if ~any(strcmp({st.name}, 'render.rendering'))
-                obj.update_spectrum = true;
-                if ~isempty(obj.star)
-                    if check_equivalence(obj.star, objInput)
-                        obj.update_spectrum = false;
-                    end
-                end           
+            if ~isempty(obj.star)
+                obj.update_spectrum = update_flag_trigger(obj.star, objInput, obj.update_spectrum);
             end
             obj.star = objInput;
         end
 
         function obj = set.setting(obj, objInput)
-            % Change update flags only outside of rendering call
-            st = dbstack;
-            if ~any(strcmp({st.name}, 'render.rendering'))
-                obj.update_parpool = true;
-                obj.update_sectors = true;
-                obj.update_methods = true;
-                obj.update_processing = true;
-                if ~isempty(obj.setting)
-                    if check_equivalence(obj.setting.general, objInput.general)
-                        obj.update_parpool = false;
-                    end
-                    if check_equivalence(obj.setting.discretization, objInput.discretization) && ...
-                            check_equivalence(obj.setting.sampling, objInput.sampling)
-                        obj.update_sectors = false;
-                    end
-                    if check_equivalence(obj.setting.integration, objInput.integration) && ...
-                            check_equivalence(obj.setting.gridding, objInput.gridding) && ...
-                            check_equivalence(obj.setting.reconstruction, objInput.reconstruction)
-                        obj.update_methods = false;
-                    end
-                    if check_equivalence(obj.setting.processing, objInput.processing) && ...
-                            check_equivalence(obj.setting.saving, objInput.saving)
-                        obj.update_processing = false;
-                    end
-                end
+            if ~isempty(obj.setting)
+                obj.update_parpool = update_flag_trigger(obj.setting, objInput, obj.update_parpool, {'general'});
+                obj.update_sectors = update_flag_trigger(obj.setting, objInput, obj.update_sectors, {'discretization','sampling'});
+                obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'gridding','reconstruction'});
+                obj.update_processing = update_flag_trigger(obj.setting, objInput, obj.update_processing, {'processing','saving'});
             end
             obj.setting = objInput;
         end
 
         function obj = set.body(obj, objInput)   
-            % Change update flags only outside of rendering call
-            st = dbstack;
-            if ~any(strcmp({st.name}, 'render.rendering'))
-                obj.update_maps = true;
-                obj.update_sectors = true;
-                if ~isempty(obj.body)
-                    if check_equivalence(obj.body.maps,  objInput.maps)
-                        obj.update_maps = false;
-                    end
-                    if check_equivalence(obj.body.Rbody,  objInput.Rbody)
-                        obj.update_sectors = false;
-                    end
-                end
+            if ~isempty(obj.body)
+                obj.update_maps = update_flag_trigger(obj.body, objInput, obj.update_maps, {'maps'});
+                obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'Rbody'});
             end
             obj.body = objInput;
         end
 
         function obj = set.camera(obj, objInput)    
-            % Change update flags only outside of rendering call
-            st = dbstack;
-            if ~any(strcmp({st.name}, 'render.rendering'))
-                obj.update_spectrum = true;
-                obj.update_sectors = true;
-                obj.update_processing = true;
-                if ~isempty(obj.camera)
-                    if check_equivalence(obj.camera.QExT,  objInput.QExT)
-                        obj.update_spectrum = false;
-                    end
-                    if check_equivalence(obj.camera.fov,  objInput.fov)
-                        obj.update_sectors = false;
-                    end
-                    if check_equivalence(obj.camera.tExp,  objInput.tExp) && ...
-                            check_equivalence(obj.camera.G_AD,  objInput.G_AD) && ...
-                            ~obj.update_spectrum
-                        obj.update_processing = false;
-                    end
-                end
+            if ~isempty(obj.camera)
+                obj.update_spectrum = update_flag_trigger(obj.camera, objInput, obj.update_spectrum, {'QExT'});
+                obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
+                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
         end
 
         function obj = set.scene(obj, objInput)  
-            % Change update flags only outside of rendering call
-            st = dbstack;
-            if ~any(strcmp({st.name}, 'render.rendering'))
-                obj.update_sectors = true;
-                if ~isempty(obj.scene)
-                    if check_equivalence(obj.scene,  objInput)
-                        obj.update_sectors = false;
-                    end
-                end
+            if ~isempty(obj.scene)
+                obj.update_sectors = update_flag_trigger(obj.scene, objInput, obj.update_sectors);
             end
             obj.scene = objInput;
         end
@@ -239,31 +187,50 @@ classdef render
             res = obj.update_render || obj.update_processing;
         end
         
+        function res = get.gsd(obj)
+            % Ground sampling distance at nadir
+            res = (obj.scene.d_body2cam - obj.body.Rbody)*tan(obj.camera.ifov/2); 
+        end
+
+        function res = get.bodyAngSize(obj)
+            % Angular size of the body
+            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.Rbody);
+            res = 2*bodyBearingAngle; 
+        end
+
+        function res = get.bodyPxSize(obj)
+            % Px size of the body
+            res = 2*obj.camera.f./obj.camera.muPixel.*tan(obj.bodyAngSize/2);
+        end
+
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene
             
             fprintf('\n### RENDERING STARTED ###')
 
-            fprintf('\n+++ Loading data ...'), tic, 
+            fprintf('\n+++ Load data ...'), tic, 
             obj = obj.getParPool(); 
             obj = obj.loadMaps(); 
-            fprintf(['\n... CPU time: ', num2str(toc)])
+            obj.time_loading = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_loading)])
 
-            fprintf('\n+++ Process scene ...'), tic, 
+            fprintf('\n+++ Sampling points ...'), tic, 
             obj = obj.setSpectrum();
-            obj = obj.setDiscretization();
             obj = obj.sampleSectors();
-            fprintf(['\n... CPU time: ', num2str(toc)])
+            obj.time_sampling = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_sampling)])
 
             fprintf('\n+++ Render scene ...'), tic, 
             obj = obj.renderScene(); 
-            fprintf(['\n... CPU time: ', num2str(toc)])
+            obj.time_rendering = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_rendering)])
 
             fprintf('\n+++ Process image ...'), tic, 
             obj = obj.processImage();
             abram.render.saveImage(obj.img, obj.setting);
-            fprintf(['\n... CPU time: ', num2str(toc)])
+            obj.time_processing = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_processing)])
 
             fprintf('\n### RENDERING FINISHED ###\n')
 
@@ -303,10 +270,6 @@ classdef render
             end
         end
 
-        function obj = setDiscretization(obj)
-            obj.setting = abram.render.setDiscretization(obj.body, obj.camera, obj.scene, obj.setting);
-        end
-        
         function obj = sampleSectors(obj)
             if obj.update_sectors || ~obj.smart_calling
                 obj.body = abram.body.sampleSectors(obj.body, obj.camera, obj.scene, obj.setting);
@@ -335,4 +298,32 @@ classdef render
         end
 
     end
+
+    %% SMART CALLING
+    % methods
+    %     function update_flag = update_flag_trigger(obj, objInput, update_flag, fields)            
+    %         st = dbstack;
+    %         % Check the update only if the call does not come from
+    %         % rendering method
+    %         if ~any(strcmp({st.name}, 'render.rendering')) && ~isempty(obj) 
+    %             if ~exist('fields','var')
+    %                 % Compare the whole object
+    %                 if check_equivalence(obj,  objInput)
+    %                     % Do not update if they are equivalent and update
+    %                     % flag is not true
+    %                     update_flag = false | update_flag;    
+    %                 else
+    %                     % Update if any change is detected
+    %                     update_flag = true;
+    %                 end
+    %             else
+    %                 % Compare each field of the object
+    %                 for ix = 1:length(fields)
+    %                     field_temp = fields(ix);
+    %                     update_flag = update_trigger(obj.(field_temp), objInput.(field_temp), update_flag);
+    %                 end
+    %             end
+    %         end
+    %     end
+    % end
 end

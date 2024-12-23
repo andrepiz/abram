@@ -1,5 +1,6 @@
 %%
 cmap = 'turbo';
+image_depth = saving_depth;
 
 IMG_render_engine = imread(image_filepath_render_engine);
 image_depth_render_engine = imfinfo(image_filepath_render_engine).BitDepth;

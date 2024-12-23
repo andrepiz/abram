@@ -4,7 +4,7 @@ abram_install()
 flag_camera = 1; % Camera 1: 50 mm, Camera 2: 25 mm
 
 %% Atmosphere reduction
-flag_account_for_atmosphere = true;
+flag_account_for_atmosphere = false;
 
 %% Inputs
 inputs_validation_opensky_bfs();     
@@ -19,4 +19,4 @@ elseif flag_camera == 2
     image_filepath_real = fullfile('data','25mm.png');
 end
 postpro_validation_opensky_bfs();
-postpro_3d();
+%postpro_3d();

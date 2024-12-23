@@ -3,7 +3,7 @@ classdef scene < abram.CRenderInput
     %of the light, body and camera.
 
     properties
-        alpha
+        phase_angle
         d_body2cam
         d_body2star
     end
@@ -58,7 +58,7 @@ classdef scene < abram.CRenderInput
             end
 
             % Assign properties
-            obj.alpha = extract_struct(inputs.scene,'phase_angle');
+            obj.phase_angle = extract_struct(inputs.scene,'phase_angle');
             obj.d_body2cam = extract_struct(inputs.scene,'distance_body2cam');
             obj.d_body2star = extract_struct(inputs.scene,'distance_body2star');
             obj.rpy_CSF2IAU = reshape(extract_struct(inputs.scene,'rollpitchyaw_csf2iau', zeros(1, 3), true), 3, 1);
@@ -75,7 +75,7 @@ classdef scene < abram.CRenderInput
         end
         
         function val = get.dir_body2cam_CSF(obj)
-            val = [cos(obj.alpha); sin(obj.alpha); 0];
+            val = [cos(obj.phase_angle); sin(obj.phase_angle); 0];
         end
 
         function val = get.dir_cam2body_CSF(obj)

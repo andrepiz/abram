@@ -2,8 +2,8 @@
 abram_install();
 
 %% INPUTS
-%filename_yml = 'example.yml';
-filename_yml = 'example_parallelized.yml'; % fast version with parallellization
+filename_yml = 'example.yml';
+filename_yml = 'example_parallelized.yml';
 
 %% RENDER OBJECT
 % Perform a first rendering and save the render object
@@ -13,13 +13,20 @@ rend = abram.render(filename_yml);
 % Following renderings can be called with the rendering method
 % on the render object
 
+rend.setting.discretization.np = 1e7;
+rend.setting.gridding.window = 1;
+rend.setting.reconstruction.granularity = 1;
+rend.setting.sampling.ignore_occluded = true;
+
 % Assume a trajectory
-nt = 3;
-d_body2cam_original = rend.scene.d_body2cam;
-d_body2cam_vec = d_body2cam_original*linspace(1, 3, nt);
+phase_angle_vec = pi/2 + pi/180*[-60:2:0];
+rend.scene.rpy_CAMI2CAM = [0;0;0];
+rend.scene.rpy_CSF2IAU = [0;0;0];
 % Loop
-for ix = 1:nt
-    rend.scene.d_body2cam = d_body2cam_vec(ix);
+for ix = 1:length(phase_angle_vec)
+    rend.scene.rpy_CSF2IAU(3) = phase_angle_vec(ix);
+    rend.scene.d_body2cam = 0.95*rend.scene.d_body2cam;
+    rend.scene.phase_angle = phase_angle_vec(ix);
     rend.rendering();
 end
 
@@ -28,9 +35,9 @@ end
 % rate. If you want, de-activate this behaviour from the abram.render class.
 % For example, if we change only the exposure time, only the image is
 % re-processed.
-nt = 3;
+nt = 10;
 tExp_original = rend.camera.tExp;
-tExp_vec = tExp_original*linspace(1, 3, nt);
+tExp_vec = tExp_original*linspace(0.05, 1, nt);
 for ix = 1:nt
     rend.camera.tExp = tExp_vec(ix);
     rend.rendering();
