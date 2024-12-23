@@ -13,11 +13,6 @@ rend = abram.render(filename_yml);
 % Following renderings can be called with the rendering method
 % on the render object
 
-rend.setting.discretization.np = 1e7;
-rend.setting.gridding.window = 1;
-rend.setting.reconstruction.granularity = 1;
-rend.setting.sampling.ignore_occluded = true;
-
 % Assume a trajectory
 phase_angle_vec = pi/2 + pi/180*[-60:2:0];
 rend.scene.rpy_CAMI2CAM = [0;0;0];

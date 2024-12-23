@@ -1,4 +1,4 @@
-function [swath, phi, err] = fov2swath(fov, distance, radius, offpoint, flag_debug)
+function [swath, phi, err] = fov2swath(fov, distance, radius, offpoint, flag_cap_tangency, flag_debug)
 %FOV2SWATH Find the swath covered by a FOV on a sphere of
 %given radius at given distance with given off-pointing angle. phi is the
 %angle between the sphere-observer direction and the sphere-intersection
@@ -8,10 +8,12 @@ function [swath, phi, err] = fov2swath(fov, distance, radius, offpoint, flag_deb
 % - in case of non-zero offpointing, the swath is not symmetric with
 %   respect to phi
 
-flag_cap_tangency = true;
-
 if ~exist('offpoint','var') 
    offpoint = 0;
+end
+
+if ~exist('flag_cap_tangency','var') 
+   flag_cap_tangency = true;
 end
 
 if ~exist('flag_debug','var') 
@@ -48,7 +50,6 @@ if all(offpoint == 0)
         % angle
         ixs_over_tangency = fov > fov_tangency;
         if any(ixs_over_tangency)
-            warning('FOV overcomes the tangency limit, swath will be capped to the tangency angle')
             hs(:, ixs_over_tangency) = hs_tangency;
         end    
     else
@@ -83,8 +84,8 @@ else
     swathBrMin = fov2swath(2*abs(brMin), distance, radius, 0, false);
     
     swath(1, :) = 0.5*abs(wrapTo2Pi(swathBrMax(1,:)) - wrapTo2Pi(swathBrMin(1, :)));
-    %swath(1, swathBrMin(1,:)==0) = 0.5*abs(wrapTo2Pi(swathBrMax(1, swathBrMin(1,:)==0)));
-    %swath(1, swathBrMax(1,:)==0) = 0.5*abs(wrapTo2Pi(swathBrMin(1, swathBrMax(1,:)==0)));
+    swath(1, swathBrMin(1,:)==0) = 0.5*abs(wrapTo2Pi(swathBrMax(1, swathBrMin(1,:)==0)));
+    swath(1, swathBrMax(1,:)==0) = 0.5*abs(wrapTo2Pi(swathBrMin(1, swathBrMax(1,:)==0)));
     swath(2, :) = 0.5*abs(wrapTo2Pi(swathBrMin(2,:)) - wrapTo2Pi(swathBrMax(2, :)));
     phi = sign(offpoint).*doublePhi/2;
     % fix zero offpoint cases
