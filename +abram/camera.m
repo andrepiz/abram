@@ -12,6 +12,7 @@ classdef camera < abram.CRenderInput
         G_AD
         QE
         T
+        fov_type
     end
 
     properties (Dependent)
@@ -22,6 +23,7 @@ classdef camera < abram.CRenderInput
         dpupil
         Apupil
         fov
+        ifov
         sensorSize
         K
         G_DA
@@ -57,15 +59,17 @@ classdef camera < abram.CRenderInput
             % Fix resolution and size pixel sizes
             res_px = extract_struct(inputs.camera,'resolution');
             muPixel = extract_struct(inputs.camera,'pixel_width');
+            fov_type = 'frustum';
             if length(res_px) == 1 && length(muPixel) == 1
                 res_px(2) = res_px(1);
                 muPixel(2) = muPixel(1);
+                fov_type = 'cone';
             end
             if length(res_px) == 2 && length(muPixel) == 1
                 if res_px(1) ~= res_px(2)
                     warning('abram:camera','Non-uniform resolution, pixel set to square shape')
                 end
-                muPixel(2) = muPixel(1)*res_px(2)/res_px(1);
+                muPixel(2) = muPixel(1);
             end
             if length(res_px) == 1 && length(muPixel) == 2
                 if muPixel(1) ~= muPixel(2)
@@ -78,6 +82,7 @@ classdef camera < abram.CRenderInput
             obj.tExp = extract_struct(inputs.camera,'exposure_time');
             obj.f = extract_struct(inputs.camera,'focal_length');
             obj.fNum = extract_struct(inputs.camera,'f_number');
+            obj.fov_type = fov_type;
             obj.res_px = res_px;
             obj.muPixel = muPixel;
             obj.fwc = extract_struct(inputs.camera,'full_well_capacity');
@@ -91,10 +96,19 @@ classdef camera < abram.CRenderInput
             val = obj.f/obj.fNum;
         end
         function val = get.Apupil(obj)
-            val = pi*(obj.dpupil/2)^2; % [m^2] area of the pupil
+            % [m^2] area of the pupil
+            val = pi*(obj.dpupil/2)^2; 
         end
         function val = get.fov(obj)
-            val = 2*atan((obj.res_px.*obj.muPixel/2)/obj.f); % [rad] field of view
+            % [rad] field of view
+            switch obj.fov_type
+                case 'cone'
+                    val = 2*atan((obj.res_px(1)*obj.muPixel(1)/2)/obj.f);
+                case 'frustum'
+                    val = 2*atan((obj.res_px.*obj.muPixel/2)/obj.f); 
+                otherwise
+                    error('abram:camera','FOV shape not supported')
+            end
         end
         function val = get.cu(obj)
             val = obj.res_px(1)/2; % [px] horizontal optical center
@@ -119,6 +133,12 @@ classdef camera < abram.CRenderInput
         function val = get.QExT(obj)
             spectrum_vec = [obj.QE, obj.T];
             val = spectrum_vec.merge();   
+        end
+        function val = get.ifov(obj)
+            val = 2*atan((obj.muPixel/2)/obj.f);
+        end
+        function val = get.sensorSize(obj)
+            val = obj.res_px.*obj.muPixel;
         end
         % function val = get.dnr(obj)
         %     val = 20*log10(obj.fwc/obj.noise_floor);   % [-] dynamic range, definition

@@ -19,24 +19,26 @@ QExT = spectrum(3,:);
 % Camera
 dpupil = f/fNum;
 Apupil = pi*(dpupil/2)^2; % [m^2] area of the pupil
-fov = 2*atan((res_px.*muPixel/2)/f); % [rad] field of view
 sensorSize = muPixel.*res_px; % [m] physical dimension of the CCD array
+fov = 2*atan((res_px.*muPixel/2)/f); % [rad] field of view
+G_DA = 1/G_AD;
+dnr = 20*log10(fwc/noise_floor);   % [-] dynamic range, definition
 K = [f./muPixel(1) 0                res_px(1)/2;...
      0             f./muPixel(2)    res_px(2)/2;...
      0             0                1]; % [-] projection matrix
-ifov = fov./res_px; % [rad] angular extension of a pixel
-gsd = d_body2cam*muPixel/f; % [m] ground sampling distance
-bodyAngSize = atan(2*Rbody/d_body2cam); % [rad] angular size of the body
-bodyPxSize = 2*Rbody./gsd;
-pxActive = pi*(max(bodyPxSize)/2).^2*(1+cos(alpha))/2;
+
+% Camera-scene
+ifov = 2*atan((muPixel/2)/f); % [rad] angular extension of a pixel at nadir
+gsd = (d_body2cam - Rbody)*tan(ifov/2); % [m] ground sampling distance at nadir
 [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(d_body2cam, Rbody);
-G_DA = 1/G_AD;
-dnr = 20*log10(fwc/noise_floor);   % [-] dynamic range, definition
+bodyAngSize = 2*bodyBearingAngle; % [rad] angular size of the body
+bodyPxSize = 2*f./muPixel.*tan(bodyAngSize/2);
+pxActive = pi*(max(bodyPxSize)/2).^2*(1+cos(phase_angle))/2;
 
 % Scene
 d_cam2body = d_body2cam;
 d_star2body = d_body2star;
-dir_body2cam_CSF = [cos(alpha); sin(alpha); 0];
+dir_body2cam_CSF = [cos(phase_angle); sin(phase_angle); 0];
 dir_cam2body_CSF = -dir_body2cam_CSF;
 pos_body2cam_CSF = d_body2cam*dir_body2cam_CSF; % [m] Camera position wrt Body in body frame
 dir_body2star_CSF = [1;0;0];
@@ -48,12 +50,8 @@ zCAMI_CSF = pos_cam2body_CSF/d_body2cam;
 yCAMI_CSF = [0; 0; -1];
 xCAMI_CSF = vecnormalize(cross(yCAMI_CSF, zCAMI_CSF));
 dcm_CSF2CAMI = [xCAMI_CSF, yCAMI_CSF, zCAMI_CSF]';
-if ~exist('dcm_CAMI2CAM','var')
-    dcm_CAMI2CAM = euler_to_dcm(rpy_CAMI2CAM);
-end
-if ~exist('dcm_CSF2IAU','var')
-    dcm_CSF2IAU = euler_to_dcm(rpy_CSF2IAU);
-end
+dcm_CAMI2CAM = euler_to_dcm(rpy_CAMI2CAM);
+dcm_CSF2IAU = euler_to_dcm(rpy_CSF2IAU);
 dcm_CSF2CAM = dcm_CAMI2CAM*dcm_CSF2CAMI;
 pos_cam2body_CAM = dcm_CSF2CAM*pos_cam2body_CSF;
 los_CAM = [0; 0; 1];

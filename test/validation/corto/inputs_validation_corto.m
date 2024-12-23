@@ -54,10 +54,10 @@ switch flag_scenario
     case 3
         inputs_corto = [259200 0 0 0 1 0 0 0 -45.174965796 -52.774718132 -17.3767064 0.506134 0.761711 -0.049207 -0.401502 -18003.387576574 -148222.629718458 3212.749117793];
 end
-[alpha, d_body2cam, d_body2star, q_CSF2IAU, q_CAMI2CAM] = inputs_corto2matlab(inputs_corto, 1e6, false);
-    % post-process
-    dcm_CAMI2CAM = quat_to_dcm(q_CAMI2CAM);
-    dcm_CSF2IAU = quat_to_dcm(q_CSF2IAU);
+[phase_angle, d_body2cam, d_body2star, q_CSF2IAU, q_CAMI2CAM] = inputs_corto2matlab(inputs_corto, 1e6, false);
+% post-process
+rpy_CAMI2CAM = quat_to_euler(q_CAMI2CAM);
+rpy_CSF2IAU = quat_to_euler(q_CSF2IAU);
 
 %% PARAMETERS
 % Select parameters
@@ -66,15 +66,25 @@ general_parallelization = false;
 general_workers = 6;
 discretization_method = 'fixed';
 discretization_np = 1e6;            % number of total pixel sectors on sphere
+discretization_accuracy = 'medium';            % number of total pixel sectors on sphere
 sampling_method = 'projecteduniform'; % 'projective' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
-sampling_ignore_unobservable = true;             
+sampling_ignore_unobservable = true; 
+sampling_ignore_occluded = true;
+sampling_occlusion_rays = 10;
+sampling_occlusion_angle = 'auto';
 integration_method = 'constant';%'trapz';           
 integration_np = 10;                % number of evaluation points for trapz
 integration_correct_incidence = true;    % Correct incidence angle with true incidence angle with low distance-to-radius ratios
 integration_correct_reflection = true;    % Correct reflection angle with true reflection angle with low distance-to-radius ratios
 gridding_method = 'weightedsum';        % 'weightedsum' weighs each intensity value spreading it across the neighbouring pixels
 gridding_algorithm = 'area';
+gridding_scheme = 'linear'; 
+gridding_window = 1;
+gridding_shift = 1;
+gridding_filter = 'gaussian';
 reconstruction_granularity = 1;                        % Down-sampling of pixels
+reconstruction_antialiasing = true;                        
+reconstruction_filter = 'bilinear';                        
 processing_distortion = false;
 processing_diffraction = false;
 processing_noise = false;

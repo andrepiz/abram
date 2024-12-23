@@ -51,23 +51,23 @@ G_AD = 1/G_DA;
 
 %% SCENARIO
 tExp = params.tExp;
-alpha = params.alpha;
+phase_angle = params.alpha;
 d_body2star = params.d_body2sun;
 d_body2cam = params.d_body2cam;
 q_CSF2IAU = params.q_CSF2IAU;
 q_CAMI2CAM = params.q_CAMI2CAM;
     % post-process
-    dcm_CAMI2CAM = quat_to_dcm(q_CAMI2CAM);
-    dcm_CSF2IAU = quat_to_dcm(q_CSF2IAU);
+    rpy_CAMI2CAM = quat_to_euler(q_CAMI2CAM);
+    rpy_CSF2IAU = quat_to_euler(q_CSF2IAU);
 
 %% PARAMETERS
 % Select parameters
 general_environment = 'matlab';
 general_parallelization = true;
 general_workers = 4;
-discretization_method = 'fixed';
+discretization_method = 'adaptive';
 discretization_np = 1e6;            % number of total pixel sectors on sphere
-discretization_accuracy = 'medium';
+discretization_accuracy = 'high';
 sampling_method = 'projecteduniform'; % 'projecteduniform' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere
 sampling_ignore_unobservable = true;             % ignore sectors that fall outside the tangency circle
 sampling_ignore_occluded = flag_occlusions;

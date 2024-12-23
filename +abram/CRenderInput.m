@@ -9,4 +9,5 @@ classdef CRenderInput
             % Empty constructor
         end
     end
+
 end

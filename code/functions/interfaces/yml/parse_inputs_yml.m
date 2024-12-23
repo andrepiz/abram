@@ -59,7 +59,7 @@ noise_floor = extract_struct(inputs.camera, 'noise_floor', 1/G_AD);
 %% SCENE
 d_body2star = extract_struct(inputs.scene, 'distance_body2star');
 d_body2cam = extract_struct(inputs.scene, 'distance_body2cam');
-alpha = extract_struct(inputs.scene, 'phase_angle');
+phase_angle = extract_struct(inputs.scene, 'phase_angle');
 rpy_CAMI2CAM = reshape(extract_struct(inputs.scene, 'rollpitchyaw_cami2cam', zeros(1,3), true), 3, 1);
 rpy_CSF2IAU = reshape(extract_struct(inputs.scene, 'rollpitchyaw_csf2iau', zeros(1,3), true), 3, 1);
 
