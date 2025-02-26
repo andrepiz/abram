@@ -1,0 +1,43 @@
+star: {temperature: 5782.0, radius: 6.95E8}
+body:
+  radius: 1
+  albedo: 0.01
+  albedo_type: bond
+  maps:
+  radiometry: {model: lambert}
+camera:
+  exposure_time: 0.2E-3
+  focal_length: 0.0507
+  f_number: 1.495575221238938 # constant pupil diameter of 33.9E-3
+  pixel_width: 18E-6
+  resolution: [1024.0, 1024.0]
+  full_well_capacity: 100000.0
+  gain_analog2digital: 0.0026
+  quantum_efficiency: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                       lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                       values: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09, 0.04, 0.02],                                             # [-]
+                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  transmittance: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                  lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                  values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
+                  sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+scene:
+  distance_body2star: 1.49597870707E11
+  distance_body2cam: 8
+  phase_angle: 0
+  rollpitchyaw_cami2cam:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+  rollpitchyaw_csf2iau:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+setting:
+  discretization: {method: fixed, number_points: 1e7}
+  sampling: {method: projecteduniform}
+  #integration: {method: trapz, number_points: 10.0}
+  integration: {method: constant}
+  gridding: {method: weightedsum, algorithm: area}
+  processing: {distortion: false, diffraction: false, blooming: false, noise: false}
+  saving: {depth: 8, filename: sphere001_8m_02ms_8bit, format: png}
