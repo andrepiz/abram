@@ -33,12 +33,12 @@ classdef setting < abram.CRenderInput
             end
 
             % Add missing fields
-            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','integration','gridding','reconstruction','saving'});
+            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','integration','gridding','reconstruction','processing','saving'});
 
             % General
             general.environment = extract_struct(inputs.setting.general, 'environment','matlab');
             general.parallelization = extract_struct(inputs.setting.general, 'parallelization', false);
-            general.workers = extract_struct(inputs.setting.general, 'workers', 4);
+            general.workers = extract_struct(inputs.setting.general, 'workers', 'auto');
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
             discretization.np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);
@@ -51,7 +51,7 @@ classdef setting < abram.CRenderInput
             sampling.occlusion_angle = extract_struct(inputs.setting.sampling, 'occlusion_angle', 'auto');
             % Integration
             integration.method = extract_struct(inputs.setting.integration, 'method','trapz');
-            integration.np = extract_struct(inputs.setting.integration, 'number_points', 10);
+            integration.np = extract_struct(inputs.setting.integration, 'number_points', 'auto');
             integration.correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
             % Gridding
@@ -77,7 +77,7 @@ classdef setting < abram.CRenderInput
             processing.noise = extract_struct(inputs.setting.processing, 'noise', false);
             % Saving
             saving.depth = extract_struct(inputs.setting.saving, 'depth', 8);
-            saving.filename = extract_struct(inputs.setting.saving, 'filename',[]);
+            saving.filename = extract_struct(inputs.setting.saving, 'filename', []);
             saving.format = extract_struct(inputs.setting.saving, 'format', 'png');
 
             obj.general = general;                    

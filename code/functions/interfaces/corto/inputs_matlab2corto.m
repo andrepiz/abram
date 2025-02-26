@@ -43,10 +43,20 @@ dcm_CSF2BL = dcm_BL2IAU'*dcm_CSF2IAU;
 dir_body2cam_BL = vecnormalize(dcm_CSF2BL*pos_body2cam_CSF);
 dir_body2sun_BL = vecnormalize(dcm_CSF2BL*pos_body2sun_CSF);
 
+% zCSF
+if abs(dot(dir_body2sun_BL, dir_body2cam_BL)) == 1
+    % Singularity due to alignment of Sun
+    % direction and Camera direction in CSF.
+    zCSF_BL = [0; 0; 1];
+else
+    zCSF_BL = vecnormalize(cross(dir_body2sun_BL, dir_body2cam_BL));
+    %zCSF_BL = sign(alpha).*vecnormalize(cross(dir_body2sun_BL, dir_body2cam_BL));
+end
+
 % CAMI
 zCAMI_BL = -dir_body2cam_BL;
-yCAMI_BL = -cross(dir_body2sun_BL, dir_body2cam_BL);
-xCAMI_BL = cross(yCAMI_BL, zCAMI_BL);
+yCAMI_BL = -zCSF_BL;
+xCAMI_BL = vecnormalize(cross(yCAMI_BL, zCAMI_BL));
 dcm_BL2CAMI(1,1:3,:) = xCAMI_BL;
 dcm_BL2CAMI(2,1:3,:) = yCAMI_BL;
 dcm_BL2CAMI(3,1:3,:) = zCAMI_BL;

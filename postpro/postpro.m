@@ -1,7 +1,7 @@
 % Digital image
 figure()
 grid on, hold on
-imshow(IMG)
+imshow(img)
 colormap('gray')
 colorbar
 clim([0, 2^saving_depth-1])

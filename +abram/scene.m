@@ -67,11 +67,11 @@ classdef scene < abram.CRenderInput
 
         %% GETTERS
         function val = get.d_star2body(obj)
-            val = -obj.d_body2star;
+            val = obj.d_body2star;
         end
         
         function val = get.d_cam2body(obj)
-            val = -obj.d_body2cam;
+            val = obj.d_body2cam;
         end
         
         function val = get.dir_body2cam_CSF(obj)
@@ -127,7 +127,7 @@ classdef scene < abram.CRenderInput
 
         function val = get.ang_offpoint(obj)
             pos_cam2body_CAM = obj.dcm_CSF2CAM*obj.pos_cam2body_CSF;
-            val = acos(pos_cam2body_CAM(3,:)./norm(pos_cam2body_CAM(3,:)));
+            val = acos(pos_cam2body_CAM(3,:)./norm(pos_cam2body_CAM));
         end
 
     end

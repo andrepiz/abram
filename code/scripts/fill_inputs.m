@@ -1,8 +1,9 @@
 %% FILL INPUTS
-
+fov_type = 'frustum';
 if length(res_px) == 1 && length(muPixel) == 1
     res_px(2) = res_px(1);
     muPixel(2) = muPixel(1);
+    fov_type = 'cone';
 end
 if length(res_px) == 2 && length(muPixel) == 1
     if res_px(1) ~= res_px(2)
@@ -25,17 +26,17 @@ if ~exist('G_AD','var')
     G_AD = (2^saving_depth-1)/fwc;
 end
 if ~exist('noise_floor','var')
-    warning('Assumed Noise Floor equal to D/A Gain')
+    warning('Assumed Noise Floor equal to 1 DN')
     noise_floor = 1/G_AD;
 end
-if ~exist('radiometry_ro','var')
-    radiometry_ro = 1;
+if ~exist('radiometry_roughness','var')
+    radiometry_roughness = 1;
     if strcmp(radiometry_model,'oren')
         warning('Missing roughness in Oren-Nayar model. Assuming 1')
     end
 end
-if ~exist('radiometry_sh','var')
-    radiometry_sh = 1;
+if ~exist('radiometry_shineness','var')
+    radiometry_shineness = 1;
     if strcmp(radiometry_model,'specular')
         warning('Missing shineness in Specular model. Assuming 1')
     end
@@ -43,15 +44,49 @@ if ~exist('radiometry_sh','var')
         warning('Missing shineness in Phong model. Assuming 1')
     end
 end
-if ~exist('radiometry_wl','var')
-    radiometry_wl = 0.5;
+if ~exist('radiometry_weight_lambert','var')
+    radiometry_weight_lambert = 0.5;
     if strcmp(radiometry_model,'phong')
         warning('Missing weight of Lambert in Phong model. Assuming 0.5')
     end
 end
-if ~exist('radiometry_ws','var')
-    radiometry_ws = 0.5;
+if ~exist('radiometry_weight_specular','var')
+    radiometry_weight_specular = 0.5;
     if strcmp(radiometry_model,'phong')
         warning('Missing weight of Specular in Phong model. Assuming 0.5')
     end
+end
+if ~exist('radiometry_parameters','var')
+    radiometry_parameters = [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1];
+    if strcmp(radiometry_model,'phong')
+        warning('Missing parameters of Hapke model. Assuming Moon mean values')
+    end
+end
+if ~exist('normal_frame','var')
+    normal_frame = 'body';
+end
+if ~exist('amplification','var')
+    amplification = 0;
+end
+if ~exist('offset','var')
+    offset = 0;
+end
+if ~exist('distortion','var')
+    distortion.radial = [0, 0, 0];
+    distortion.decentering = [0, 0];
+end
+if ~exist('noise','var')
+    noise.shot.flag = false;
+    noise.shot.sigma = 0;
+    noise.shot.seed = [];
+    noise.prnu.flag = false;
+    noise.prnu.sigma = 0;
+    noise.prnu.seed = [];
+    noise.dark.flag = false;
+    noise.dark.sigma = 0;
+    noise.dark.mean = 0;
+    noise.dark.seed = [];
+    noise.readout.flag = false;
+    noise.readout.sigma = 0;
+    noise.readout.seed = [];
 end

@@ -1,7 +1,7 @@
 [x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
 
 % Maximum exposure time to avoid saturation
-tSat_pixel = fwc./ECR_pixel;
+tSat_pixel = fwc./ecr;
 tSat_pixel(tSat_pixel == inf) = nan;
 
 %% Saturation time per pixel
@@ -44,7 +44,7 @@ xlim([0 res_px(1)])
 ylim([0 res_px(2)])
 
 %% Exposure time before saturation
-mask_pxActive = ECR_pixel ~= 0; % Active pixels mask
+mask_pxActive = ecr ~= 0; % Active pixels mask
 tSat_pixel_max = max(tSat_pixel(mask_pxActive), [],'all');
 tSat_pixel_mean = mean(tSat_pixel(mask_pxActive), 'all');
 tSat_pixel_median = median(tSat_pixel(mask_pxActive), 'all');

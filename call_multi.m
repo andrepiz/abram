@@ -2,7 +2,7 @@
 abram_install();
 
 %% INPUTS
-filename_yml = 'example.yml';
+%filename_yml = 'example.yml';
 filename_yml = 'example_parallelized.yml';
 
 %% RENDER OBJECT

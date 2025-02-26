@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 15-02-2025        Andrea Pizzetti        ABRAM v1.4 - Improved frame rate
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
     % -------------------------------------------------------------------------------------------------------------
@@ -18,14 +19,19 @@ classdef render
         camera
         scene
         setting
+        cloud
         matrix
-        img
+        ecr
+        ec
+        noise
+        img        
         smart_calling
         homepath
         mapspath
     end
 
     properties (Dependent)
+        Feff
         spectrum
         gsd
         bodyAngSize
@@ -35,10 +41,12 @@ classdef render
     properties (Hidden)
         update_parpool
         update_maps
+        update_radiometry
         update_spectrum
         update_sectors
         update_methods   
         update_processing
+        update_matrix
         time_loading
         time_sampling
         time_rendering
@@ -74,7 +82,7 @@ classdef render
                     try
                         inputs = yaml.ReadYaml(input_args);
                     catch
-                        error('render:io','YML input file not found or not recognized')
+                        error('render:io','YML input file not found or errors found while reading it')
                     end
                 case {'struct'}
                     inputs = input_args;
@@ -105,6 +113,7 @@ classdef render
             obj.update_sectors = true;
             obj.update_spectrum = true;
             obj.update_maps = true;
+            obj.update_radiometry = true;
             obj.update_parpool = true;
             obj.update_methods = true;
             obj.update_processing = true;
@@ -148,7 +157,8 @@ classdef render
             if ~isempty(obj.setting)
                 obj.update_parpool = update_flag_trigger(obj.setting, objInput, obj.update_parpool, {'general'});
                 obj.update_sectors = update_flag_trigger(obj.setting, objInput, obj.update_sectors, {'discretization','sampling'});
-                obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'gridding','reconstruction'});
+                obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'integration'});
+                obj.update_matrix = update_flag_trigger(obj.setting, objInput, obj.update_matrix, {'gridding','reconstruction'});
                 obj.update_processing = update_flag_trigger(obj.setting, objInput, obj.update_processing, {'processing','saving'});
             end
             obj.setting = objInput;
@@ -157,6 +167,8 @@ classdef render
         function obj = set.body(obj, objInput)   
             if ~isempty(obj.body)
                 obj.update_maps = update_flag_trigger(obj.body, objInput, obj.update_maps, {'maps'});
+                obj.update_radiometry = update_flag_trigger(obj.body.radiometry, objInput, obj.update_radiometry) | ...
+										(isempty(obj.body.maps) & (update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo'}) | update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo_type'})));
                 obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'Rbody'});
             end
             obj.body = objInput;
@@ -166,7 +178,9 @@ classdef render
             if ~isempty(obj.camera)
                 obj.update_spectrum = update_flag_trigger(obj.camera, objInput, obj.update_spectrum, {'QExT'});
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
-                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD'}) | obj.update_spectrum;
+                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f'});
+                obj.update_matrix = update_flag_trigger(obj.camera, objInput, obj.update_matrix,{'distortion'});
+                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
         end
@@ -180,11 +194,11 @@ classdef render
 
         %% GETTERS
         function res = get.update_render(obj)    
-            res = obj.update_maps || obj.update_parpool || obj.update_sectors || obj.update_methods;
+            res = obj.update_maps || obj.update_radiometry || obj.update_parpool || obj.update_sectors || obj.update_methods;
         end
 
         function res = get.update_image(obj)
-            res = obj.update_render || obj.update_processing;
+            res = obj.update_render || obj.update_matrix || obj.update_processing;
         end
         
         function res = get.gsd(obj)
@@ -195,12 +209,24 @@ classdef render
         function res = get.bodyAngSize(obj)
             % Angular size of the body
             [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.Rbody);
-            res = 2*bodyBearingAngle; 
+            res = 2*max(bodyBearingAngle); 
         end
 
         function res = get.bodyPxSize(obj)
             % Px size of the body
             res = 2*obj.camera.f./obj.camera.muPixel.*tan(obj.bodyAngSize/2);
+        end
+
+        % function res = get.PL2Feff(obj)
+        %     % Spectral conversion factors from PL to Feff
+        %     res = obj.star.LPCR.values.*obj.camera.QExT.values * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
+        % end
+
+        function res = get.Feff(obj)
+            % Spectral Feff
+            c = 299792458;      % m/s
+            h = 6.62607015e-34; % J/Hz
+            res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
         end
 
         %% RENDERING
@@ -222,7 +248,8 @@ classdef render
             fprintf(['\n... CPU time: ', num2str(obj.time_sampling)])
 
             fprintf('\n+++ Render scene ...'), tic, 
-            obj = obj.renderScene(); 
+            obj = obj.pointCloud(); 
+            obj = obj.directGridding(); 
             obj.time_rendering = toc;
             fprintf(['\n... CPU time: ', num2str(obj.time_rendering)])
 
@@ -238,8 +265,10 @@ classdef render
             obj.update_sectors = false;
             obj.update_spectrum = false;
             obj.update_maps = false;
+            obj.update_radiometry = false;
             obj.update_parpool = false;
             obj.update_methods = false;
+            obj.update_matrix = false;
             obj.update_processing = false;
         end
 
@@ -279,18 +308,28 @@ classdef render
             end
         end
 
-        function obj = renderScene(obj)
+        function obj = pointCloud(obj)
             if obj.update_render || ~obj.smart_calling
-                obj.matrix = abram.render.renderScene(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
+                obj.cloud = abram.render.pointCloud(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
+                obj.update_matrix = true;
             else
                 fprintf('\n')
-                warning('No change detected, skipping scene rendering...') 
+                warning('No change detected, skipping cloud generation...') 
+            end
+        end
+
+        function obj = directGridding(obj)
+            if obj.update_matrix || ~obj.smart_calling
+                obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.setting);
+            else
+                fprintf('\n')
+                warning('No change detected, skipping direct gridding...') 
             end
         end
 
         function obj = processImage(obj)
             if obj.update_image || ~obj.smart_calling
-                obj.img = abram.render.processImage(obj.matrix, obj.star, obj.camera, obj.setting);
+                [obj.img, obj.noise, obj.ec, obj.ecr] = abram.render.processImage(obj.matrix, obj.star, obj.camera, obj.setting);
             else
                 fprintf('\n')
                 warning('No change detected, skipping image processing...') 
@@ -299,31 +338,4 @@ classdef render
 
     end
 
-    %% SMART CALLING
-    % methods
-    %     function update_flag = update_flag_trigger(obj, objInput, update_flag, fields)            
-    %         st = dbstack;
-    %         % Check the update only if the call does not come from
-    %         % rendering method
-    %         if ~any(strcmp({st.name}, 'render.rendering')) && ~isempty(obj) 
-    %             if ~exist('fields','var')
-    %                 % Compare the whole object
-    %                 if check_equivalence(obj,  objInput)
-    %                     % Do not update if they are equivalent and update
-    %                     % flag is not true
-    %                     update_flag = false | update_flag;    
-    %                 else
-    %                     % Update if any change is detected
-    %                     update_flag = true;
-    %                 end
-    %             else
-    %                 % Compare each field of the object
-    %                 for ix = 1:length(fields)
-    %                     field_temp = fields(ix);
-    %                     update_flag = update_trigger(obj.(field_temp), objInput.(field_temp), update_flag);
-    %                 end
-    %             end
-    %         end
-    %     end
-    % end
 end

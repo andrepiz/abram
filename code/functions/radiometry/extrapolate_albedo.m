@@ -2,7 +2,7 @@ function [pGeom, pNorm, pBond] = extrapolate_albedo(albedo_in, albedo_type, refl
 
 switch reflectance_model
 
-    case {'lambert','oren','specular','phong'}
+    case {'lambert','oren','specular','phong','hapke'}
 
         switch albedo_type
 

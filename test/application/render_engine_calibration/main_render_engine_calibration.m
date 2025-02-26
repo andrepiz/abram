@@ -14,13 +14,15 @@ abram_install();
 %% GROUND TRUTH
 % USE YML
 %filename_yml = 'amie_sphere01_128m_30ms_10bit.yml';
-filename_yml = 'aastr_sphere001_8m_02ms_8bit.yml';
+%filename_yml = 'aastr_sphere001_8m_02ms_8bit.yml';
+filename_yml = 'cicd_sphere1_128m_02ms_16bit.yml';
 
 inputs_yml();
 
 run_model();
 
 %% POST-PRO
-image_filepath_render_engine = 'data\aastr_sphere001_8m_02ms_8bit\img\000001.png';
+%image_filepath_render_engine = 'data\aastr_sphere001_8m_02ms_8bit\img\000001.png';
+image_filepath_render_engine = 'data\cicd_sphere1_64m_3ms_16bit\img\000000.png';
 
 postpro_render_engine_calibration();
