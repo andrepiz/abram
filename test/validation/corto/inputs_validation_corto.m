@@ -19,8 +19,9 @@ if flag_displacement
     displacement_scale = 1000;
 end
 if flag_normal
-    normal_filename = 'moon\lnormal_4.png';
-    normal_depth = 16;
+    normal_filename = 'moon\Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif';
+    normal_depth = 32;
+    normal_frame = 'body';
 end
 
 %% CAMERA  

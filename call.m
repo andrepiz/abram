@@ -13,10 +13,10 @@ rend = abram.render(filename_yml);
 %% SCRIPTS CALL
 % Use this syntax to call the rendering scripts and make available the
 % entire workspace
-
-inputs_yml();
-run_model();
-
+% 
+% inputs_yml();
+% run_model();
+% 
 % Post-processing scripts
-postpro();
-%postpro_3d();
+% postpro();
+% %postpro_3d();

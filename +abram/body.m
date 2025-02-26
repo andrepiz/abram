@@ -17,16 +17,9 @@ classdef body < abram.CRenderInput
         pBond
         pNorm
         H
-        % lonMin
-        % lonMax
-        % latMin
-        % latMax
     end
 
     properties (Hidden)
-        pixel_swath
-        tangency_angle
-        phase_angle_with_margin
         lon_lims
         lat_lims
     end
@@ -76,26 +69,15 @@ classdef body < abram.CRenderInput
         function val = get.pBond(obj)
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
-        % function val = get.lonMin(obj)
-        %     val = min(obj.sampling.lon1_CSF);
-        % end
-        % function val = get.lonMax(obj)
-        %     val = max(obj.sampling.lon2_CSF);
-        % end
-        % function val = get.latMin(obj)
-        %     val = min(obj.sampling.lat1_CSF);
-        % end
-        % function val = get.latMax(obj)
-        %     val = max(obj.sampling.lat2_CSF);
-        % end
 
         %% SETTERS
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
-            obj.radiometry.ro = extract_struct(in, 'roughness', []);
-            obj.radiometry.sh = extract_struct(in, 'shineness', []);
-            obj.radiometry.wl = extract_struct(in, 'weight_lambert', []);
-            obj.radiometry.ws = extract_struct(in, 'weight_specular', []);
+            obj.radiometry.roughness = extract_struct(in, 'roughness', 0.5);
+            obj.radiometry.shineness = extract_struct(in, 'shineness', 1);
+            obj.radiometry.weight_lambert = extract_struct(in, 'weight_lambert', 0.5);
+            obj.radiometry.weight_specular = extract_struct(in, 'weight_specular', 0.5);
+            obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1]);
         end
 
         function obj = set.maps(obj, in)
@@ -109,6 +91,9 @@ classdef body < abram.CRenderInput
                 obj.maps.(f{ix}).gamma = extract_struct(in.(f{ix}), 'gamma',[]);
                 obj.maps.(f{ix}).domain = extract_struct(in.(f{ix}), 'domain',[]);
                 obj.maps.(f{ix}).mean = extract_struct(in.(f{ix}), 'mean',[]);
+                obj.maps.(f{ix}).shift = extract_struct(in.(f{ix}), 'shift',[]);
+                obj.maps.(f{ix}).frame = extract_struct(in.(f{ix}), 'frame','local');
+                obj.maps.(f{ix}).limits = extract_struct(in.(f{ix}), 'limits',[-pi, pi; -pi/2, pi/2]);
             end
         end
     end

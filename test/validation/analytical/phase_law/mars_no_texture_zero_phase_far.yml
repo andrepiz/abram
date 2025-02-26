@@ -1,0 +1,27 @@
+star:
+  temperature: 5782.0        
+  radius: 6.95E8             
+body:
+  radius: 3389.5E3          # [m]
+  albedo: 0.25               # [-]
+  albedo_type: bond     # ['bond'/'geometric'/'normal']
+  radiometry: {model: lambert}                                                             # Lambert reflection
+camera:
+  exposure_time: 0.02E-3             # [s]
+  focal_length: 0.127               # [m]
+  f_number: 2.5                     # [-]
+  pixel_width: 13.3E-6               # [m]
+  resolution: [1024.0, 1024.0]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+scene:
+  distance_body2star: 1.49597870707E11     
+  distance_body2cam: 1e8           
+  phase_angle: 0
+setting:
+  discretization: {method: fixed, number_points: 1e4, ignore_}                                   # Fixed discretization with specified number of points
+  sampling: {method: projecteduniform}                                                  # Projected-homogenous longitude/latitude sampling
+  integration: {method: integral}                                                       # Trapz integration with specified number of integration points (faster)
+  binning: {method: weightedsum, algorithm: area, granularity: 1.0}                     # Weighted sum of the point values falling into the same pixel with an ['area'/'diff'/'invsquared'] algorithm
+  processing: {diffraction: false, blooming: false}                                  # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
+  saving: {image_depth: 16}

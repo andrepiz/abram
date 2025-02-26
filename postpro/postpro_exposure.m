@@ -1,12 +1,11 @@
 tExp_vec = tExp*logspace(-1, 2, 40);
-flag_create_gif = true;
+flag_create_gif = false;
 gif_filename = 'saturation.gif';
 
 %%
-image_depth = round(log2(G_AD*fwc + 1));
-[x_pixel, y_pixel] = meshgrid([1:res_px], [1:res_px]);
+[x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
 % Maximum exposure time to avoid saturation
-tSat_pixel = fwc./ECR_pixel;
+tSat_pixel = fwc./ecr;
 tSat_pixel(tSat_pixel == inf) = nan;
 
 %%
@@ -15,10 +14,10 @@ ax1 = subplot(1,2,1);
 grid on, hold on
 colormap('gray')
 colorbar
-clim([0, 2^image_depth-1])
+clim([0, 2^saving_depth-1])
 xlabel('u [px]')
 ylabel('v [px]')
-title([num2str(image_depth),'-bit Image [DN]']);
+title([num2str(saving_depth),'-bit Image [DN]']);
 pbaspect([1, 1, 10])
 xlim([0 res_px(1)]) 
 ylim([0 res_px(2)])
@@ -46,8 +45,8 @@ for ix = 1:length(tExp_vec)
     tExp_plot = tExp_vec(ix);
 
     sgtitle(['Exposure time: ', num2str(round(tExp_plot*1e3, 7)),'ms'])
-    EC_img_plot = ECR_pixel*tExp_plot;
-    IMG_plot = analog2digital(EC_img_plot, G_AD, image_depth, image_depth);
+    ec_plot = ecr*tExp_plot;
+    img_plot = analog2digital(ec_plot, G_AD, saving_depth, saving_depth);
 
     tSat_segmentation_mask = tSat_pixel;
     tSat_segmentation_mask(tExp_plot >= tSat_pixel) = 1;
@@ -56,11 +55,12 @@ for ix = 1:length(tExp_vec)
 
     % Digital image
     subplot(ax1)
-    i = imshow(IMG_plot);
+    i = imshow(img_plot);
 
     % Segmentation
     s = surf(ax2, x_pixel, y_pixel, tSat_segmentation_mask, 'EdgeColor','none');
-    
+    clim(ax2, [-1 1])
+
     pause(0.1)
     if flag_create_gif
         gif

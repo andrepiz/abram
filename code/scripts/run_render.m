@@ -3,7 +3,6 @@
 abram_install()
 
 filename_yml = 'example.yml';
-filename_yml = 'inputs\yml\moon_front.yml';
 
 %% ---- Step-by-step
 
@@ -40,7 +39,8 @@ body = abram.body.loadMaps(body);
 body = abram.body.sampleSectors(body, camera, scene, setting);
 
 %-- RENDER
-matrix = abram.render.renderScene(star, body, camera, scene, setting);
+cloud = abram.render.pointCloud(star, body, camera, scene, setting);
+matrix = abram.render.directGridding(cloud, body, camera, setting);
 
 %--IMAGE
 image = abram.render.processImage(matrix, star, camera, setting);

@@ -1,15 +1,14 @@
 
 % Extract 3D cloud
+coordsXYZ = cloud.coords(:, cloud.ixsValid);
+coordsUV = camera.K(1:2,:)*(coordsXYZ./coordsXYZ(3,:));
+coordsRC = [coordsUV(2,:); coordsUV(1,:)]; 
 PL_point = cloud.values(cloud.ixsValid)*cloud.adim;
 PL_pixel = matrix.values*matrix.adim;
 
-% Additional quantities
-PF_point = PL_point ./ (pi * Rstar^2/(d_body2star^2));
-PF_pixel = PL_pixel ./ (pi * Rstar^2/(d_body2star^2));
-
 %%
 fh = figure();
-scatter(coordsRCP(2,:), coordsRCP(1,:), [], PF_point);
+scatter(coordsRC(2,:), coordsRC(1,:), [], PL_point);
 axis tight equal
 ax = gca();
 ax.YDir = 'reverse';
@@ -19,7 +18,7 @@ xlim([460, 465])
 ylim([465, 470])
 
 figure()
-imagesc(PF_pixel)
+imagesc(PL_pixel)
 axis equal
 % xlim([300, 305])
 % ylim([720, 725])

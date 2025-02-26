@@ -2,7 +2,7 @@
 fprintf('\n### LOADING INPUTS ###\n')
 
 %% Fill missing inputs
-fill_inputs
+fill_inputs()
 
 %% Compute useful quantities
 % Radiometry
@@ -20,7 +20,14 @@ QExT = spectrum(3,:);
 dpupil = f/fNum;
 Apupil = pi*(dpupil/2)^2; % [m^2] area of the pupil
 sensorSize = muPixel.*res_px; % [m] physical dimension of the CCD array
-fov = 2*atan((res_px.*muPixel/2)/f); % [rad] field of view
+switch fov_type
+    case 'cone'
+        fov = 2*atan((res_px(1)*muPixel(1)/2)/f);
+    case 'frustum'
+        fov = 2*atan((res_px.*muPixel/2)/f); 
+    otherwise
+        error('FOV shape not supported')
+end
 G_DA = 1/G_AD;
 dnr = 20*log10(fwc/noise_floor);   % [-] dynamic range, definition
 K = [f./muPixel(1) 0                res_px(1)/2;...
@@ -58,4 +65,4 @@ los_CAM = [0; 0; 1];
 ang_offpoint = acos(pos_cam2body_CAM'*los_CAM/norm(pos_cam2body_CAM));
 
 %% Display inputs
-display_inputs
+display_inputs()
