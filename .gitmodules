@@ -2,10 +2,6 @@
 	path = code/lib/yamlmatlab
 	url = https://github.com/ewiger/yamlmatlab.git
 	branch = master
-[submodule "amiextractor"]
-	path = test/validation/amie/amiextractor
-	url = https://github.com/andrepiz/amiextractor.git
-	branch = main
 [submodule "cvt"]
 	path = code/lib/cvt
 	url = https://github.com/andrepiz/cvt.git
