@@ -16,7 +16,7 @@ else
     radiometry_model = 'oren'; 
     radiometry_roughness = 0.3;    % roughness in oren model (>> more rough)
 end    
-albedo_filename = 'moon\lroc_cgi\lroc_color_poles_4k.tif';
+albedo_filename = 'moon\lroc_cgi\lroc_color_poles_2k.tif';
 albedo_depth = 8;
 albedo_mean = albedo;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 % albedo_domain = [0.16 0.4];
