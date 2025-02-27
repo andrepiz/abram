@@ -1,10 +1,7 @@
 # ABRAM
-_Astronomical Bodies RAdiometric Model_
+_**A**stronomical **B**odies **R**endering **A**pplication for **M**ission design_
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/18b6ea30-a4f8-444b-aa6f-cd889edf1805" height="445" />
-  <img src="https://github.com/user-attachments/assets/22ebb7a9-32e4-49f9-992c-5c37f973b47a" height="445" /> 
-</p>
+![optimal_texp](https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546)
 
 **Installation** 
 Clone the repository and the linked submodules by running the following git commands:
@@ -16,6 +13,17 @@ Clone the repository and the linked submodules by running the following git comm
 `git submodule update`
 
 Then, simply run the script _call()_ to generate your first rendering.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9211622b-cfd4-4cae-a7a2-45427ed514c9" height="200" />
+  <img src="https://github.com/user-attachments/assets/2331dccb-6b9b-4926-b54e-6c5d374c27fd" height="200" />
+  <img src="https://github.com/user-attachments/assets/ab6fb2e6-84e3-4a5c-840e-25acaf31de39" height="200" />
+  <img src="https://github.com/user-attachments/assets/2a4ac9df-9f75-4a3e-8aef-da8115591182" height="200" />
+  <img src="https://github.com/user-attachments/assets/f3c50857-0731-4be8-b6cb-da49013f4e77" height="200" />
+  <img src="https://github.com/user-attachments/assets/8e018275-5a4e-4f78-9a4c-ed0757ec9e67" height="200" />
+  <img src="https://github.com/user-attachments/assets/3b9f1943-3c72-48f7-ae86-5f648fab29eb" height="200" />
+  <img src="https://github.com/user-attachments/assets/5eba8dd5-4351-4833-9181-57678352ba61" height="200" />
+</p>
 
 **Usage** 
 A single configuration file in YAML format is enough to generate a rendering. Provide the filepath of the yml file to the _abram.render_ constructor method in MATLAB:
@@ -29,8 +37,12 @@ To generate new renderings, you can first modify the render properties with the 
 
 In this way most of the pre-processing activities will be skipped to lower computational time. Examples of a multi-rendering call are provided in the script _call_multi()_.
 
+![https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc](https://github.com/user-attachments/assets/22ebb7a9-32e4-49f9-992c-5c37f973b47a)
+
 **Description**
-ABRAM is a rendering tool to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. Several BRDFs are implemented and the user can mix them to find the more realistic model depending on the body considered. 
+ABRAM is a physical-based validated render engine to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. ABRAM can be used for camera design, radiometry-related analysis and generation of datasets for training or testing of vision-based navigation algorithms. 
+
+Several BRDFs are implemented and the user can mix them to find the more realistic model depending on the body considered. 
 
 ![image](https://github.com/user-attachments/assets/5affe851-186d-4cd4-b9d6-60eaf67562ba)
 
@@ -38,13 +50,12 @@ The user can provide also texture maps to increase the fidelity of the model at 
 
 ![temp](https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc)
 
-ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission. Examples of real images (left) versus their rendering (right) at the same exposure time are depicted in the following pictures: 
+Normal maps of different planets and moons of the solar system have been generated as byproduct of ABRAM development and are available at the following [link](https://zenodo.org/records/14936972).
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/6acff1fa-8d92-4d34-944a-048c08c8322c" height="600" />
-</p>
+ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission. Examples of real images (above) versus their rendering (bottom) at the same exposure time are depicted in the following pictures: 
 
-Note that detector noises and optical diffraction effects are not considered for the renderings. This explains the brightness differences that can be noticed in the background and the sharpness differences in the morphology. A slight geometrical shift is also present due to inaccuracies in the SPICE kernels used to retrieve the SMART-1 state.
+![validation_amie_corr_tiled_horz](https://github.com/user-attachments/assets/5416e9f9-cfd0-48ac-bf6f-f3465ed26f1e)
+![validation_amie_ideal_tiled_horz](https://github.com/user-attachments/assets/c73be108-327f-4f7f-94c0-2bc640a23349)
 
 **Publications** For more details on the implementation and capabilities, check the publications:
 
@@ -52,13 +63,12 @@ Note that detector noises and optical diffraction effects are not considered for
 
 **Credits**
 If you use the tool, please cite it in your work as: 
-> A. Pizzetti. Astronomical Bodies RAdiometric Model (ABRAM)
+> A. Pizzetti. Astronomical Bodies Rendering Application for Mission design (ABRAM)
 
 | Version | Changelog |
 | ------ | ------ |
+|    v1.4    |Improved frame rate; added Hapke reflection model; added ellipsoidal shapes |
 |    v1.3    |Added occlusions; improved direct gridding efficiency; added smart-calling of methods       |
 |    v1.2    |New object-oriented architecture; new fast mode with constant BRDF and no loops; increased fps at close range by pre-computing fov intersection; capability to merge QE and T spectra defined at different wavelengths        |
 |    v1.1    |Added parallelization        |
 |    v1.0    |Ready for dissemination        |
-
-![cover](https://github.com/andrepiz/abram/assets/75851004/8163552c-7de7-4488-b037-895141902ab2)
