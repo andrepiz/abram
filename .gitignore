@@ -1,6 +1,9 @@
 *.mat
 *.png
 *.tif
+*.mp4
+*.avi
+*.gif
 
 # Folder
 debug/src_backup/*

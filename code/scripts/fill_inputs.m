@@ -1,4 +1,4 @@
-%% FILL INPUTS
+%% COMPLETE INPUTS
 fov_type = 'frustum';
 if length(res_px) == 1 && length(muPixel) == 1
     res_px(2) = res_px(1);
@@ -62,15 +62,27 @@ if ~exist('radiometry_parameters','var')
         warning('Missing parameters of Hapke model. Assuming Moon mean values')
     end
 end
-if ~exist('normal_frame','var')
-    normal_frame = 'body';
-end
-if ~exist('amplification','var')
-    amplification = 0;
-end
-if ~exist('offset','var')
-    offset = 0;
-end
+
+%% FILL MISSING INPUTS
+if ~exist('albedo_dimension','var'); albedo_dimension = []; end
+if ~exist('albedo_scale','var'); albedo_scale = []; end
+if ~exist('albedo_shift','var'); albedo_shift = []; end
+if ~exist('albedo_gamma','var'); albedo_gamma = []; end
+if ~exist('albedo_mean','var'); albedo_mean = []; end
+if ~exist('albedo_domain','var'); albedo_domain = []; end
+if ~exist('albedo_lambda_min','var'); albedo_lambda_min = []; end
+if ~exist('albedo_lambda_max','var'); albedo_lambda_max = []; end
+if ~exist('albedo_bandwidth','var'); albedo_bandwidth = []; end
+if ~exist('albedo_limits','var'); albedo_limits = [-pi pi; -pi/2 pi/2]; end
+if ~exist('displacement_limits','var'); displacement_limits = [-pi pi; -pi/2 pi/2]; end
+if ~exist('displacement_scale','var'); displacement_scale = []; end
+if ~exist('displacement_shift','var'); displacement_shift = []; end
+if ~exist('normal_scale','var'); normal_scale = []; end
+if ~exist('normal_frame','var'); normal_frame = 'body'; end
+if ~exist('normal_limits','var'); normal_limits = [-pi pi; -pi/2 pi/2]; end
+if ~exist('sampling_limits','var'); sampling_limits = 'auto'; end
+if ~exist('amplification','var'); amplification = 0; end
+if ~exist('offset','var'); offset = 0; end
 if ~exist('distortion','var')
     distortion.radial = [0, 0, 0];
     distortion.decentering = [0, 0];
