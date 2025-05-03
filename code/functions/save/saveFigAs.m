@@ -1,27 +1,4 @@
-function printFigureAs(fh, fileType, saveFolder, flag_high_quality, flag_single_f, flag_overwrite)
-
-if ~exist("fileType","var")
-    fileType = 'png';
-end
-if ~exist("saveFolder","var")
-    saveFolder = pwd;
-end
-if ~exist("flag_high_quality","var")
-    flag_high_quality = true;
-end
-if ~exist("flag_single_f","var")
-    flag_single_f = true;
-end
-if ~exist("flag_overwrite","var")
-    flag_overwrite = true;
-end
-
-if isempty(fh)
-    fhs = findall(groot, 'Type', 'figure');
-    for ix = 1:length(fhs)
-        printFigureAs(fhs(ix), fileType, saveFolder, flag_high_quality, flag_single_f, flag_overwrite)
-    end
-else
+function [] = saveFigAs(fh, fileType, saveFolder, flag_high_quality, flag_single_f, flag_overwrite)
 
     figureName  = get(fh,'Name');
         
@@ -49,22 +26,18 @@ else
             mkdir(saveFolder);
         end
 
-        saveFolder = char(saveFolder);
-        
         switch fileType
             case {'FIG','fig','Fig'}
-                fileName = fullfile(saveFolder, nameofFile);
+                fileName = [saveFolder nameofFile];
             case {'EMF','emf','Emf'}
-                fileName = fullfile(saveFolder, nameofFile);
+                fileName = [saveFolder nameofFile];
             case {'PNG','png','Png'}
-                fileName = fullfile(saveFolder, nameofFile);
+                fileName = [saveFolder nameofFile];
             case {'fig_png','Fig_Png','FIG_PNG'}
-                fileName_1 = fullfile(saveFolder, nameofFile);
-                fileName_2 = fullfile(saveFolder, nameofFile);
-            case {'pdf','Pdf','PDF'}
-                fileName = fullfile(saveFolder, nameofFile);
+                fileName_1 = [saveFolder nameofFile];
+                fileName_2 = [saveFolder nameofFile];
             otherwise 
-                error('Unexpected filetype - Use "pdf", "fig", "emf", "png" or "fig_png"')
+                error('Unexpected filetype - Use "fig", "emf", "png" or "fig_png"')
         end
 
         switch fileType
@@ -76,9 +49,6 @@ else
                 flag_single_f = 1;
             case {'PNG','png','Png'}
                 file_with_ext   = [fileName '.png'];
-                flag_single_f = 1;
-            case {'PDF','pdf','Pdf'}
-                file_with_ext   = [fileName '.pdf'];
                 flag_single_f = 1;
             case {'fig_png','Fig_Png','FIG_PNG'}
                 file_with_ext_1 = [fileName_1 '.fig'];
@@ -128,7 +98,7 @@ else
                 print(fh,'-dmeta',file_with_ext);
             case {'PNG','png','Png'}
                 if(flag_high_quality == 1)
-                    feval('export_fig','filename',file_with_ext,'-transparent','-r400',fh);
+                    feval('export_fig','filename',file_with_ext,'-transparent',p.transparent,'-r200',fh);
                 else
                     print(fh,'-dpng',file_with_ext);
                 end
@@ -137,7 +107,7 @@ else
                 savefig(fh,file_with_ext_1,'compact');
                 
                 if(flag_high_quality == 1)
-                    feval('export_fig','filename',file_with_ext_2,'-transparent','-r400',fh);
+                    feval('export_fig','filename',file_with_ext_2,'-transparent',p.transparent,'-r200',fh);
                 else
                     print(fh,'-dpng',file_with_ext_2);
                 end
@@ -147,7 +117,5 @@ else
         end
 
     end
-   
 end
-
-end
+    

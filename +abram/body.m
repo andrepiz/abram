@@ -58,7 +58,7 @@ classdef body < abram.CRenderInput
         %% GETTERS
         function val = get.H(obj)
             % Absolute magnitude, https://cneos.jpl.nasa.gov/tools/ast_size_est.html        
-            val = 5*(3.1236 - log10(2*obj.Rbody) - 0.5*log10(obj.pGeom));
+            val = 5*(3.1236 - log10(2*obj.Rbody*0.01) - 0.5*log10(obj.pGeom));
         end
         function val = get.pGeom(obj)
             [val, ~, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
@@ -85,15 +85,20 @@ classdef body < abram.CRenderInput
             for ix = 1:length(f)
                 obj.maps.(f{ix}).filename = extract_struct(in.(f{ix}), 'filename',[]);
                 obj.maps.(f{ix}).F = extract_struct(in.(f{ix}), 'F',[]);
-                obj.maps.(f{ix}).type = extract_struct(in.(f{ix}), 'type',[]);
+                obj.maps.(f{ix}).dimension = extract_struct(in.(f{ix}), 'dimension',[]);
                 obj.maps.(f{ix}).depth = extract_struct(in.(f{ix}), 'depth',1);
                 obj.maps.(f{ix}).scale = extract_struct(in.(f{ix}), 'scale',[]);
                 obj.maps.(f{ix}).gamma = extract_struct(in.(f{ix}), 'gamma',[]);
-                obj.maps.(f{ix}).domain = extract_struct(in.(f{ix}), 'domain',[]);
-                obj.maps.(f{ix}).mean = extract_struct(in.(f{ix}), 'mean',[]);
                 obj.maps.(f{ix}).shift = extract_struct(in.(f{ix}), 'shift',[]);
+                obj.maps.(f{ix}).mean = extract_struct(in.(f{ix}), 'mean',[]);
+                obj.maps.(f{ix}).domain = extract_struct(in.(f{ix}), 'domain',[]);
                 obj.maps.(f{ix}).frame = extract_struct(in.(f{ix}), 'frame','local');
                 obj.maps.(f{ix}).limits = extract_struct(in.(f{ix}), 'limits',[-pi, pi; -pi/2, pi/2]);
+                obj.maps.(f{ix}).min = extract_struct(in.(f{ix}), 'min',[]);
+                obj.maps.(f{ix}).max = extract_struct(in.(f{ix}), 'max',[]);
+                obj.maps.(f{ix}).lambda_min = extract_struct(in.(f{ix}), 'lambda_min',[]);
+                obj.maps.(f{ix}).lambda_max = extract_struct(in.(f{ix}), 'lambda_max',[]);
+                obj.maps.(f{ix}).bandwidth = extract_struct(in.(f{ix}), 'bandwidth',[0 inf]);
             end
         end
     end

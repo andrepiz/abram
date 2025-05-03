@@ -36,6 +36,7 @@ classdef render
         gsd
         bodyAngSize
         bodyPxSize
+        bodyPxCenter
     end
 
     properties (Hidden)
@@ -76,13 +77,21 @@ classdef render
             assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
                 'Unsupported input type. Please provide a path to yaml config. or a data struct containing data.');
 
+            % Check yaml package is available
+            if isempty( which('yaml.ReadYaml') )
+                error('render:io','YAML toolbox not found. Please install yaml with git submodule or download it from https://github.com/ewiger/yamlmatlab and add it to the MATLAB path');
+            end
+
             % Load inputs
             switch class(input_args)
                 case {'char', 'string'}
                     try
-                        inputs = yaml.ReadYaml(input_args);
+                        inputs = yaml.ReadYaml(char(input_args));
                     catch
-                        error('render:io','YML input file not found or errors found while reading it')
+                        error('render:io',['Errors found while reading ', char(input_args)])
+                    end
+                    if isempty(fields(inputs))
+                        error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
                     end
                 case {'struct'}
                     inputs = input_args;
@@ -217,10 +226,10 @@ classdef render
             res = 2*obj.camera.f./obj.camera.muPixel.*tan(obj.bodyAngSize/2);
         end
 
-        % function res = get.PL2Feff(obj)
-        %     % Spectral conversion factors from PL to Feff
-        %     res = obj.star.LPCR.values.*obj.camera.QExT.values * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
-        % end
+        function res = get.bodyPxCenter(obj)
+            % Return the image coordinates of the body geometric center 
+            res = obj.camera.K([1 2],:)*obj.scene.dir_cam2body_CAM + [0.5; 0.5];
+        end
 
         function res = get.Feff(obj)
             % Spectral Feff

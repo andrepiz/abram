@@ -43,7 +43,7 @@ classdef star < abram.CRenderInput
             obj.LPCR = spectrum;
             switch obj.type
                 case 'bb'
-                    [obj.L.values, obj.LPCR.values] = black_body_radiance(obj.temperature, spectrum.min, spectrum.max);
+                    [obj.L.values, obj.LPCR.values] = black_body_radiance(obj.temperature, spectrum.lambda_min, spectrum.lambda_max);
                 otherwise
                     error('star:io','Star type not supported')
             end

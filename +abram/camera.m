@@ -154,7 +154,7 @@ classdef camera < abram.CRenderInput
         function val = get.etaNormalizationFactor(obj)
             % Normalization factor used to retrieve effective radiant flux
             % density
-            val = max(obj.QExT.values.*obj.QExT.mid);
+            val = max(obj.QExT.values.*obj.QExT.lambda_mid);
         end
         %% SETTERS
         function obj = set.muPixel(obj, val)

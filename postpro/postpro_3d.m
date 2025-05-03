@@ -11,8 +11,16 @@ PL_pixel = matrix.values*matrix.adim;
 d_cam2sec = vecnorm(pos_cam2sec_CAM);
 dir_cam2sec_CAM = pos_cam2sec_CAM./d_cam2sec;
 epsilon = acos(dir_cam2sec_CAM(3,:));  
-OmProj = Apupil*cos(ang_offpoint)./(d_cam2sec.^2);
-pos_body2sec_CSF = pos_body2cam_CSF + dcm_CSF2CAM'*pos_cam2sec_CAM;
+OmProj = camera.Apupil*cos(scene.ang_offpoint)./(d_cam2sec.^2);
+pos_body2sec_CSF = scene.pos_body2cam_CSF + scene.dcm_CSF2CAM'*pos_cam2sec_CAM;
+dir_body2star_CSF = scene.dir_body2star_CSF;
+dir_body2cam_CSF = scene.dir_body2cam_CSF;
+[~, dcm_CSF2CAMI] = cami(dir_body2star_CSF, dir_body2cam_CSF);
+dcm_CSF2IAU = scene.dcm_CSF2IAU;
+dcm_CSF2CAM = scene.dcm_CSF2CAM;
+
+Rbody = body.Rbody;
+res_px = camera.res_px;
 
 %% Frames & Vectors
 R_frames2ref(:,:,1) = eye(3);
@@ -81,7 +89,7 @@ figure()
 grid on, hold on
 axis equal
 scatter3(pos_body2sec_CSF(1,:), pos_body2sec_CSF(2,:), pos_body2sec_CSF(3,:), 10, OmProj, 'filled')
-ampl = 2*Rbody(1);
+ampl = 2*body.Rbody(1);
 quiver3(0,0,0,ampl*dir_body2star_CSF(1),ampl*dir_body2star_CSF(2),ampl*dir_body2star_CSF(3),'LineWidth',2)
 quiver3(0,0,0,ampl*dir_body2cam_CSF(1),ampl*dir_body2cam_CSF(2),ampl*dir_body2cam_CSF(3),'LineWidth',2)
 colormap(cmap);
@@ -114,7 +122,7 @@ zlabel('z [m]')
 fh1 = figure();
 grid on, hold on
 grid minor
-scatter(fh1, coordsRC(2,:), coordsRC(1,:), [], PL_point)
+scatter(gca(), coordsRC(2,:), coordsRC(1,:), [], PL_point)
 colormap(cmap);
 axis equal
 fh1.CurrentAxes.YDir = 'reverse';

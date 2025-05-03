@@ -26,9 +26,11 @@ classdef scene < abram.CRenderInput
         pos_cam2body_CSF
         dir_body2cam_CSF
         dir_cam2body_CSF
+        dir_cam2body_CAM
         pos_star2body_CSF
         dir_body2star_CSF
         dir_star2body_CSF
+        dir_star2body_CAM
         dcm_CAMI2CAM
         dcm_CSF2CAMI
         ang_offpoint
@@ -78,32 +80,36 @@ classdef scene < abram.CRenderInput
             val = [cos(obj.phase_angle); sin(obj.phase_angle); 0];
         end
 
-        function val = get.dir_cam2body_CSF(obj)
-            val = -obj.dir_body2cam_CSF;
-        end
-
-        function val = get.pos_body2cam_CSF(obj)
-            val = obj.d_body2cam*obj.dir_body2cam_CSF;
-        end
-
-        function val = get.pos_cam2body_CSF(obj)
-            val = -obj.pos_body2cam_CSF;
-        end
-
         function val = get.dir_body2star_CSF(obj)
             val = [1; 0; 0];
-        end
-
-        function val = get.dir_star2body_CSF(obj)
-            val = -obj.dir_body2star_CSF;
         end
 
         function val = get.pos_body2star_CSF(obj)
             val = obj.d_body2star*obj.dir_body2star_CSF;
         end
 
+        function val = get.pos_body2cam_CSF(obj)
+            val = obj.d_body2cam*obj.dir_body2cam_CSF;
+        end
+
         function val = get.pos_star2body_CSF(obj)
             val = -obj.pos_body2star_CSF;
+        end
+
+        function val = get.pos_cam2body_CSF(obj)
+            val = -obj.pos_body2cam_CSF;
+        end
+
+        function val = get.dir_star2body_CSF(obj)
+            val = -obj.dir_body2star_CSF;
+        end
+
+        function val = get.dir_cam2body_CSF(obj)
+            val = -obj.dir_body2cam_CSF;
+        end
+
+        function val = get.dir_cam2body_CAM(obj)
+            val = obj.dcm_CSF2CAM*obj.dir_cam2body_CSF;
         end
 
         function val = get.dcm_CSF2IAU(obj)

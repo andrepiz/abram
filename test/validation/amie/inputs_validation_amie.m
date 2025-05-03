@@ -16,11 +16,30 @@ else
     radiometry_model = 'oren'; 
     radiometry_roughness = 0.3;    % roughness in oren model (>> more rough)
 end    
+
 albedo_filename = 'moon\lroc_cgi\lroc_color_poles_2k.tif';
 albedo_depth = 8;
 albedo_mean = albedo;                 % Rescale albedo map to return a mean albedo equal to the geometric albedo
 % albedo_domain = [0.16 0.4];
 % albedo_gamma = 2.8;
+
+% % USING LROC CGI MOON KIT
+% %The red channel contains the 643 nm band, while green and blue were created from 
+% % different linear combinations of the 566 and 415 nm bands to more nearly center
+% % them on 532 nm (green) and 472 nm (blue). A gamma of 2.8 was applied (the LROC data is linear), 
+% % and the channels were multiplied by (0.935, 1.005, 1.04) to balance the color. 
+% % The intensity range (0.16, 0.4) was mapped into the full (0, 255) 8-bit range per channel
+% albedo_filename = 'moon\lroc_cgi\lroc_color_poles_8k.tif';
+% albedo_dimension = 'hyperspectral';
+% albedo_lambda_min = [472 - ((472 + 532)/2 - 472), (472 + 532)/2, (532 + 643)/2]*1e-9;
+% albedo_lambda_max = [(472 + 532)/2, (532 + 643)/2, 643 + ((532 + 643)/2 - 532)]*1e-9;
+% albedo_bandwidth = [params.lambda_min(1), params.lambda_max(end)];
+% albedo_limits = [-pi, pi; -pi/2 pi/2];
+% albedo_gamma = 2.8;
+% albedo_scale = 1./[0.935, 1.005, 1.04];
+% albedo_domain = [0.08, 0.2; 0.12, 0.28; 0.24, 0.48];
+% albedo_type = 'bond';
+
 if flag_displacement
     displacement_filename = 'moon\ldem_4.tif';
     displacement_depth = 1;
@@ -113,6 +132,7 @@ gridding_scheme = 'linear';
 gridding_window = 1;
 gridding_shift = 1;
 gridding_filter = 'gaussian';
+gridding_sigma = 1;
 reconstruction_granularity = 1;                        % Down-sampling of pixels
 reconstruction_antialiasing = false;                        
 reconstruction_filter = 'bilinear';                        
