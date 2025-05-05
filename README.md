@@ -3,7 +3,7 @@ _**A**stronomical **B**odies **R**endering **A**pplication for **M**ission desig
 
 ![optimal_texp](https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546)
 
-**Installation** 
+**Installation:** 
 Clone the repository and the linked submodules by running the following git commands:
 
 `git clone https://github.com/andrepiz/abram`
@@ -25,7 +25,7 @@ Then, simply run the script _call()_ to generate your first rendering.
   <img src="https://github.com/user-attachments/assets/5eba8dd5-4351-4833-9181-57678352ba61" height="200" />
 </p>
 
-**Usage** 
+**Usage:** 
 A single configuration file in YAML format is enough to generate a rendering. Provide the filepath of the yml file to the _abram.render_ constructor method in MATLAB:
 
 `rend = abram.render('YOUR_FILE.YML')`
@@ -37,9 +37,13 @@ To generate new renderings, you can first modify the render properties with the 
 
 In this way most of the pre-processing activities will be skipped to lower computational time. Examples of a multi-rendering call are provided in the script _call_multi()_.
 
+The repository also includes some tutorials to help users become familiar with the toolbox:
+- moon_trajectory: generate a dataset of Moon images along a trajectory defined in ECI or IAU Body-fixed frame
+- hyperspectral_texture: how to embed an high-resolution hyperspectral albedo texture tile in the rendering workflow
+  
 ![https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc](https://github.com/user-attachments/assets/22ebb7a9-32e4-49f9-992c-5c37f973b47a)
 
-**Description**
+**Description:**
 ABRAM is a physical-based validated render engine to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. ABRAM can be used for camera design, radiometry-related analysis and generation of datasets for training or testing of vision-based navigation algorithms. 
 
 Several BRDFs are implemented and the user can mix them to find the more realistic model depending on the body considered. 
@@ -57,16 +61,21 @@ ABRAM has been validated against real space images acquired by the AMIE camera o
 ![validation_amie_corr_tiled_horz](https://github.com/user-attachments/assets/5416e9f9-cfd0-48ac-bf6f-f3465ed26f1e)
 ![validation_amie_ideal_tiled_horz](https://github.com/user-attachments/assets/c73be108-327f-4f7f-94c0-2bc640a23349)
 
-**Publications** For more details on the implementation and capabilities, check the publications:
+ABRAM also supports simple non-spherical shapes such as disks, cylinders, cubes, sticks, plates:
+
+![debrisField](https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0)
+
+**Publications:** For more details on the implementation and capabilities, check the publications:
 
 > A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
 
-**Credits**
+**Credits:**
 If you use the tool, please cite it in your work as: 
-> A. Pizzetti. Astronomical Bodies Rendering Application for Mission design (ABRAM)
+> A. Pizzetti, P. Panicucci, F.Topputo. "Development and Validation of an Astronomical Bodies Rendering Application for Mission design". Under review.
 
 | Version | Changelog |
 | ------ | ------ |
+|    v1.5    |Added support to hyperspectral maps; added support to non-spherical shapes; added tutorials |
 |    v1.4    |Improved frame rate; added Hapke reflection model; added ellipsoidal shapes |
 |    v1.3    |Added occlusions; improved direct gridding efficiency; added smart-calling of methods       |
 |    v1.2    |New object-oriented architecture; new fast mode with constant BRDF and no loops; increased fps at close range by pre-computing fov intersection; capability to merge QE and T spectra defined at different wavelengths        |
