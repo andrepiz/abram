@@ -102,6 +102,7 @@ discretization_np = extract_struct(inputs.setting.discretization, 'number_points
 discretization_accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
 % Sampling
 sampling_method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
+sampling_limits = extract_struct(inputs.setting.sampling, 'limits', 'auto');
 sampling_ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
 sampling_ignore_occluded = extract_struct(inputs.setting.sampling, 'ignore_occluded', true);
 sampling_occlusion_rays = extract_struct(inputs.setting.sampling, 'occlusion_rays', 10);
@@ -118,6 +119,7 @@ gridding_algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'area'
 gridding_scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
 gridding_shift = extract_struct(inputs.setting.gridding, 'shift', 1);
 gridding_filter = extract_struct(inputs.setting.gridding, 'filter', 'gaussian');
+gridding_sigma = extract_struct(inputs.setting.gridding, 'sigma', 1/2);
 % Reconstruction
 reconstruction_granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
 if ~strcmp(reconstruction_granularity,'auto')

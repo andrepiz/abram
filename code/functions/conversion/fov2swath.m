@@ -79,9 +79,9 @@ else
     brMin = offpoint - 0.5*fov; 
     brMax = offpoint + 0.5*fov;
     brMid = 0.5*brMin + 0.5*brMax; 
-    swathBrMax = fov2swath(2*abs(brMax), distance, radius, 0, false);
-    [doublePhi, ~, err] = fov2swath(2*abs(brMid), distance, radius, 0, false);
-    swathBrMin = fov2swath(2*abs(brMin), distance, radius, 0, false);
+    swathBrMax = fov2swath(2*abs(brMax), distance, radius, 0, true, false);
+    [doublePhi, ~, err] = fov2swath(2*abs(brMid), distance, radius, 0, true, false);
+    swathBrMin = fov2swath(2*abs(brMin), distance, radius, 0, true, false);
     
     swath(1, :) = 0.5*abs(wrapTo2Pi(swathBrMax(1,:)) - wrapTo2Pi(swathBrMin(1, :)));
     swath(1, swathBrMin(1,:)==0) = 0.5*abs(wrapTo2Pi(swathBrMax(1, swathBrMin(1,:)==0)));

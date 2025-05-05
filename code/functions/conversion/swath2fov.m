@@ -71,7 +71,7 @@ else
     % If there is any offpointing, we first need to find the phi angle
     % associated. This is equal to half the swath associated to 
     % a fov equal to double the off-pointing
-    [doublePhi, ~, err] = fov2swath(2*offpoint, distance, radius);
+    [doublePhi, ~, err] = fov2swath(2*offpoint, distance, radius, 0, true, false);
     phi = doublePhi(1,:)/2;
 
     % Then we can solve the explicit equation
