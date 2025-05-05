@@ -45,6 +45,7 @@ classdef setting < abram.CRenderInput
             discretization.accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
             % Sampling
             sampling.method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
+            sampling.limits = extract_struct(inputs.setting.sampling, 'limits', 'auto');
             sampling.ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
             sampling.ignore_occluded = extract_struct(inputs.setting.sampling, 'ignore_occluded', true);
             sampling.occlusion_rays = extract_struct(inputs.setting.sampling, 'occlusion_rays', 10);
@@ -61,6 +62,7 @@ classdef setting < abram.CRenderInput
             gridding.scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
             gridding.shift = extract_struct(inputs.setting.gridding, 'shift', 1);
             gridding.filter = extract_struct(inputs.setting.gridding, 'filter', 'gaussian');
+            gridding.sigma = extract_struct(inputs.setting.gridding, 'sigma', 1/2);
             % Reconstruction
             reconstruction.granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
             if ~strcmp(reconstruction.granularity,'auto')

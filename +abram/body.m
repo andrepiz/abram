@@ -53,6 +53,8 @@ classdef body < abram.CRenderInput
             obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
             obj.maps        = extract_struct(inputs.body, 'maps', []);
             obj.radiometry  = extract_struct(inputs.body, 'radiometry');
+            obj.lon_lims  = extract_struct(inputs.body, 'lon_lims', []);
+            obj.lat_lims  = extract_struct(inputs.body, 'lat_lims', []);
         end
 
         %% GETTERS

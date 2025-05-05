@@ -4,7 +4,6 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
-    % 15-02-2025        Andrea Pizzetti        ABRAM v1.4 - Improved frame rate
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
     % -------------------------------------------------------------------------------------------------------------
@@ -50,6 +49,8 @@ classdef render
         update_matrix
         time_loading
         time_sampling
+        time_integrating
+        time_gridding
         time_rendering
         time_processing
     end
@@ -244,7 +245,7 @@ classdef render
             
             fprintf('\n### RENDERING STARTED ###')
 
-            fprintf('\n+++ Load data ...'), tic, 
+            fprintf('\n+++ Loading data ...'), tic, 
             obj = obj.getParPool(); 
             obj = obj.loadMaps(); 
             obj.time_loading = toc;
@@ -256,11 +257,15 @@ classdef render
             obj.time_sampling = toc;
             fprintf(['\n... CPU time: ', num2str(obj.time_sampling)])
 
-            fprintf('\n+++ Render scene ...'), tic, 
+            fprintf('\n+++ Integrating scene...'), tic, 
             obj = obj.pointCloud(); 
+            obj.time_integrating = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_integrating)])
+
+            fprintf('\n+++ Direct gridding...'), tic, 
             obj = obj.directGridding(); 
-            obj.time_rendering = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_rendering)])
+            obj.time_gridding = toc;
+            fprintf(['\n... CPU time: ', num2str(obj.time_gridding)])
 
             fprintf('\n+++ Process image ...'), tic, 
             obj = obj.processImage();
@@ -269,6 +274,7 @@ classdef render
             fprintf(['\n... CPU time: ', num2str(obj.time_processing)])
 
             fprintf('\n### RENDERING FINISHED ###\n')
+            obj.time_rendering = obj.time_sampling + obj.time_integrating + obj.time_gridding;
 
             % Set to false the updates to prepare for next rendering
             obj.update_sectors = false;
