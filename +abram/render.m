@@ -30,6 +30,7 @@ classdef render
     end
 
     properties (Dependent)
+        magnitude
         Feff
         spectrum
         gsd
@@ -229,7 +230,7 @@ classdef render
 
         function res = get.bodyPxCenter(obj)
             % Return the image coordinates of the body geometric center 
-            res = obj.camera.K([1 2],:)*obj.scene.dir_cam2body_CAM + [0.5; 0.5];
+            res = obj.camera.K([1 2],:)*obj.scene.dir_cam2body_CAM./obj.scene.dir_cam2body_CAM(3) + [0.5; 0.5];
         end
 
         function res = get.Feff(obj)
@@ -237,6 +238,24 @@ classdef render
             c = 299792458;      % m/s
             h = 6.62607015e-34; % J/Hz
             res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
+        end
+
+        function res = get.magnitude(obj)
+            % Compute the apparent magnitude from the photon flux
+            % considering a reference photon flux at zero magnitude
+            
+            [~, FPCR_vega_V] = getVegaFlux('V');
+            FPCR_ref = obj.camera.photonFluxZeroMagnitude;
+            if (FPCR_ref - FPCR_vega_V) < eps
+                % This only works if the camera spectrum is on the V band
+                warning('Reference photon flux (zero magnitude) used is Vega signal in the V band. Check that the instrument bandwidth is consistent with the V band or change the reference photon flux by updating the camera.photonFluxZeroMagnitude field accordingly.')
+            end
+            FPCR_abram = sum(obj.ecr(:))./obj.camera.Apupil;
+
+            res = -2.5*log10(FPCR_abram./FPCR_ref);
+            if ~isfinite(res)
+                res = nan;
+            end
         end
 
         %% RENDERING

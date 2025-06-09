@@ -19,6 +19,7 @@ classdef camera < abram.CRenderInput
         distortion
         noise
         fov_type
+        photonFluxZeroMagnitude
     end
 
     properties (Dependent)
@@ -76,6 +77,8 @@ classdef camera < abram.CRenderInput
             obj.amplification = extract_struct(inputs.camera,'amplification',0);
             obj.offset = extract_struct(inputs.camera,'offset', 0);
             obj.dnr = extract_struct(inputs.camera,'dnr', 20*log10(obj.fwc/obj.G_DA));
+                [~, FPCR_ref] = getVegaFlux('V');
+            obj.photonFluxZeroMagnitude = extract_struct(inputs.camera,'photonFluxZeroMagnitude', FPCR_ref);
             obj.distortion.radial = extract_struct(inputs.camera.distortion,'radial',[0, 0, 0]);
             obj.distortion.decentering = extract_struct(inputs.camera.distortion,'decentering',[0, 0]);
             obj.noise.shot.flag = extract_struct(inputs.camera.noise.shot, 'flag',false);
