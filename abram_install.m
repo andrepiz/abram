@@ -17,4 +17,4 @@ addpath(genpath(abram_home))
 rmpath(genpath(fullfile(abram_home,'debug')))
 
 % DISPLAY
-fprintf(['*** ABRAM 1.4 installed. Have fun! ***\n'])
+fprintf(['*** ABRAM 1.5 installed. Have fun! ***\n'])

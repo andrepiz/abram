@@ -4,6 +4,8 @@
 *.mp4
 *.avi
 *.gif
+*.IMG
+*.pdf
 
 # Folder
 debug/src_backup/*
