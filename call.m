@@ -2,8 +2,8 @@
 abram_install();
 
 %% INPUTS
-%filename_yml = 'example.yml';
-filename_yml = 'example_parallelized.yml'; % fast version with parallellization
+filename_yml = 'example.yml';
+%filename_yml = 'example_parallelized.yml'; % fast version with parallellization
 
 %% OOP CALL
 % Use this syntax to call the rendering in a single line using the

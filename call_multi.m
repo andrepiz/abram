@@ -2,8 +2,8 @@
 abram_install();
 
 %% INPUTS
-%filename_yml = 'example.yml';
-filename_yml = 'example_parallelized.yml';
+filename_yml = 'example.yml';
+%filename_yml = 'example_parallelized.yml';
 
 %% RENDER OBJECT
 % Perform a first rendering and save the render object
