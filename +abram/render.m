@@ -30,13 +30,14 @@ classdef render
     end
 
     properties (Dependent)
-        magnitude
         Feff
         spectrum
         gsd
         bodyAngSize
         bodyPxSize
         bodyPxCenter
+        conicMat
+        conicVec
     end
 
     properties (Hidden)
@@ -230,7 +231,23 @@ classdef render
 
         function res = get.bodyPxCenter(obj)
             % Return the image coordinates of the body geometric center 
-            res = obj.camera.K([1 2],:)*obj.scene.dir_cam2body_CAM./obj.scene.dir_cam2body_CAM(3) + [0.5; 0.5];
+            K = obj.camera.K;
+            K(1,3) = K(1,3) + 0.5;
+            K(2,3) = K(2,3) + 0.5;
+            res = K([1 2],:)*obj.scene.dir_cam2body_CAM./obj.scene.dir_cam2body_CAM(3);
+        end
+
+        function res = get.conicMat(obj)
+            % Return the conic as a vector     
+            K = obj.camera.K;
+            K(1,3) = K(1,3) + 0.5;
+            K(2,3) = K(2,3) + 0.5;        
+            res = sphere2conicMat([0;0;0], obj.scene.pos_body2cam_CSF, obj.scene.dcm_CSF2CAM, K, obj.body.Rbody);
+        end
+
+        function res = get.conicVec(obj)
+            % Return the conic as a vector             
+            res = conicMat2conicVec(obj.conicMat);
         end
 
         function res = get.Feff(obj)
@@ -238,24 +255,6 @@ classdef render
             c = 299792458;      % m/s
             h = 6.62607015e-34; % J/Hz
             res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
-        end
-
-        function res = get.magnitude(obj)
-            % Compute the apparent magnitude from the photon flux
-            % considering a reference photon flux at zero magnitude
-            
-            [~, FPCR_vega_V] = getVegaFlux('V');
-            FPCR_ref = obj.camera.photonFluxZeroMagnitude;
-            if (FPCR_ref - FPCR_vega_V) < eps
-                % This only works if the camera spectrum is on the V band
-                warning('Reference photon flux (zero magnitude) used is Vega signal in the V band. Check that the instrument bandwidth is consistent with the V band or change the reference photon flux by updating the camera.photonFluxZeroMagnitude field accordingly.')
-            end
-            FPCR_abram = sum(obj.ecr(:))./obj.camera.Apupil;
-
-            res = -2.5*log10(FPCR_abram./FPCR_ref);
-            if ~isfinite(res)
-                res = nan;
-            end
         end
 
         %% RENDERING
@@ -367,6 +366,26 @@ classdef render
             else
                 fprintf('\n')
                 warning('No change detected, skipping image processing...') 
+            end
+        end
+
+        %% UTILS
+        function [mag, flux_pcr_mag0] = magnitude(obj)
+            % Compute the apparent magnitude in the Vega system
+            % from the photon flux considering as reference photon flux 
+            % (zero magnitude point) the Vega photon flux in the same
+            % weighted bandwidth
+
+            % rendered spectrum-weighted signal
+            FPCR_abram = sum(obj.ecr(:))./obj.camera.Apupil;
+
+            % reference (Vega) spectrum-weighted signal
+            [~, flux_pcr_mag0_all] = vega_flux(obj.camera.QExT.lambda_min, obj.camera.QExT.lambda_max, obj.camera.QExT.values);
+
+            flux_pcr_mag0 = sum(flux_pcr_mag0_all);
+            mag = -2.5*log10(FPCR_abram./flux_pcr_mag0);
+            if ~isfinite(mag)
+                mag = nan;
             end
         end
 
