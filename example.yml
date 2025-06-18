@@ -32,10 +32,10 @@ camera:
                   lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
                   values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
                   sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
-  noise: {shot: {flag: true, seed: 2},                              # Shot Noise
-          prnu: {flag: true, sigma: 0.02, seed: 3},                 # Dark Current multiplicative standard deviation [%] and mean [e-/s]
-          dark: {flag: true, sigma: 1.3245, mean: 590, seed: 1},    # Photo-Response Non-Uniformity multiplicative standard deviation [%]
-          readout: {flag: true, sigma: 100, seed: 4}}               # Readout Noise standard deviation [e-]
+  noise: {shot: {flag: false, seed: 2},                              # Shot Noise
+          prnu: {flag: false, sigma: 0.02, seed: 3},                 # Photo-Response Non-Uniformity multiplicative standard deviation [%]
+          dark: {flag: false, sigma: 1.3245, mean: 590, seed: 1},    # Dark Current multiplicative standard deviation [%] and mean [e-/s]
+          readout: {flag: false, sigma: 100, seed: 4}}               # Readout Noise standard deviation [e-]
 scene:
   distance_body2star: 1.49597870707E11      # [m]
   distance_body2cam: 1E8                    # [m]

@@ -58,13 +58,13 @@ classdef setting < abram.CRenderInput
             % Gridding
             gridding.method = extract_struct(inputs.setting.gridding, 'method', 'weightedsum');
             gridding.window = extract_struct(inputs.setting.gridding, 'window', 1);
-            gridding.algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'area');
+            gridding.algorithm = extract_struct(inputs.setting.gridding, 'algorithm', 'gaussian');
             gridding.scheme = extract_struct(inputs.setting.gridding, 'scheme', 'linear');
             gridding.shift = extract_struct(inputs.setting.gridding, 'shift', 1);
             gridding.filter = extract_struct(inputs.setting.gridding, 'filter', 'gaussian');
             gridding.sigma = extract_struct(inputs.setting.gridding, 'sigma', 1/2);
             % Reconstruction
-            reconstruction.granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 1);
+            reconstruction.granularity = extract_struct(inputs.setting.reconstruction, 'granularity', 'auto');
             if ~strcmp(reconstruction.granularity,'auto')
                 if mod(reconstruction.granularity, 1) ~= 0
                     error('Reconstruction granularity must be an integer equal or larger than 1')

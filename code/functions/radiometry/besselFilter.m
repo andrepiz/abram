@@ -128,7 +128,7 @@ data = [7000	0.000
         error('Plase input U, B, V, R or I color')
 end
 
-data(:, 1) = data(:, 1)*1e-9;
+data(:, 1) = data(:, 1)*1e-10;
 flt = data';
 
 
