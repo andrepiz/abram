@@ -3,8 +3,8 @@ _**A**stronomical **B**odies **R**endering **A**pplication for **M**ission desig
 
 ![optimal_texp](https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546)
 
-**Installation:** 
-Clone the repository and the linked submodules by running the following git commands:
+**INSTALLATION:** 
+clone the repository and the linked submodules by running the following git commands:
 
 `git clone https://github.com/andrepiz/abram`
 
@@ -25,8 +25,8 @@ Then, simply run the script _call()_ to generate your first rendering.
   <img src="https://github.com/user-attachments/assets/5eba8dd5-4351-4833-9181-57678352ba61" height="200" />
 </p>
 
-**Usage:** 
-A single configuration file in YAML format is enough to generate a rendering. Provide the filepath of the yml file to the _abram.render_ constructor method in MATLAB:
+**USAGE:** 
+a single configuration file in YAML format is enough to generate a rendering. Provide the filepath of the yml file to the _abram.render_ constructor method in MATLAB:
 
 `rend = abram.render('YOUR_FILE.YML')`
 
@@ -43,8 +43,14 @@ The repository also includes some tutorials to help users become familiar with t
   
 ![https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc](https://github.com/user-attachments/assets/22ebb7a9-32e4-49f9-992c-5c37f973b47a)
 
-**Description:**
-ABRAM is a physical-based validated render engine to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. ABRAM can be used for camera design, radiometry-related analysis and generation of datasets for training or testing of vision-based navigation algorithms. 
+**DEPENDENCIES:**
+ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
+- Image Processing Toolbox (required)
+- Parallel Computing Toolbox (for multi-thread rendering)
+- Statistics and Machine Learning Toolbox (for image noises)
+  
+**DESCRIPTION:**
+ABRAM is a physically-based validated render engine to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. ABRAM can be used for camera design, radiometry-related analysis and generation of datasets for training or testing of vision-based navigation algorithms. 
 
 Several BRDFs are implemented and the user can mix them to find the more realistic model depending on the body considered. 
 
@@ -65,13 +71,15 @@ ABRAM also supports simple non-spherical shapes such as disks, cylinders, cubes,
 
 ![debrisField](https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0)
 
-**Publications:** For more details on the implementation and capabilities, check the publications:
-
+**DOCUMENTATION:** documentation is on its way. In the meantime, for more details on the implementation and capabilities, check the following publications:
 > A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
 
-**Credits:**
-If you use the tool, please cite it in your work as: 
+**CREDITS:**
+if you use the tool, please cite it in your work as: 
 > A. Pizzetti, P. Panicucci, F.Topputo. "Development and Validation of an Astronomical Bodies Rendering Application for Mission design". Under review.
+
+**CONTRIBUTING:**
+feel free to open an issue to report a bug or ask for a functionality. Do you want to contribute to the project or you need some help in the usage? e-mail me at andrea.pizzetti@polimi.it 
 
 | Version | Changelog |
 | ------ | ------ |
