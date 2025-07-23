@@ -9,6 +9,7 @@ body:
     albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}                       # Albedo map
     displacement: {filename: moon/ldem_4.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)
     normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif, depth: 32.0, frame: body}        # Normal map (RGB = XYZ)
+    horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                     # Horizon map (BW = 0-1)
   #radiometry: {model: lambert}                                                             # Lambert reflection
   #radiometry: {model: oren, roughness: 0.5}                                                # Oren-Nayar reflection (rough surfaces)
   #radiometry: {model: specular, shineness: 1.0}                                            # Specular reflection (shiny surfaces) 
@@ -60,7 +61,7 @@ setting:
   integration: {method: constant}                                                       # Constant integration of BRDF (fastest)
   #gridding: {method: sum}                                                               # Sum of the point values falling into the same pixel.
   gridding: {method: weightedsum, algorithm: gaussian}                            # Weighted sum of the point values falling into the same pixel with an ['area','diff','invsquared'] weighting algorithm on the neighboring pixels within a given pixel shift window
-  reconstruction: {granularity: 1.0}                                                    # Nominal grid, no reconstruction filter
-  #reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}             # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','gaussian','osculatory'] reconstruction filter
+  #reconstruction: {granularity: 1.0}                                                    # Nominal grid, no reconstruction filter
+  reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}             # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','gaussian','osculatory'] reconstruction filter
   processing: {distortion: false, diffraction: false, blooming: false, noise: false}    # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
   saving: {filename: example, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format

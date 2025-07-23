@@ -18,26 +18,9 @@ phase_angle = acos(dot(dir_body2star_IAU, dir_body2cam_IAU));
 %ixs_sing = abs(dot(dir_body2star_IAU,dir_body2cam_IAU)-1) <= eps;
 
 % CSF Frame
-% xCSF_IAU = dir_body2star_IAU;
-% zCSF_IAU = vecnormalize(cross(dir_body2star_IAU, dir_body2cam_IAU));
-% if any(ixs_sing)
-%     zCSF_IAU(:, ixs_sing) = [0; 0; 1];
-% end
-% yCSF_IAU = vecnormalize(cross(zCSF_IAU, xCSF_IAU));
-% dcm_IAU2CSF(1,1:3,:) = xCSF_IAU;
-% dcm_IAU2CSF(2,1:3,:) = yCSF_IAU;
-% dcm_IAU2CSF(3,1:3,:) = zCSF_IAU;
-% q_IAU2CSF = dcm_to_quat(dcm_IAU2CSF);
 [q_IAU2CSF, dcm_IAU2CSF] = csf(dir_body2star_IAU, dir_body2cam_IAU);
 
 % CAMI Frame
-% yCAMI_IAU = -zCSF_IAU;
-% zCAMI_IAU = -dir_body2cam_IAU;
-% xCAMI_IAU = vecnormalize(cross(yCAMI_IAU, zCAMI_IAU));
-% dcm_IAU2CAMI(1,1:3,:) = xCAMI_IAU;
-% dcm_IAU2CAMI(2,1:3,:) = yCAMI_IAU;
-% dcm_IAU2CAMI(3,1:3,:) = zCAMI_IAU;
-% q_IAU2CAMI = dcm_to_quat(dcm_IAU2CAMI);
 [q_IAU2CAMI, dcm_IAU2CAMI] = cami(dir_body2star_IAU, dir_body2cam_IAU);
 
 % outputs

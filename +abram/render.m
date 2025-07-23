@@ -38,6 +38,10 @@ classdef render
         bodyPxCenter
         conicMat
         conicVec
+        elCamFromLimb
+        elCamFromTerm
+        elStarFromLimb
+        elStarFromTerm
     end
 
     properties (Hidden)
@@ -257,6 +261,26 @@ classdef render
             res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
         end
 
+        function res = get.elCamFromLimb(obj)
+            % Signed elevation angle of camera from the limb
+            res = find_sphere_elevation_from_horizon(obj.scene.d_body2cam, max(obj.body.Rbody), 0);
+        end
+        
+        function res = get.elCamFromTerm(obj)
+            % Signed elevation angle of camera from the terminator
+            res = find_sphere_elevation_from_horizon(obj.scene.d_body2cam, max(obj.body.Rbody), obj.scene.phase_angle);
+        end
+
+        function res = get.elStarFromLimb(obj)
+            % Signed elevation angle of star from the limb
+            res = find_sphere_elevation_from_horizon(obj.scene.d_body2star, max(obj.body.Rbody), obj.scene.phase_angle);
+        end
+        
+        function res = get.elStarFromTerm(obj)
+            % Signed elevation angle of star from the terminator
+            res = find_sphere_elevation_from_horizon(obj.scene.d_body2star, max(obj.body.Rbody), 0);
+        end
+
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene
@@ -370,22 +394,29 @@ classdef render
         end
 
         %% UTILS
-        function [mag, flux_pcr_mag0] = magnitude(obj)
+        function [mag_pcr, mag_flux] = magnitude(obj)
             % Compute the apparent magnitude in the Vega system
             % from the photon flux considering as reference photon flux 
             % (zero magnitude point) the Vega photon flux in the same
             % weighted bandwidth
 
-            % rendered spectrum-weighted signal
-            FPCR_abram = sum(obj.ecr(:))./obj.camera.Apupil;
-
             % reference (Vega) spectrum-weighted signal
-            [~, flux_pcr_mag0_all] = vega_flux(obj.camera.QExT.lambda_min, obj.camera.QExT.lambda_max, obj.camera.QExT.values);
+            [flux_density_mag0_all, pcr_density_mag0_all] = vega_flux(obj.camera.QExT.lambda_min, obj.camera.QExT.lambda_max, obj.camera.QExT.values);
 
-            flux_pcr_mag0 = sum(flux_pcr_mag0_all);
-            mag = -2.5*log10(FPCR_abram./flux_pcr_mag0);
-            if ~isfinite(mag)
-                mag = nan;
+            % rendered spectrum-weighted signal in photon count rate density
+            pcr_density_abram = sum(obj.ecr(:))./obj.camera.Apupil;
+            pcr_density_mag0 = sum(pcr_density_mag0_all);
+            mag_pcr = -2.5*log10(pcr_density_abram./pcr_density_mag0);
+            if ~isfinite(mag_pcr)
+                mag_pcr = nan;
+            end
+
+            % rendered spectrum-weighted signal in flux density
+            flux_density_abram = sum(obj.matrix.values(:)*obj.matrix.adim*sum(obj.star.L.values.*obj.camera.QExT.values))./obj.camera.Apupil;
+            flux_density_mag0 = sum(flux_density_mag0_all);
+            mag_flux = -2.5*log10(flux_density_abram./flux_density_mag0);
+            if ~isfinite(mag_flux)
+                mag_flux = nan;
             end
         end
 

@@ -10,7 +10,7 @@ end
 if isfield(st, field)
     val = st.(field);
     if iscell(val)
-        val = [val{:}];
+        val = cell2mat(val);
     end
 else
     if ~exist('def','var')
