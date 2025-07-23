@@ -14,7 +14,10 @@ end
 
 % Path
 addpath(genpath(abram_home))
+if ~isfile(fullfile(abram_home, "abram_install.m"))
+    error('The registered abram path is wrong. Please run again abram_install() from ABRAM main directory')
+end
 rmpath(genpath(fullfile(abram_home,'debug')))
 
 % DISPLAY
-fprintf(['*** ABRAM 1.5 installed. Have fun! ***\n'])
+fprintf(['*** ABRAM 1.6 installed. Have fun! ***\n'])

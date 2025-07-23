@@ -39,6 +39,7 @@ classdef setting < abram.CRenderInput
             general.environment = extract_struct(inputs.setting.general, 'environment','matlab');
             general.parallelization = extract_struct(inputs.setting.general, 'parallelization', false);
             general.workers = extract_struct(inputs.setting.general, 'workers', 'auto');
+            general.profile = extract_struct(inputs.setting.general, 'profile', 'threads');
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
             discretization.np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);

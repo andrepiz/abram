@@ -3,6 +3,7 @@ abram_install();
 flag_displacement = true; % Use displacement map in ABRAM rendering
 flag_normal = true;       % Use normal map in ABRAM rendering
 flag_occlusions = true;   % Use occlusions
+flag_horizon = true;      % Use horizon map
 flag_hapke = true;        % Use hapke model
 flag_plot = true;
 flag_correct_camera_spice = 0;  % 0 - keep data as given

@@ -45,7 +45,7 @@ classdef body < abram.CRenderInput
 
             % Add missing fields
             inputs.body = add_missing_field(inputs.body, 'maps');
-            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal'});
+            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal','horizon'});
 
             % Assign properties
             obj.Rbody       = extract_struct(inputs.body, 'radius');
@@ -101,6 +101,7 @@ classdef body < abram.CRenderInput
                 obj.maps.(f{ix}).lambda_min = extract_struct(in.(f{ix}), 'lambda_min',[]);
                 obj.maps.(f{ix}).lambda_max = extract_struct(in.(f{ix}), 'lambda_max',[]);
                 obj.maps.(f{ix}).bandwidth = extract_struct(in.(f{ix}), 'bandwidth',[0 inf]);
+                obj.maps.(f{ix}).res_lonlat = extract_struct(in.(f{ix}), 'res_lonlat',[0 0]);
             end
         end
     end
