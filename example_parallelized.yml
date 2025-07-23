@@ -1,7 +1,7 @@
 star:
   temperature: 5782.0        # [K]
   radius: 6.95E8             # [m]
-  type: sun
+  type: bb
 body:
   radius: 1737400.0          # [m]
   albedo: 0.12               # [-]
