@@ -56,6 +56,7 @@ classdef setting < abram.CRenderInput
             integration.np = extract_struct(inputs.setting.integration, 'number_points', 'auto');
             integration.correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
+            integration.soft_shadows = extract_struct(inputs.setting.integration, 'soft_shadows', 0);
             % Gridding
             gridding.method = extract_struct(inputs.setting.gridding, 'method', 'weightedsum');
             gridding.window = extract_struct(inputs.setting.gridding, 'window', 1);
