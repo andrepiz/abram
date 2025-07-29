@@ -114,6 +114,7 @@ if ~exist('general_workers','var'), general_workers = 'auto'; end
 if ~exist('discretization_accuracy','var'), discretization_accuracy = 'medium'; end
 if ~exist('integration_correct_incidence','var'), integration_correct_incidence = true; end
 if ~exist('integration_correct_reflection','var'), integration_correct_reflection = true; end
+if ~exist('integration_soft_shadows','var'), integration_soft_shadows = 0; end
 if ~exist('sampling_ignore_unobservable','var'), sampling_ignore_unobservable = false; end
 if ~exist('sampling_ignore_occluded','var'), sampling_ignore_occluded = false; end
 if ~exist('sampling_occlusion_rays','var'), sampling_occlusion_rays = 10; end
