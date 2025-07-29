@@ -24,6 +24,7 @@ classdef render
         ec
         noise
         img        
+        depth
         smart_calling
         homepath
         mapspath
@@ -279,6 +280,11 @@ classdef render
         function res = get.elStarFromTerm(obj)
             % Signed elevation angle of star from the terminator
             res = find_sphere_elevation_from_horizon(obj.scene.d_body2star, max(obj.body.Rbody), 0);
+        end
+
+        function res = get.depth(obj)
+            % Depth map from coordinates point cloud
+            res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
         end
 
         %% RENDERING
