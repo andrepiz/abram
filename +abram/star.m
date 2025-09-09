@@ -13,20 +13,26 @@ classdef star < abram.CRenderInput
     methods
         function obj = star(in)
             %STAR Construct a star by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. The default star is the Sun.
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('star:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('star:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                % Missing inputs
+                warning('star:io','Initializing Sun as default star')
+                inputs.star = [];
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('star:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                    otherwise 
+                        error('star:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
                     
             obj.temperature  = extract_struct(inputs.star, 'temperature', 5782, true);

@@ -27,20 +27,28 @@ classdef body < abram.CRenderInput
     methods
         function obj = body(in)
             %BODY Construct a celestial body by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. The default body is a unit-radius
+            %unit-albedo lambertian sphere.
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('render:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                warning('body:io','Initializing unit-radius unit-albedo lambertian sphere as default body')
+                inputs.body.radius = 1;
+                inputs.body.albedo = 1;
+                inputs.body.radiometry = [];
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('render:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                    otherwise 
+                        error('body:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
 
             % Add missing fields
@@ -76,7 +84,7 @@ classdef body < abram.CRenderInput
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
             obj.radiometry.roughness = extract_struct(in, 'roughness', 0.5);
-            obj.radiometry.shineness = extract_struct(in, 'shineness', 1);
+            obj.radiometry.shininess = extract_struct(in, 'shininess', 1);
             obj.radiometry.weight_lambert = extract_struct(in, 'weight_lambert', 0.5);
             obj.radiometry.weight_specular = extract_struct(in, 'weight_specular', 0.5);
             obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1]);

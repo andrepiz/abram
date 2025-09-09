@@ -49,7 +49,7 @@ normal_bandwidth = extract_struct(inputs.body.maps.normal, 'bandwidth',[0 inf]);
 % Radiometry
 radiometry_model = extract_struct(inputs.body.radiometry, 'model','lambert', true);
 radiometry_roughness = extract_struct(inputs.body.radiometry, 'roughness', 0.5);
-radiometry_shineness = extract_struct(inputs.body.radiometry, 'shineness', 1);
+radiometry_shininess = extract_struct(inputs.body.radiometry, 'shininess', 1);
 radiometry_weight_lambert = extract_struct(inputs.body.radiometry, 'weight_lambert', 0.5);
 radiometry_weight_specular = extract_struct(inputs.body.radiometry, 'weight_specular', 0.5);
 radiometry_parameters = extract_struct(inputs.body.radiometry, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1]);

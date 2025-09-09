@@ -16,20 +16,26 @@ classdef setting < abram.CRenderInput
     methods
         function obj = setting(in)
             %SETTING Construct a setting object by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. 
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('setting:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('setting:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                % Missing inputs
+                warning('setting:io','Initializing default settings')
+                inputs.setting = [];
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('setting:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                    otherwise 
+                        error('setting:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
 
             % Add missing fields

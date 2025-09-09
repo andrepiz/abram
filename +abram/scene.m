@@ -11,6 +11,9 @@ classdef scene < abram.CRenderInput
     properties
         rpy_CAMI2CAM
         rpy_CSF2IAU
+        pos_body2cam_IAU
+        pos_body2star_IAU
+        q_IAU2CAM
     end
     
     properties (Dependent)
@@ -34,6 +37,8 @@ classdef scene < abram.CRenderInput
         dcm_CAMI2CAM
         dcm_CSF2CAMI
         ang_offpoint
+        dir_body2star_IAU
+        dir_body2cam_IAU
     end
 
     properties (Constant, Hidden)
@@ -43,28 +48,51 @@ classdef scene < abram.CRenderInput
     methods
         function obj = scene(in)
             %SCENE Construct a scene object by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. The default scene is the object at
+            %1 km and the star at 150 million km.
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('scene:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('scene:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                % Missing inputs                
+                warning('scene:io','Initializing object at 1 km and star at 150 million km as default scene')
+                inputs.scene.phase_angle = 0;
+                inputs.scene.distance_body2cam = 1e3; 
+                inputs.scene.distance_body2star = 150e9;
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('scene:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                    otherwise 
+                        error('scene:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
 
             % Assign properties
-            obj.phase_angle = extract_struct(inputs.scene,'phase_angle');
-            obj.d_body2cam = extract_struct(inputs.scene,'distance_body2cam');
-            obj.d_body2star = extract_struct(inputs.scene,'distance_body2star');
-            obj.rpy_CSF2IAU = reshape(extract_struct(inputs.scene,'rollpitchyaw_csf2iau', zeros(1, 3), true), 3, 1);
-            obj.rpy_CAMI2CAM = reshape(extract_struct(inputs.scene,'rollpitchyaw_cami2cam', zeros(1, 3), true), 3, 1);
+            if isfield(inputs.scene,'phase_angle') && isfield(inputs.scene,'distance_body2cam') && isfield(inputs.scene,'distance_body2star')
+                % Classical ABRAM inputs
+                obj.phase_angle = extract_struct(inputs.scene,'phase_angle');
+                obj.d_body2cam = extract_struct(inputs.scene,'distance_body2cam');
+                obj.d_body2star = extract_struct(inputs.scene,'distance_body2star');
+                obj.rpy_CSF2IAU = reshape(extract_struct(inputs.scene,'rollpitchyaw_csf2iau', zeros(1, 3), true), 3, 1);
+                obj.rpy_CAMI2CAM = reshape(extract_struct(inputs.scene,'rollpitchyaw_cami2cam', zeros(1, 3), true), 3, 1);
+
+            elseif isfield(inputs.scene,'position_body2star_iau') && isfield(inputs.scene,'position_body2cam_iau') && isfield(inputs.scene,'quaternion_iau2cam')
+                % IAU body-fixed inputs
+                obj.pos_body2star_IAU = extract_struct(inputs.scene,'position_body2star_iau');
+                obj.pos_body2cam_IAU = extract_struct(inputs.scene,'position_body2cam_iau');
+                obj.q_IAU2CAM = extract_struct(inputs.scene,'quaternion_iau2cam');
+                % [obj.phase_angle, obj.d_body2cam, obj.d_body2star, obj.rpy_CSF2IAU, obj.rpy_CAMI2CAM] = ...
+                %     iau2abram(obj.pos_body2star_IAU, obj.pos_body2cam_IAU, obj.q_IAU2CAM, false);
+            else
+                error('abram:io','Please input the geometry as set A: phase_angle + distance_body2cam + distance_body2star (+ rollpitchyaw_csf2iau + rollpitchyaw_cami2cam) or set B: position_body2star_iau + position_body2cam_iau + quaternion_iau2cam')
+            end
+
         end
 
         %% GETTERS
@@ -136,5 +164,36 @@ classdef scene < abram.CRenderInput
             val = acos(pos_cam2body_CAM(3,:)./norm(pos_cam2body_CAM));
         end
 
+        function obj = set.pos_body2star_IAU(obj, val)
+            obj.pos_body2star_IAU = val;
+            obj.d_body2star = norm(val);
+            if ~isempty(obj.dir_body2cam_IAU)
+                obj.phase_angle = acos(dot(obj.dir_body2star_IAU, obj.dir_body2cam_IAU));
+                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(obj.dir_body2star_IAU, obj.dir_body2cam_IAU)));
+            end
+        end
+
+        function obj = set.pos_body2cam_IAU(obj, val)
+            obj.pos_body2cam_IAU = val;
+            obj.d_body2cam = norm(val);
+            if ~isempty(obj.dir_body2star_IAU)
+                obj.phase_angle = acos(dot(obj.dir_body2star_IAU, obj.dir_body2cam_IAU));
+                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(obj.dir_body2star_IAU, obj.dir_body2cam_IAU)));
+            end
+        end
+
+        function obj = set.q_IAU2CAM(obj, val)
+            obj.q_IAU2CAM = val;
+            dcm_CAMI2IAU = obj.dcm_CSF2IAU*obj.dcm_CSF2CAMI';
+            obj.rpy_CAMI2CAM = dcm_to_euler(quat_to_dcm(val)*dcm_CAMI2IAU);
+        end
+
+        function val = get.dir_body2star_IAU(obj)
+            val = obj.pos_body2star_IAU./obj.d_body2star;
+        end
+
+        function val = get.dir_body2cam_IAU(obj)
+            val = obj.pos_body2cam_IAU./obj.d_body2cam;
+        end
     end
 end

@@ -6,6 +6,7 @@
 *.gif
 *.IMG
 *.pdf
+*.JP2
 
 # Folder
 debug/src_backup/*
