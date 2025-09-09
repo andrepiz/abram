@@ -38,17 +38,19 @@ camera:
           dark: {flag: false, sigma: 1.3245, mean: 590, seed: 1},    # Dark Current multiplicative standard deviation [%] and mean [e-/s]
           readout: {flag: false, sigma: 100, seed: 4}}               # Readout Noise standard deviation [e-]
 scene:
-  distance_body2star: 1.49597870707E11      # [m]
-  distance_body2cam: 1E8                    # [m]
-  phase_angle: 0.8                          # [rad]
-  rollpitchyaw_cami2cam:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  position_body2star_iau: # [m] Position of star with respect to body in body-fixed IAU frame
+  - [1.49597870707E11]
   - [0.0]
   - [0.0]
+  position_body2cam_iau: # [m] Position of camera with respect to body in body-fixed IAU frame
+  - [6.9671e+07]
+  - [7.1736e+07]
   - [0.0]
-  rollpitchyaw_csf2iau:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
-  - [0.0]
-  - [0.0]
-  - [0.0]
+  quaternion_iau2cam:  # [-] Orientation of camera frame with respect body-fixed IAU frame
+  - [0.265821325847117]
+  - [-0.265821325847117]
+  - [-0.655239668155768]
+  - [0.655239668155768]
 setting:
   general: {parallelization: false}                                                     # Single-thread parallelization 
   #general: {parallelization: true, workers: auto}                                          # Multi-thread parallelization with specified number of workers 

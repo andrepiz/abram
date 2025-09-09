@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 30-07-2025        Andrea Pizzetti        ABRAM v1.6 - Added depth map. Added default initialization
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
     % -------------------------------------------------------------------------------------------------------------
@@ -39,10 +40,6 @@ classdef render
         bodyPxCenter
         conicMat
         conicVec
-        elCamFromLimb
-        elCamFromTerm
-        elStarFromLimb
-        elStarFromTerm
     end
 
     properties (Hidden)
@@ -82,37 +79,52 @@ classdef render
             end
             %RENDER Construct a rendering agent by providing an inputs YML
             %file or a MATLAB struct
-            assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
+
+            if nargin == 0
+                % Missing inputs
+                warning('render:io','Initializing default render')
+                % Create corresponding classes (defaults)
+                warning off
+                obj.star    = abram.star   ();
+                obj.body    = abram.body   ();
+                obj.camera  = abram.camera ();
+                obj.scene   = abram.scene  ();
+                obj.setting = abram.setting();
+                warning on
+            else
+                % Load inputs
+                assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
                 'Unsupported input type. Please provide a path to yaml config. or a data struct containing data.');
 
-            % Check yaml package is available
-            if isempty( which('yaml.ReadYaml') )
-                error('render:io','YAML toolbox not found. Please install yaml with git submodule or download it from https://github.com/ewiger/yamlmatlab and add it to the MATLAB path');
-            end
+                % Check yaml package is available
+                if isempty( which('yaml.ReadYaml') )
+                    error('render:io','YAML toolbox not found. Please install yaml with git submodule or download it from https://github.com/ewiger/yamlmatlab and add it to the MATLAB path');
+                end
+    
+                % Load inputs
+                switch class(input_args)
+                    case {'char', 'string'}
+                        try
+                            inputs = yaml.ReadYaml(char(input_args));
+                        catch
+                            error('render:io',['Errors found while reading ', char(input_args)])
+                        end
+                        if isempty(fields(inputs))
+                            error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
+                        end
+                    case {'struct'}
+                        inputs = input_args;
+                    otherwise 
+                        error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
 
-            % Load inputs
-            switch class(input_args)
-                case {'char', 'string'}
-                    try
-                        inputs = yaml.ReadYaml(char(input_args));
-                    catch
-                        error('render:io',['Errors found while reading ', char(input_args)])
-                    end
-                    if isempty(fields(inputs))
-                        error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
-                    end
-                case {'struct'}
-                    inputs = input_args;
-                otherwise 
-                    error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                % Create corresponding classes
+                obj.star    = abram.star   (inputs);
+                obj.body    = abram.body   (inputs);
+                obj.camera  = abram.camera (inputs);
+                obj.scene   = abram.scene  (inputs);
+                obj.setting = abram.setting(inputs);
             end
-
-            % Create corresponding classes (defaults)
-            obj.star    = abram.star   (inputs);
-            obj.body    = abram.body   (inputs);
-            obj.camera  = abram.camera (inputs);
-            obj.scene   = abram.scene  (inputs);
-            obj.setting = abram.setting(inputs);
 
             % Get fieldnames and set input objects directly if specified
             kwargs_fields = fieldnames(kwargs);
@@ -262,26 +274,6 @@ classdef render
             res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
         end
 
-        function res = get.elCamFromLimb(obj)
-            % Signed elevation angle of camera from the limb
-            res = find_sphere_elevation_from_horizon(obj.scene.d_body2cam, max(obj.body.Rbody), 0);
-        end
-        
-        function res = get.elCamFromTerm(obj)
-            % Signed elevation angle of camera from the terminator
-            res = find_sphere_elevation_from_horizon(obj.scene.d_body2cam, max(obj.body.Rbody), obj.scene.phase_angle);
-        end
-
-        function res = get.elStarFromLimb(obj)
-            % Signed elevation angle of star from the limb
-            res = find_sphere_elevation_from_horizon(obj.scene.d_body2star, max(obj.body.Rbody), obj.scene.phase_angle);
-        end
-        
-        function res = get.elStarFromTerm(obj)
-            % Signed elevation angle of star from the terminator
-            res = find_sphere_elevation_from_horizon(obj.scene.d_body2star, max(obj.body.Rbody), 0);
-        end
-
         function res = get.depth(obj)
             % Depth map from coordinates point cloud
             res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
@@ -293,36 +285,36 @@ classdef render
             
             fprintf('\n### RENDERING STARTED ###')
 
-            fprintf('\n+++ Loading data ...'), tic, 
+            fprintf('\n+++ Loading data +++'), tic, 
             obj = obj.getParPool(); 
             obj = obj.loadMaps(); 
             obj.time_loading = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_loading)])
+            fprintf('\n...CPU time: %f sec', obj.time_loading)
 
-            fprintf('\n+++ Sampling points ...'), tic, 
+            fprintf('\n+++ Sampling points +++'), tic, 
             obj = obj.setSpectrum();
             obj = obj.sampleSectors();
             obj.time_sampling = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_sampling)])
+            fprintf('\n...CPU time: %f sec', obj.time_sampling)
 
-            fprintf('\n+++ Integrating scene...'), tic, 
+            fprintf('\n+++ Integrating scene +++'), tic, 
             obj = obj.pointCloud(); 
             obj.time_integrating = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_integrating)])
+            fprintf('\n...CPU time: %f sec', obj.time_integrating)
 
-            fprintf('\n+++ Direct gridding...'), tic, 
+            fprintf('\n+++ Direct gridding +++'), tic, 
             obj = obj.directGridding(); 
             obj.time_gridding = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_gridding)])
+            fprintf('\n...CPU time: %f sec', obj.time_gridding)
 
-            fprintf('\n+++ Process image ...'), tic, 
+            fprintf('\n+++ Process image +++'), tic, 
             obj = obj.processImage();
             abram.render.saveImage(obj.img, obj.setting);
             obj.time_processing = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_processing)])
+            fprintf('\n...CPU time: %f sec', obj.time_processing)
 
-            fprintf('\n### RENDERING FINISHED ###\n')
             obj.time_rendering = obj.time_sampling + obj.time_integrating + obj.time_gridding;
+            fprintf('\n### FINISHED IN %f SEC ###\n', obj.time_loading + obj.time_rendering + obj.time_processing)
 
             % Set to false the updates to prepare for next rendering
             obj.update_sectors = false;
@@ -339,8 +331,8 @@ classdef render
             if obj.update_parpool || ~obj.smart_calling
                 obj.setting = abram.render.getParPool(obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping parpool loading...') 
+
+                fprintf('\n   smart calling: no change detected, skipping parpool loading...') 
             end
         end
 
@@ -348,8 +340,8 @@ classdef render
             if obj.update_maps || ~obj.smart_calling
                 obj.body = abram.body.loadMaps(obj.body);
             else
-                fprintf('\n')
-                warning('No change detected, skipping maps loading...') 
+
+                fprintf('\n   smart calling: no change detected, skipping maps loading...') 
             end
         end
 
@@ -357,8 +349,8 @@ classdef render
             if obj.update_spectrum || ~obj.smart_calling
                 obj.star = obj.star.integrateRadiance(obj.camera.QExT);
             else
-                fprintf('\n')
-                warning('No change detected, skipping spectrum setting...') 
+
+                fprintf('\n   smart calling: no change detected, skipping spectrum setting...') 
             end
         end
 
@@ -366,8 +358,8 @@ classdef render
             if obj.update_sectors || ~obj.smart_calling
                 obj.body = abram.body.sampleSectors(obj.body, obj.camera, obj.scene, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping sectors sampling...') 
+
+                fprintf('\n   smart calling: no change detected, skipping sectors sampling...') 
             end
         end
 
@@ -376,8 +368,8 @@ classdef render
                 obj.cloud = abram.render.pointCloud(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
                 obj.update_matrix = true;
             else
-                fprintf('\n')
-                warning('No change detected, skipping cloud generation...') 
+
+                fprintf('\n   smart calling: no change detected, skipping cloud generation...') 
             end
         end
 
@@ -385,8 +377,8 @@ classdef render
             if obj.update_matrix || ~obj.smart_calling
                 obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping direct gridding...') 
+
+                fprintf('\n   smart calling: no change detected, skipping direct gridding...') 
             end
         end
 
@@ -394,8 +386,8 @@ classdef render
             if obj.update_image || ~obj.smart_calling
                 [obj.img, obj.noise, obj.ec, obj.ecr] = abram.render.processImage(obj.matrix, obj.star, obj.camera, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping image processing...') 
+
+                fprintf('\n   smart calling: no change detected, skipping image processing...') 
             end
         end
 

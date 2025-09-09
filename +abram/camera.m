@@ -43,20 +43,33 @@ classdef camera < abram.CRenderInput
     methods
         function obj = camera(in)
             %CAMERA Construct a camera by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. The default camera is a 1024 px detector 
+            %coupled with a 50mm f/2.0 lens
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('render:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                % Missing inputs
+                warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens as default camera')
+                inputs.camera.resolution = [1024 1024];
+                inputs.camera.pixel_width = 1e-6;
+                inputs.camera.exposure_time = 1e-7;
+                inputs.camera.focal_length = 50e-3;
+                inputs.camera.f_number = 2;
+                inputs.camera.full_well_capacity = 10e3;
+                inputs.camera.gain_analog2digital = (2^8-1)./10e3;
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('render:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                    otherwise 
+                        error('camera:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
 
             % Add missing fields 
