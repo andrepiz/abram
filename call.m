@@ -12,12 +12,12 @@ filename_yml = 'example.yml';
 rend = abram.render(filename_yml);
 
 %% SCRIPTS CALL
-% Use this syntax to call the rendering scripts and make available the
-% entire workspace
+% % Use this syntax to call the rendering scripts and make available the
+% % entire workspace
 % 
 % inputs_yml();
 % run_model();
 % 
-% Post-processing scripts
+% % Post-processing scripts
 % postpro();
-% %postpro_3d();
+% postpro_3d();

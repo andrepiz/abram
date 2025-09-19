@@ -198,7 +198,7 @@ classdef render
                 obj.update_maps = update_flag_trigger(obj.body, objInput, obj.update_maps, {'maps'});
                 obj.update_radiometry = update_flag_trigger(obj.body.radiometry, objInput, obj.update_radiometry) | ...
 										(isempty(obj.body.maps) & (update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo'}) | update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo_type'})));
-                obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'Rbody'});
+                obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'Rbody','lon_lims','lat_lims'});
             end
             obj.body = objInput;
         end
@@ -298,7 +298,7 @@ classdef render
             fprintf('\n...CPU time: %f sec', obj.time_sampling)
 
             fprintf('\n+++ Integrating scene +++'), tic, 
-            obj = obj.pointCloud(); 
+            obj = obj.coeffCloud(); 
             obj.time_integrating = toc;
             fprintf('\n...CPU time: %f sec', obj.time_integrating)
 
@@ -363,9 +363,9 @@ classdef render
             end
         end
 
-        function obj = pointCloud(obj)
+        function obj = coeffCloud(obj)
             if obj.update_render || ~obj.smart_calling
-                obj.cloud = abram.render.pointCloud(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
+                obj.cloud = abram.render.coeffCloud(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
                 obj.update_matrix = true;
             else
 
