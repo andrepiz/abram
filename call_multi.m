@@ -2,8 +2,7 @@
 abram_install();
 
 %% INPUTS
-filename_yml = 'example.yml';
-%filename_yml = 'example_parallelized.yml';
+filename_yml = 'example_moon.yml';
 
 %% RENDER OBJECT
 % Perform a first rendering and save the render object
@@ -14,15 +13,23 @@ rend = abram.render(filename_yml);
 % on the render object
 
 % Assume a trajectory
-phase_angle_vec = pi/2 + pi/180*[-60:2:0];
+phase_angle_vec = rend.scene.phase_angle + pi/180*[10:10:60];
 rend.scene.rpy_CAMI2CAM = [0;0;0];
 rend.scene.rpy_CSF2IAU = [0;0;0];
+
+fh1 = figure();
+axIm = gca();
+im = imshow(digital2digital(rend.img, rend.setting.saving.depth, 8),'Parent',axIm);
+
 % Loop
 for ix = 1:length(phase_angle_vec)
     rend.scene.rpy_CSF2IAU(3) = phase_angle_vec(ix);
     rend.scene.d_body2cam = 0.95*rend.scene.d_body2cam;
     rend.scene.phase_angle = phase_angle_vec(ix);
-    rend.rendering();
+    rend = rend.rendering();
+
+    im = imshow(digital2digital(rend.img, rend.setting.saving.depth, 8),'Parent',axIm);
+    drawnow
 end
 
 %% ABRAM SMART CALLING

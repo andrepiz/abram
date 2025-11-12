@@ -14,6 +14,7 @@ abram_install();
 %% GROUND TRUTH
 % USE YML
 filename_yml = 'sphere001_8m_02ms_8bit.yml';
+filename_yml = 'bfs001_8m_5ms_8bit.yml';
 
 inputs_yml();
 
@@ -21,5 +22,6 @@ run_model();
 
 %% POST-PRO
 image_filepath_render_engine = 'data\sphere001_8m_02ms_8bit\img\000001.png';
+image_filepath_render_engine = 'data\bfs001_8m_5ms_8bit\img\000000.png';
 
 postpro_render_engine_calibration();

@@ -1,3 +1,4 @@
+body = rend.body; camera = rend.camera; scene = rend.scene; cloud = rend.cloud; matrix = rend.matrix; 
 cmap = 'jet';
 
 % Extract 3D cloud
@@ -13,13 +14,13 @@ dir_cam2sec_CAM = pos_cam2sec_CAM./d_cam2sec;
 epsilon = acos(dir_cam2sec_CAM(3,:));  
 OmProj = camera.Apupil*cos(scene.ang_offpoint)./(d_cam2sec.^2);
 pos_body2sec_CSF = scene.pos_body2cam_CSF + scene.dcm_CSF2CAM'*pos_cam2sec_CAM;
-dir_body2star_CSF = scene.dir_body2star_CSF;
+dir_body2light_CSF = scene.dir_body2light_CSF;
 dir_body2cam_CSF = scene.dir_body2cam_CSF;
-[~, dcm_CSF2CAMI] = cami(dir_body2star_CSF, dir_body2cam_CSF);
+[~, dcm_CSF2CAMI] = cami(dir_body2light_CSF, dir_body2cam_CSF);
 dcm_CSF2IAU = scene.dcm_CSF2IAU;
 dcm_CSF2CAM = scene.dcm_CSF2CAM;
 
-Rbody = body.Rbody;
+Rbody = body.radius;
 res_px = camera.res_px;
 
 %% Frames & Vectors
@@ -28,7 +29,7 @@ R_frames2ref(:,:,2) = dcm_CSF2IAU';
 R_frames2ref(:,:,3) = dcm_CSF2CAMI';
 R_frames2ref(:,:,4) = dcm_CSF2CAM';
 R_pos_ref = 3*[zeros(3, 2), dir_body2cam_CSF, dir_body2cam_CSF];
-v_ref = 1.5*[dir_body2star_CSF, dir_body2cam_CSF];
+v_ref = 1.5*[dir_body2light_CSF, dir_body2cam_CSF];
 v_pos_ref = zeros(3, 2);
 fh  = figure(); grid on; hold on; axis equal
 plot_frames_and_vectors(R_frames2ref, R_pos_ref, v_ref, v_pos_ref,...
@@ -55,7 +56,7 @@ axis equal
 
 scatter3(pos_body2sec_CSF(1,:), pos_body2sec_CSF(2,:), pos_body2sec_CSF(3,:), 10, d_cam2sec, 'filled')
 ampl = 2*Rbody(1);
-quiver3(0,0,0,ampl*dir_body2star_CSF(1),ampl*dir_body2star_CSF(2),ampl*dir_body2star_CSF(3),'LineWidth',2)
+quiver3(0,0,0,ampl*dir_body2light_CSF(1),ampl*dir_body2light_CSF(2),ampl*dir_body2light_CSF(3),'LineWidth',2)
 quiver3(0,0,0,ampl*dir_body2cam_CSF(1),ampl*dir_body2cam_CSF(2),ampl*dir_body2cam_CSF(3),'LineWidth',2)
 colormap(cmap);
 col = colorbar;
@@ -73,7 +74,7 @@ axis equal
 
 scatter3(pos_body2sec_CSF(1,:), pos_body2sec_CSF(2,:), pos_body2sec_CSF(3,:), 10, epsilon, 'filled')
 ampl = 2*Rbody(1);
-quiver3(0,0,0,ampl*dir_body2star_CSF(1),ampl*dir_body2star_CSF(2),ampl*dir_body2star_CSF(3),'LineWidth',2)
+quiver3(0,0,0,ampl*dir_body2light_CSF(1),ampl*dir_body2light_CSF(2),ampl*dir_body2light_CSF(3),'LineWidth',2)
 quiver3(0,0,0,ampl*dir_body2cam_CSF(1),ampl*dir_body2cam_CSF(2),ampl*dir_body2cam_CSF(3),'LineWidth',2)
 colormap(cmap);
 col = colorbar;
@@ -89,8 +90,8 @@ figure()
 grid on, hold on
 axis equal
 scatter3(pos_body2sec_CSF(1,:), pos_body2sec_CSF(2,:), pos_body2sec_CSF(3,:), 10, OmProj, 'filled')
-ampl = 2*body.Rbody(1);
-quiver3(0,0,0,ampl*dir_body2star_CSF(1),ampl*dir_body2star_CSF(2),ampl*dir_body2star_CSF(3),'LineWidth',2)
+ampl = 2*Rbody(1);
+quiver3(0,0,0,ampl*dir_body2light_CSF(1),ampl*dir_body2light_CSF(2),ampl*dir_body2light_CSF(3),'LineWidth',2)
 quiver3(0,0,0,ampl*dir_body2cam_CSF(1),ampl*dir_body2cam_CSF(2),ampl*dir_body2cam_CSF(3),'LineWidth',2)
 colormap(cmap);
 col = colorbar;
@@ -107,7 +108,7 @@ grid on, hold on
 axis equal
 scatter3(pos_body2sec_CSF(1,:), pos_body2sec_CSF(2,:), pos_body2sec_CSF(3,:), 10, PL_point, 'filled')
 ampl = 2*Rbody(1);
-quiver3(0,0,0,ampl*dir_body2star_CSF(1),ampl*dir_body2star_CSF(2),ampl*dir_body2star_CSF(3),'LineWidth',2)
+quiver3(0,0,0,ampl*dir_body2light_CSF(1),ampl*dir_body2light_CSF(2),ampl*dir_body2light_CSF(3),'LineWidth',2)
 quiver3(0,0,0,ampl*dir_body2cam_CSF(1),ampl*dir_body2cam_CSF(2),ampl*dir_body2cam_CSF(3),'LineWidth',2)
 colormap(cmap);
 col = colorbar;

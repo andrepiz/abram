@@ -12,7 +12,7 @@ switch sampling
         lambda_mid = (lambda_min + lambda_max)/2;
         T = interp1(lambda, resp_none, lambda_mid);
         if flag_plot
-            figure()
+            figure('name','amie_transmittance')
             grid on, hold on
             plot(1e9*lambda, 1e2*resp_none,'--')
             stairs(1e9*lambda_min, 1e2*T,'-o')
@@ -25,7 +25,7 @@ switch sampling
         % use mid trapezoidal value
         T = 0.5*interp1(lambda, resp_none, lambda_min, "linear", resp_none(1)) + 0.5*interp1(lambda, resp_none, lambda_max, "linear", resp_none(end));
         if flag_plot
-            figure()
+            figure('name','amie_transmittance')
             grid on, hold on
             plot(1e9*lambda, 1e2*resp_none,'--')
             stairs(1e9*lambda_min, 1e2*T,'-o')

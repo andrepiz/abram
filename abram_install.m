@@ -3,6 +3,7 @@
 % MATLAB environment
 clear
 close all
+restoredefaultpath
 
 if ispc
     

@@ -36,7 +36,7 @@ for ix = 1:length(phase_angle_vec)
 
     rend.scene.rpy_CAMI2CAM = rpy_CAMI2CAM_vec(:, ix);
     rend.scene.rpy_CSF2IAU = rpy_CSF2IAU_vec(:, ix);
-    rend.scene.d_body2star = d_body2star_vec(ix);
+    rend.scene.d_body2light = d_body2star_vec(ix);
     rend.scene.d_body2cam = d_body2cam_vec(ix);
     rend.scene.phase_angle = phase_angle_vec(ix);
     rend = rend.rendering();

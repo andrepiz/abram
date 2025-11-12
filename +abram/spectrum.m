@@ -30,14 +30,23 @@ classdef spectrum
             % Init 
             spectrum_merged = spectrum_vec(1);
 
+            if length(spectrum_vec(1).lambda_mid) == length(spectrum_vec(2).lambda_mid)
+                if all(spectrum_vec(1).lambda_mid == spectrum_vec(2).lambda_mid) && strcmp(spectrum_vec(1).sampling, spectrum_vec(2).sampling)
+                    % Multiply spectrum
+                    spectrum_merged.values = spectrum_vec(1).values.*spectrum_vec(2).values;
+                    return
+                end
+            end
+
             % Merge spectrum
+            warning('The provided spectra will be merged as they are defined at different wavelengths and/or they have different sampling methods')
             [sp_temp, sampling_temp] = merge_spectra([spectrum_vec(1).lambda_min; spectrum_vec(1).lambda_max; spectrum_vec(1).values], spectrum_vec(1).sampling,...
                                             [spectrum_vec(2).lambda_min; spectrum_vec(2).lambda_max; spectrum_vec(2).values], spectrum_vec(2).sampling);
-
             spectrum_merged.lambda_min = sp_temp(1,:);
             spectrum_merged.lambda_max = sp_temp(2,:);
             spectrum_merged.values = sp_temp(3,:);
-            spectrum_merged.sampling = sampling_temp;
+            spectrum_merged.sampling = sampling_temp;          
+
         end        
 
         %% GET METHODS %%

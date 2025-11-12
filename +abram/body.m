@@ -4,7 +4,7 @@ classdef body < abram.CRenderInput
     %for the coordinates of the sampled sectors.
 
     properties
-        Rbody
+        radius
         albedo
         albedo_type
         maps       
@@ -22,6 +22,10 @@ classdef body < abram.CRenderInput
     properties (Hidden)
         lon_lims
         lat_lims
+    end
+
+    properties (Dependent, Hidden)
+        adim
     end
 
     methods
@@ -42,10 +46,16 @@ classdef body < abram.CRenderInput
                         if isfile(in)
                             inputs = yaml.ReadYaml(in);
                         else
-                            error('render:io','YML input file not found')
+                            error('body:io','YML input file not found')
                         end
                     case {'struct'}
                         inputs = in;
+                        if ~isfield(in, 'body')
+                            warning('body:io','Initializing unit-radius unit-albedo lambertian sphere as default body')
+                            inputs.body.radius = 1;
+                            inputs.body.albedo = 1;
+                            inputs.body.radiometry = [];
+                        end
                     otherwise 
                         error('body:io','Plase provide input as either a YML filepath or a MATLAB struct')
                 end
@@ -56,7 +66,7 @@ classdef body < abram.CRenderInput
             inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal','horizon'});
 
             % Assign properties
-            obj.Rbody       = extract_struct(inputs.body, 'radius');
+            obj.radius       = extract_struct(inputs.body, 'radius');
             obj.albedo      = extract_struct(inputs.body, 'albedo');
             obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
             obj.maps        = extract_struct(inputs.body, 'maps', []);
@@ -66,16 +76,24 @@ classdef body < abram.CRenderInput
         end
 
         %% GETTERS
+        function val = get.adim(obj)
+            % Adimensionalization coefficient to improve numerical efficiency  
+            val = max(obj.radius);
+        end
+
         function val = get.H(obj)
             % Absolute magnitude, https://cneos.jpl.nasa.gov/tools/ast_size_est.html        
-            val = 5*(3.1236 - log10(2*obj.Rbody*0.01) - 0.5*log10(obj.pGeom));
+            val = 5*(3.1236 - log10(2*obj.radius*0.01) - 0.5*log10(obj.pGeom));
         end
+
         function val = get.pGeom(obj)
             [val, ~, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
+        
         function val = get.pNorm(obj)
             [~, val, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
+
         function val = get.pBond(obj)
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
@@ -106,6 +124,7 @@ classdef body < abram.CRenderInput
                 obj.maps.(f{ix}).limits = extract_struct(in.(f{ix}), 'limits',[-pi, pi; -pi/2, pi/2]);
                 obj.maps.(f{ix}).min = extract_struct(in.(f{ix}), 'min',[]);
                 obj.maps.(f{ix}).max = extract_struct(in.(f{ix}), 'max',[]);
+                obj.maps.(f{ix}).adim = extract_struct(in.(f{ix}), 'adim',[]);
                 obj.maps.(f{ix}).lambda_min = extract_struct(in.(f{ix}), 'lambda_min',[]);
                 obj.maps.(f{ix}).lambda_max = extract_struct(in.(f{ix}), 'lambda_max',[]);
                 obj.maps.(f{ix}).bandwidth = extract_struct(in.(f{ix}), 'bandwidth',[0 inf]);
