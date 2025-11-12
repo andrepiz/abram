@@ -60,4 +60,4 @@ if isfolder(debug_path)
 end
 
 % DISPLAY
-fprintf(['*** ABRAM 1.6 installed in ', op_sys, '. Have fun! ***\n'])
+fprintf(['*** ABRAM 1.7 installed in ', op_sys, '. Have fun! ***\n'])
