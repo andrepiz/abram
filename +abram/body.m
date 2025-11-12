@@ -22,6 +22,8 @@ classdef body < abram.CRenderInput
     properties (Hidden)
         lon_lims
         lat_lims
+        radius_min
+        radius_max
     end
 
     properties (Dependent, Hidden)
