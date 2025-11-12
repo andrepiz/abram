@@ -5,7 +5,8 @@ classdef setting < abram.CRenderInput
     properties
         general                                
         discretization                                
-        sampling                            
+        sampling             
+        culling                            
         integration           
         gridding                                          
         reconstruction                  
@@ -33,32 +34,43 @@ classdef setting < abram.CRenderInput
                         end
                     case {'struct'}
                         inputs = in;
+                        if ~isfield(in, 'setting')
+                            warning('setting:io','Initializing default settings')
+                            inputs.setting = [];
+                        end
                     otherwise 
                         error('setting:io','Plase provide input as either a YML filepath or a MATLAB struct')
                 end
             end
 
             % Add missing fields
-            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','integration','gridding','reconstruction','processing','saving'});
+            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','culling','integration','gridding','reconstruction','processing','saving'});
 
             % General
             general.environment = extract_struct(inputs.setting.general, 'environment','matlab');
-            general.parallelization = extract_struct(inputs.setting.general, 'parallelization', false);
+            general.parallelization = extract_struct(inputs.setting.general, 'parallelization', true);
             general.workers = extract_struct(inputs.setting.general, 'workers', 'auto');
             general.profile = extract_struct(inputs.setting.general, 'profile', 'threads');
+            general.nmax = extract_struct(inputs.setting.general, 'nmax', 10e3*10e3);
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
             discretization.np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);
             discretization.accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
             % Sampling
-            sampling.method = extract_struct(inputs.setting.sampling, 'method', 'projecteduniform');
+            sampling.method = extract_struct(inputs.setting.sampling, 'method', 'auto');
             sampling.limits = extract_struct(inputs.setting.sampling, 'limits', 'auto');
-            sampling.ignore_unobservable = extract_struct(inputs.setting.sampling, 'ignore_unobservable', true);
-            sampling.ignore_occluded = extract_struct(inputs.setting.sampling, 'ignore_occluded', true);
-            sampling.occlusion_rays = extract_struct(inputs.setting.sampling, 'occlusion_rays', 10);
-            sampling.occlusion_angle = extract_struct(inputs.setting.sampling, 'occlusion_angle', 'auto');
+            sampling.intersect_fov = extract_struct(inputs.setting.sampling, 'intersect_fov', true);
+            % Culling
+            culling.ignore_outfov = extract_struct(inputs.setting.culling, 'ignore_outfov', true);
+            culling.ignore_unobservable = extract_struct(inputs.setting.culling, 'ignore_unobservable', true);
+            culling.ignore_occluded = extract_struct(inputs.setting.culling, 'ignore_occluded', true);
+            culling.occlusion_method = extract_struct(inputs.setting.culling, 'occlusion_method', 'raytracing');
+            culling.occlusion_algorithm = extract_struct(inputs.setting.culling, 'occlusion_algorithm', 'iterative');
+            culling.occlusion_rays = extract_struct(inputs.setting.culling, 'occlusion_rays', 'auto');
+            culling.occlusion_angle = extract_struct(inputs.setting.culling, 'occlusion_angle', 'auto');
+            culling.occlusion_accuracy = extract_struct(inputs.setting.culling, 'occlusion_accuracy', 'auto');
             % Integration
-            integration.method = extract_struct(inputs.setting.integration, 'method','trapz');
+            integration.method = extract_struct(inputs.setting.integration, 'method','constant');
             integration.np = extract_struct(inputs.setting.integration, 'number_points', 'auto');
             integration.correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
@@ -92,7 +104,8 @@ classdef setting < abram.CRenderInput
 
             obj.general = general;                    
             obj.discretization = discretization;                             
-            obj.sampling = sampling;                         
+            obj.sampling = sampling;                                   
+            obj.culling = culling;                            
             obj.integration = integration;
             obj.gridding = gridding;                         
             obj.reconstruction = reconstruction;            
