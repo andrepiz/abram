@@ -1,3 +1,8 @@
+ecr = rend.ecr;
+res_px = rend.camera.res_px;
+fwc = rend.camera.fwc;
+tExp = rend.camera.tExp;
+
 [x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
 
 % Maximum exposure time to avoid saturation
