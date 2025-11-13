@@ -379,19 +379,59 @@ classdef render
         end
 
         %% UTILS
-        function h = altitude(obj)
-            % Compute the altitude using the real body elevation at nadir, when the
-            % displacement map is available, or the ellipsoidal radius when it is not 
+        function [lonMin, lonMax, latMin, latMax] = footprint(obj)
+            % Compute the longitude/latitude boundaries in IAU frame
 
-            sph_body2cam = sph_coord_fast(obj.scene.dcm_CSF2IAU*obj.scene.dir_body2cam_CSF);
-            lon_IAU = sph_body2cam(2);
-            lat_IAU = sph_body2cam(3);
-            radius_body2cam = find_triaxial_radius(lon_IAU, lat_IAU, obj.body.radius);
-            if ~isempty(obj.body.maps.displacement.F)
-                h = obj.scene.d_cam2body - (radius_body2cam + obj.body.maps.displacement.adim*obj.body.maps.displacement.F(lon_IAU, lat_IAU));
+            % Extract data
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
+            sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
+            lon_IAU = sph_body2sec(2, :);
+            lat_IAU = sph_body2sec(3, :);
+            
+            % Convex hull
+            hull_idx = convhull(pos_body2sec_IAU');
+            hull_vertices = unique(hull_idx(:));
+            lon_hull = lon_IAU(hull_vertices);
+            lat_hull = lat_IAU(hull_vertices);
+            
+            % For longitude wrapping:
+            lon_hull_wrapped = mod(lon_hull, 2*pi);
+            lon_span = max(lon_hull_wrapped) - min(lon_hull_wrapped);
+            if lon_span < pi
+                lonMin = min(lon_hull_wrapped);
+                lonMax = max(lon_hull_wrapped);
             else
-                h = obj.scene.d_cam2body - radius_body2cam;
+                % Find largest gap and take complement interval for limiting longitudes
+                sorted_lon = sort(lon_hull_wrapped);
+                diff_lon = diff([sorted_lon; sorted_lon(1)+2*pi]);
+                [~, idx_gap] = max(diff_lon);
+                lonMin = mod(sorted_lon(idx_gap+1), 2*pi);
+                lonMax = mod(sorted_lon(idx_gap), 2*pi);
             end
+            latMin = min(lat_hull);
+            latMax = max(lat_hull);
+        end
+
+        function R = bodyRadiusAtNadir(obj)
+            % Compute the body radius at nadir, when the displacement map is
+            % available, or the ellipsoidal radius when it is not 
+            lon_IAU = obj.scene.sph_body2cam_IAU(2);
+            lat_IAU = obj.scene.sph_body2cam_IAU(3);
+            Rbody = find_triaxial_radius(lon_IAU, lat_IAU, obj.body.radius);
+            if ~isempty(obj.body.maps.displacement.F)
+                dh = obj.body.maps.displacement.adim*obj.body.maps.displacement.F(lat_IAU, lon_IAU);
+                if isnan(dh)
+                    warning('abram:render','The longitude and latitude of the camera is outside the displacement map boundaries. The body radius will be provided equal to the spherical/ellipsoidal radius.')
+                    dh = 0;
+                end
+            end
+            R = Rbody + dh;
+        end
+
+        function h = altitude(obj)
+            % Compute the altitude using the real body radius at nadir
+            h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
         end
 
         function [mag_pcr, mag_flux] = magnitude(obj)

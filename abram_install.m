@@ -1,10 +1,6 @@
 %% ABRAM INSTALLATION %%
 
 % MATLAB environment
-clear
-close all
-restoredefaultpath
-
 if ispc
     
     op_sys = 'Windows';
