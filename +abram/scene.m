@@ -21,6 +21,7 @@ classdef scene < abram.CRenderInput
         pos_body2light_CSF
         dcm_CSF2CAM
         dcm_CSF2IAU
+        dcm_CAM2IAU
     end
 
     properties (Dependent, Hidden)
@@ -39,6 +40,7 @@ classdef scene < abram.CRenderInput
         ang_offpoint
         dir_body2light_IAU
         dir_body2cam_IAU
+        sph_body2cam_IAU
     end
 
     properties (Constant, Hidden)
@@ -171,6 +173,10 @@ classdef scene < abram.CRenderInput
             val = obj.dcm_CAMI2CAM*obj.dcm_CSF2CAMI;
         end
 
+        function val = get.dcm_CAM2IAU(obj)
+            val = obj.dcm_CSF2IAU*obj.dcm_CSF2CAM';
+        end
+
         function val = get.ang_offpoint(obj)
             % Angle of body direction with respect to boresight
             val = acos(dot(obj.dir_boresight_CAM, obj.dir_cam2body_CAM));
@@ -211,6 +217,10 @@ classdef scene < abram.CRenderInput
 
         function val = get.dir_body2cam_IAU(obj)
             val = obj.pos_body2cam_IAU./obj.d_body2cam;
+        end
+
+        function val = get.sph_body2cam_IAU(obj)
+            val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2cam_CSF);
         end
     end
 end
