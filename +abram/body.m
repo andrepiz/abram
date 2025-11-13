@@ -22,12 +22,12 @@ classdef body < abram.CRenderInput
     properties (Hidden)
         lon_lims
         lat_lims
-        radius_min
-        radius_max
     end
 
     properties (Dependent, Hidden)
         adim
+        radius_min
+        radius_max
     end
 
     methods
@@ -78,11 +78,6 @@ classdef body < abram.CRenderInput
         end
 
         %% GETTERS
-        function val = get.adim(obj)
-            % Adimensionalization coefficient to improve numerical efficiency  
-            val = max(obj.radius);
-        end
-
         function val = get.H(obj)
             % Absolute magnitude, https://cneos.jpl.nasa.gov/tools/ast_size_est.html        
             val = 5*(3.1236 - log10(2*obj.radius*0.01) - 0.5*log10(obj.pGeom));
@@ -100,6 +95,27 @@ classdef body < abram.CRenderInput
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
 
+        function val = get.adim(obj)
+            % Adimensionalization coefficient to improve numerical efficiency  
+            val = max(obj.radius);
+        end
+
+        function val = get.radius_min(obj)
+            if isempty(obj.maps.displacement.min)
+                val = min(obj.radius);
+            else
+                val = min(obj.radius) + obj.maps.displacement.min;
+            end
+        end
+
+        function val = get.radius_max(obj)
+            if isempty(obj.maps.displacement.max)
+                val = max(obj.radius);
+            else
+                val = max(obj.radius) + obj.maps.displacement.max;
+            end
+        end
+        
         %% SETTERS
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
