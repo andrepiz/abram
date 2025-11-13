@@ -83,6 +83,7 @@ gridding_scheme = 'linear';
 gridding_window = 1;
 gridding_shift = 1;
 gridding_filter = 'gaussian';
+gridding_sigma = 0.5;
 reconstruction_granularity = 1;                        % Down-sampling of pixels
 reconstruction_antialiasing = true;                        
 reconstruction_filter = 'bilinear';                        

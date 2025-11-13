@@ -51,5 +51,5 @@ switch reconstruction_granularity
         reconstruction_txt = [num2str(reconstruction_granularity),'-times grid upsampling, ', reconstruction_filter,' reconstruction filter'];
 end
 disp(['   ',discretization_method,' discretization, ', sampling_method,' sampling, ', integration_method,' integration, ', gridding_txt, ' gridding, ',reconstruction_txt])
-disp(['   diffraction: ', char(string(processing_diffraction)),...
-    ', blooming: ', char(string(processing_blooming))])
+%disp(['   diffraction: ', char(string(processing_diffraction)),...
+%    ', blooming: ', char(string(processing_blooming))])

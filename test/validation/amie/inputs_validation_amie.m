@@ -50,6 +50,11 @@ if flag_normal
     normal_depth = 32;
     normal_frame = 'body';
 end
+if flag_horizon
+    horizon_filename = 'moon\Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif';
+    horizon_depth = 1;
+    horizon_scale = pi/2;
+end
 
 %% CAMERA
 % From User Manual:
@@ -113,8 +118,8 @@ q_CAMI2CAM = params.q_CAMI2CAM;
 % Select parameters
 general_environment = 'matlab';
 general_parallelization = true;
-general_workers = 4;
-discretization_method = 'fixed';
+general_workers = 'auto';
+discretization_method = 'adaptive';
 discretization_np = 1e6;            % number of total pixel sectors on sphere
 discretization_accuracy = 'high';
 sampling_method = 'projecteduniform'; % 'projecteduniform' sampling of longitude and latitude points that are approximately spread uniformly on the projected sphere

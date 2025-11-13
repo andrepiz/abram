@@ -1,4 +1,4 @@
-star:
+light:
   temperature: 5782.0        # [K]
   radius: 6.95E8             # [m]
 body:
@@ -9,10 +9,11 @@ body:
     albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, mean: 0.12}                       # Albedo map
     displacement: {filename: moon/ldem_4.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)
     normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif, depth: 32.0, frame: body}        # Normal map (RGB = XYZ)
+    horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                     # Horizon map (BW = 0-1)
   #radiometry: {model: lambert}                                                             # Lambert reflection
   #radiometry: {model: oren, roughness: 0.5}                                                # Oren-Nayar reflection (rough surfaces)
-  #radiometry: {model: specular, shineness: 1.0}                                            # Specular reflection (shiny surfaces) 
-  #radiometry: {model: phong, shineness: 1.0, weight_lambert: 0.5, weight_specular: 2.0}    # Phong reflection (blend of Lambert and Specular)
+  #radiometry: {model: specular, shininess: 1.0}                                            # Specular reflection (shiny surfaces) 
+  #radiometry: {model: phong, shininess: 1.0, weight_lambert: 0.5, weight_specular: 2.0}    # Phong reflection (blend of Lambert and Specular)
   radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 1]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
 camera:
   exposure_time: 1.5E-3             # [s]
@@ -37,30 +38,36 @@ camera:
           dark: {flag: false, sigma: 1.3245, mean: 590, seed: 1},    # Dark Current multiplicative standard deviation [%] and mean [e-/s]
           readout: {flag: false, sigma: 100, seed: 4}}               # Readout Noise standard deviation [e-]
 scene:
-  distance_body2star: 1.49597870707E11      # [m]
-  distance_body2cam: 1E8                    # [m]
-  phase_angle: 0.8                          # [rad]
-  rollpitchyaw_cami2cam:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  pos_body2light_IAU: # [m] Position of light with respect to body in body-fixed IAU frame
+  - [1.042258402256167e11]
+  - [-1.073149437372658e11]
+  - [0.0]
+  pos_body2cam_IAU: # [m] Position of camera with respect to body in body-fixed IAU frame
+  - [100000000]
   - [0.0]
   - [0.0]
-  - [0.0]
-  rollpitchyaw_csf2iau:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
-  - [0.0]
-  - [0.0]
-  - [0.0]
+  q_IAU2CAM:  # [-] Orientation of camera frame with respect body-fixed IAU frame
+  - [0.5]
+  - [-0.5]
+  - [-0.5]
+  - [0.5]
 setting:
-  general: {parallelization: false}                                                     # Single-thread parallelization 
-  #general: {parallelization: true, workers: auto}                                          # Multi-thread parallelization with specified number of workers 
+  #general: {parallelization: false}                                                     # Single-thread parallelization 
+  general: {parallelization: true, workers: auto}                                          # Multi-thread parallelization with specified number of workers 
   #discretization: {method: fixed, number_points: 2e5}                                   # Fixed discretization with specified number of points
-  discretization: {method: adaptive, accuracy: medium}                                  # Adaptive discretization with ['high','medium','low', number_points_per_px] degree of accuracy
+  discretization: {method: adaptive, accuracy: low}                                  # Adaptive discretization with ['high','medium','low', number_points_per_px] degree of accuracy
   #sampling: {method: uniform}                                                           # Uniform longitude/latitude sampling
-  sampling: {method: projecteduniform}                                                  # Projected-uniform longitude/latitude sampling
+  #sampling: {method: concentrated}                                                  # Nadir-Concentrated longitude/latitude sampling
+  #sampling: {method: projecteduniform}                                                  # Projected-uniform longitude/latitude sampling
+  sampling: {method: auto}                                                              # Automatically choose between the three
+  #culling: {occlusion_method: depthbuffer}                                              # Shadow occlusion based on depthbuffer
+  #culling: {occlusion_method: raytracing, occlusion_algorithm: sampling}                # Shadow occlusion based on logspace or linspace sampling
+  culling: {occlusion_method: raytracing, occlusion_algorithm: iterative}               # Shadow occlusion based on raymarching (default)
   #integration: {method: integral}                                                       # Normal integration (slow)
   #integration: {method: trapz, number_points: 10.0}                                     # Trapz integration with specified number of integration points (fast)
   integration: {method: constant}                                                       # Constant integration of BRDF (fastest)
   #gridding: {method: sum}                                                               # Sum of the point values falling into the same pixel.
   gridding: {method: weightedsum, algorithm: gaussian}                            # Weighted sum of the point values falling into the same pixel with an ['area','diff','invsquared'] weighting algorithm on the neighboring pixels within a given pixel shift window
-  reconstruction: {granularity: 1.0}                                                    # Nominal grid, no reconstruction filter
-  #reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}             # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','gaussian','osculatory'] reconstruction filter
-  processing: {distortion: false, diffraction: false, blooming: false, noise: false}    # Image processing: addition of distortion, PSF diffraction effects, blooming and noise 
+  #reconstruction: {granularity: 1.0}                                                    # Nominal grid, no reconstruction filter
+  reconstruction: {granularity: auto, filter: bilinear, antialiasing: true}             # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','gaussian','osculatory'] reconstruction filter
   saving: {filename: example, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format

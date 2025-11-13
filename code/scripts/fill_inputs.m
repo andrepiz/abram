@@ -64,6 +64,7 @@ if ~exist('radiometry_parameters','var')
 end
 
 %% FILL MISSING INPUTS
+if ~exist('albedo_filename','var'); albedo_filename = []; end
 if ~exist('albedo_dimension','var'); albedo_dimension = []; end
 if ~exist('albedo_scale','var'); albedo_scale = []; end
 if ~exist('albedo_shift','var'); albedo_shift = []; end
@@ -74,12 +75,17 @@ if ~exist('albedo_lambda_min','var'); albedo_lambda_min = []; end
 if ~exist('albedo_lambda_max','var'); albedo_lambda_max = []; end
 if ~exist('albedo_bandwidth','var'); albedo_bandwidth = []; end
 if ~exist('albedo_limits','var'); albedo_limits = [-pi pi; -pi/2 pi/2]; end
+if ~exist('displacement_filename','var'); displacement_filename = []; end
 if ~exist('displacement_limits','var'); displacement_limits = [-pi pi; -pi/2 pi/2]; end
 if ~exist('displacement_scale','var'); displacement_scale = []; end
 if ~exist('displacement_shift','var'); displacement_shift = []; end
+if ~exist('normal_filename','var'); normal_filename = []; end
 if ~exist('normal_scale','var'); normal_scale = []; end
 if ~exist('normal_frame','var'); normal_frame = 'body'; end
 if ~exist('normal_limits','var'); normal_limits = [-pi pi; -pi/2 pi/2]; end
+if ~exist('horizon_filename','var'); horizon_filename = []; end
+if ~exist('horizon_scale','var'); horizon_scale = []; end
+if ~exist('horizon_limits','var'); horizon_limits = [-pi pi; -pi/2 pi/2]; end
 if ~exist('sampling_limits','var'); sampling_limits = 'auto'; end
 if ~exist('amplification','var'); amplification = 0; end
 if ~exist('offset','var'); offset = 0; end
@@ -102,3 +108,27 @@ if ~exist('noise','var')
     noise.readout.sigma = 0;
     noise.readout.seed = [];
 end
+if ~exist('general_environment','var'), general_environment = 'matlab'; end
+if ~exist('general_profile','var'), general_profile = 'auto'; end
+if ~exist('general_workers','var'), general_workers = 'auto'; end
+if ~exist('discretization_accuracy','var'), discretization_accuracy = 'medium'; end
+if ~exist('integration_correct_incidence','var'), integration_correct_incidence = true; end
+if ~exist('integration_correct_reflection','var'), integration_correct_reflection = true; end
+if ~exist('integration_soft_shadows','var'), integration_soft_shadows = 0; end
+if ~exist('sampling_ignore_unobservable','var'), sampling_ignore_unobservable = false; end
+if ~exist('sampling_ignore_occluded','var'), sampling_ignore_occluded = false; end
+if ~exist('sampling_occlusion_rays','var'), sampling_occlusion_rays = 10; end
+if ~exist('sampling_occlusion_angle','var'), sampling_occlusion_angle = 'auto'; end
+if ~exist('gridding_scheme','var'), gridding_scheme = 'linear'; end
+if ~exist('gridding_window','var'), gridding_window = 1; end
+if ~exist('gridding_shift','var'), gridding_shift = 1; end
+if ~exist('gridding_filter','var'), gridding_filter = 'gaussian'; end
+if ~exist('gridding_sigma','var'), gridding_sigma = 1/2; end
+if ~exist('reconstruction_granularity','var'), reconstruction_granularity = 'auto'; end
+if ~exist('reconstruction_filter','var'), reconstruction_filter = 'bilinear'; end
+if ~exist('reconstruction_antialiasing','var'), reconstruction_antialiasing = true; end
+if ~exist('processing_diffraction','var'), processing_diffraction = false; end
+if ~exist('processing_blooming','var'), processing_blooming = false; end
+if ~exist('saving_filename','var'), saving_filename = []; end
+if ~exist('saving_format','var'), saving_format = 'png'; end
+if ~exist('saving_depth','var'), saving_depth = 8; end

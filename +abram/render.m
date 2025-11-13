@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 30-07-2025        Andrea Pizzetti        ABRAM v1.6 - Added depth map. Added default initialization
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
     % -------------------------------------------------------------------------------------------------------------
@@ -13,7 +14,7 @@ classdef render
     % -------------------------------------------------------------------------------------------------------------
 
     properties
-        star
+        light
         body
         camera
         scene
@@ -24,6 +25,7 @@ classdef render
         ec
         noise
         img        
+        depth
         smart_calling
         homepath
         mapspath
@@ -69,7 +71,7 @@ classdef render
                 input_args (1,:) = -1
             end
             arguments
-                kwargs.objStar    (1,1) {isa(kwargs.objStar   , 'star')} 
+                kwargs.objLight   (1,1) {isa(kwargs.objLight  , 'light')} 
                 kwargs.objBody    (1,1) {isa(kwargs.objBody   , 'body')}
                 kwargs.objCamera  (1,1) {isa(kwargs.objCamera , 'camera')}
                 kwargs.objScene   (1,1) {isa(kwargs.objScene  , 'scene')}
@@ -77,37 +79,52 @@ classdef render
             end
             %RENDER Construct a rendering agent by providing an inputs YML
             %file or a MATLAB struct
-            assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
+
+            if nargin == 0
+                % Missing inputs
+                warning('render:io','Initializing a default render object...')
+                % Create corresponding classes (defaults)
+                warning off
+                obj.light   = abram.light  ();
+                obj.body    = abram.body   ();
+                obj.camera  = abram.camera ();
+                obj.scene   = abram.scene  ();
+                obj.setting = abram.setting();
+                warning on
+            else
+                % Load inputs
+                assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
                 'Unsupported input type. Please provide a path to yaml config. or a data struct containing data.');
 
-            % Check yaml package is available
-            if isempty( which('yaml.ReadYaml') )
-                error('render:io','YAML toolbox not found. Please install yaml with git submodule or download it from https://github.com/ewiger/yamlmatlab and add it to the MATLAB path');
-            end
+                % Check yaml package is available
+                if isempty( which('yaml.ReadYaml') )
+                    error('render:io','YAML toolbox not found. Please install yaml with git submodule or download it from https://github.com/ewiger/yamlmatlab and add it to the MATLAB path');
+                end
+    
+                % Load inputs
+                switch class(input_args)
+                    case {'char', 'string'}
+                        try
+                            inputs = yaml.ReadYaml(char(input_args));
+                        catch
+                            error('render:io',['Errors found while reading ', char(input_args)])
+                        end
+                        if isempty(fields(inputs))
+                            error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
+                        end
+                    case {'struct'}
+                        inputs = input_args;
+                    otherwise 
+                        error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
 
-            % Load inputs
-            switch class(input_args)
-                case {'char', 'string'}
-                    try
-                        inputs = yaml.ReadYaml(char(input_args));
-                    catch
-                        error('render:io',['Errors found while reading ', char(input_args)])
-                    end
-                    if isempty(fields(inputs))
-                        error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
-                    end
-                case {'struct'}
-                    inputs = input_args;
-                otherwise 
-                    error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                % Create corresponding classes
+                obj.light   = abram.light   (inputs);
+                obj.body    = abram.body   (inputs);
+                obj.camera  = abram.camera (inputs);
+                obj.scene   = abram.scene  (inputs);
+                obj.setting = abram.setting(inputs);
             end
-
-            % Create corresponding classes (defaults)
-            obj.star    = abram.star   (inputs);
-            obj.body    = abram.body   (inputs);
-            obj.camera  = abram.camera (inputs);
-            obj.scene   = abram.scene  (inputs);
-            obj.setting = abram.setting(inputs);
 
             % Get fieldnames and set input objects directly if specified
             kwargs_fields = fieldnames(kwargs);
@@ -158,18 +175,18 @@ classdef render
             end
         end
 
-        function obj = set.star(obj, objInput)
-            if ~isempty(obj.star)
-                obj.update_spectrum = update_flag_trigger(obj.star, objInput, obj.update_spectrum);
+        function obj = set.light(obj, objInput)
+            if ~isempty(obj.light)
+                obj.update_spectrum = update_flag_trigger(obj.light, objInput, obj.update_spectrum);
             end
-            obj.star = objInput;
+            obj.light = objInput;
         end
 
         function obj = set.setting(obj, objInput)
             if ~isempty(obj.setting)
                 obj.update_parpool = update_flag_trigger(obj.setting, objInput, obj.update_parpool, {'general'});
                 obj.update_sectors = update_flag_trigger(obj.setting, objInput, obj.update_sectors, {'discretization','sampling'});
-                obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'integration'});
+                obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'culling','integration'});
                 obj.update_matrix = update_flag_trigger(obj.setting, objInput, obj.update_matrix, {'gridding','reconstruction'});
                 obj.update_processing = update_flag_trigger(obj.setting, objInput, obj.update_processing, {'processing','saving'});
             end
@@ -181,7 +198,7 @@ classdef render
                 obj.update_maps = update_flag_trigger(obj.body, objInput, obj.update_maps, {'maps'});
                 obj.update_radiometry = update_flag_trigger(obj.body.radiometry, objInput, obj.update_radiometry) | ...
 										(isempty(obj.body.maps) & (update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo'}) | update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo_type'})));
-                obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'Rbody'});
+                obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'radius','lon_lims','lat_lims'});
             end
             obj.body = objInput;
         end
@@ -215,12 +232,12 @@ classdef render
         
         function res = get.gsd(obj)
             % Ground sampling distance at nadir
-            res = (obj.scene.d_body2cam - obj.body.Rbody)*tan(obj.camera.ifov/2); 
+            res = (obj.scene.d_body2cam - obj.body.radius)*tan(obj.camera.ifov/2); 
         end
 
         function res = get.bodyAngSize(obj)
             % Angular size of the body
-            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.Rbody);
+            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.radius);
             res = 2*max(bodyBearingAngle); 
         end
 
@@ -231,18 +248,12 @@ classdef render
 
         function res = get.bodyPxCenter(obj)
             % Return the image coordinates of the body geometric center 
-            K = obj.camera.K;
-            K(1,3) = K(1,3) + 0.5;
-            K(2,3) = K(2,3) + 0.5;
-            res = K([1 2],:)*obj.scene.dir_cam2body_CAM./obj.scene.dir_cam2body_CAM(3);
+            res = obj.camera.K([1 2],:)*obj.scene.dir_cam2body_CAM./obj.scene.dir_cam2body_CAM(3);
         end
 
         function res = get.conicMat(obj)
             % Return the conic as a vector     
-            K = obj.camera.K;
-            K(1,3) = K(1,3) + 0.5;
-            K(2,3) = K(2,3) + 0.5;        
-            res = sphere2conicMat([0;0;0], obj.scene.pos_body2cam_CSF, obj.scene.dcm_CSF2CAM, K, obj.body.Rbody);
+            res = sphere2conicMat([0;0;0], obj.scene.pos_body2cam_CSF, obj.scene.dcm_CSF2CAM, obj.camera.K, obj.body.radius);
         end
 
         function res = get.conicVec(obj)
@@ -257,42 +268,47 @@ classdef render
             res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
         end
 
+        function res = get.depth(obj)
+            % Depth map from coordinates point cloud
+            res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
+        end
+
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene
             
             fprintf('\n### RENDERING STARTED ###')
 
-            fprintf('\n+++ Loading data ...'), tic, 
+            fprintf('\n+++ Loading data +++'), tic, 
             obj = obj.getParPool(); 
             obj = obj.loadMaps(); 
             obj.time_loading = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_loading)])
+            fprintf('\n...CPU time: %f sec', obj.time_loading)
 
-            fprintf('\n+++ Sampling points ...'), tic, 
+            fprintf('\n+++ Sampling points +++'), tic, 
             obj = obj.setSpectrum();
             obj = obj.sampleSectors();
             obj.time_sampling = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_sampling)])
+            fprintf('\n...CPU time: %f sec', obj.time_sampling)
 
-            fprintf('\n+++ Integrating scene...'), tic, 
-            obj = obj.pointCloud(); 
+            fprintf('\n+++ Integrating scene +++'), tic, 
+            obj = obj.coeffCloud(); 
             obj.time_integrating = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_integrating)])
+            fprintf('\n...CPU time: %f sec', obj.time_integrating)
 
-            fprintf('\n+++ Direct gridding...'), tic, 
+            fprintf('\n+++ Direct gridding +++'), tic, 
             obj = obj.directGridding(); 
             obj.time_gridding = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_gridding)])
+            fprintf('\n...CPU time: %f sec', obj.time_gridding)
 
-            fprintf('\n+++ Process image ...'), tic, 
+            fprintf('\n+++ Process image +++'), tic, 
             obj = obj.processImage();
             abram.render.saveImage(obj.img, obj.setting);
             obj.time_processing = toc;
-            fprintf(['\n... CPU time: ', num2str(obj.time_processing)])
+            fprintf('\n...CPU time: %f sec', obj.time_processing)
 
-            fprintf('\n### RENDERING FINISHED ###\n')
             obj.time_rendering = obj.time_sampling + obj.time_integrating + obj.time_gridding;
+            fprintf('\n### FINISHED IN %f SEC ###\n', obj.time_loading + obj.time_rendering + obj.time_processing)
 
             % Set to false the updates to prepare for next rendering
             obj.update_sectors = false;
@@ -309,8 +325,7 @@ classdef render
             if obj.update_parpool || ~obj.smart_calling
                 obj.setting = abram.render.getParPool(obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping parpool loading...') 
+                fprintf('\n   smart calling: no change detected, skipping parpool loading...') 
             end
         end
 
@@ -318,17 +333,15 @@ classdef render
             if obj.update_maps || ~obj.smart_calling
                 obj.body = abram.body.loadMaps(obj.body);
             else
-                fprintf('\n')
-                warning('No change detected, skipping maps loading...') 
+                fprintf('\n   smart calling: no change detected, skipping maps loading...') 
             end
         end
 
         function obj = setSpectrum(obj)
             if obj.update_spectrum || ~obj.smart_calling
-                obj.star = obj.star.integrateRadiance(obj.camera.QExT);
+                obj.light = obj.light.integrateRadiance(obj.camera.QExT);
             else
-                fprintf('\n')
-                warning('No change detected, skipping spectrum setting...') 
+                fprintf('\n   smart calling: no change detected, skipping spectrum setting...') 
             end
         end
 
@@ -336,18 +349,16 @@ classdef render
             if obj.update_sectors || ~obj.smart_calling
                 obj.body = abram.body.sampleSectors(obj.body, obj.camera, obj.scene, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping sectors sampling...') 
+                fprintf('\n   smart calling: no change detected, skipping sectors sampling...') 
             end
         end
 
-        function obj = pointCloud(obj)
+        function obj = coeffCloud(obj)
             if obj.update_render || ~obj.smart_calling
-                obj.cloud = abram.render.pointCloud(obj.star, obj.body, obj.camera, obj.scene, obj.setting);
+                obj.cloud = abram.render.coeffCloud(obj.light, obj.body, obj.camera, obj.scene, obj.setting);
                 obj.update_matrix = true;
             else
-                fprintf('\n')
-                warning('No change detected, skipping cloud generation...') 
+                fprintf('\n   smart calling: no change detected, skipping cloud generation...') 
             end
         end
 
@@ -355,38 +366,112 @@ classdef render
             if obj.update_matrix || ~obj.smart_calling
                 obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping direct gridding...') 
+                fprintf('\n   smart calling: no change detected, skipping direct gridding...') 
             end
         end
 
         function obj = processImage(obj)
             if obj.update_image || ~obj.smart_calling
-                [obj.img, obj.noise, obj.ec, obj.ecr] = abram.render.processImage(obj.matrix, obj.star, obj.camera, obj.setting);
+                [obj.img, obj.noise, obj.ec, obj.ecr] = abram.render.processImage(obj.matrix, obj.light, obj.camera, obj.setting);
             else
-                fprintf('\n')
-                warning('No change detected, skipping image processing...') 
+                fprintf('\n   smart calling: no change detected, skipping image processing...') 
             end
         end
 
         %% UTILS
-        function [mag, flux_pcr_mag0] = magnitude(obj)
+        function [lonMin, lonMax, latMin, latMax] = footprint(obj)
+            % Compute the longitude/latitude boundaries in IAU frame
+
+            % Extract data
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
+            sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
+            lon_IAU = sph_body2sec(2, :);
+            lat_IAU = sph_body2sec(3, :);
+            
+            % Convex hull
+            hull_idx = convhull(pos_body2sec_IAU');
+            hull_vertices = unique(hull_idx(:));
+            lon_hull = lon_IAU(hull_vertices);
+            lat_hull = lat_IAU(hull_vertices);
+            
+            % For longitude wrapping:
+            lon_hull_wrapped = mod(lon_hull, 2*pi);
+            lon_span = max(lon_hull_wrapped) - min(lon_hull_wrapped);
+            if lon_span < pi
+                lonMin = min(lon_hull_wrapped);
+                lonMax = max(lon_hull_wrapped);
+            else
+                % Find largest gap and take complement interval for limiting longitudes
+                sorted_lon = sort(lon_hull_wrapped);
+                diff_lon = diff([sorted_lon; sorted_lon(1)+2*pi]);
+                [~, idx_gap] = max(diff_lon);
+                lonMin = mod(sorted_lon(idx_gap+1), 2*pi);
+                lonMax = mod(sorted_lon(idx_gap), 2*pi);
+            end
+            latMin = min(lat_hull);
+            latMax = max(lat_hull);
+        end
+
+        function R = bodyRadiusAtNadir(obj)
+            % Compute the body radius at nadir, when the displacement map is
+            % available, or the ellipsoidal radius when it is not 
+            lon_IAU = obj.scene.sph_body2cam_IAU(2);
+            lat_IAU = obj.scene.sph_body2cam_IAU(3);
+            Rbody = find_triaxial_radius(lon_IAU, lat_IAU, obj.body.radius);
+            if ~isempty(obj.body.maps.displacement.F)
+                dh = obj.body.maps.displacement.adim*obj.body.maps.displacement.F(lat_IAU, lon_IAU);
+                if isnan(dh)
+                    warning('abram:render','The longitude and latitude of the camera is outside the displacement map boundaries. The body radius will be provided equal to the spherical/ellipsoidal radius.')
+                    dh = 0;
+                end
+            end
+            R = Rbody + dh;
+        end
+
+        function h = altitude(obj)
+            % Compute the altitude using the real body radius at nadir
+            h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
+        end
+
+        function [mag_pcr, mag_flux] = magnitude(obj)
             % Compute the apparent magnitude in the Vega system
             % from the photon flux considering as reference photon flux 
             % (zero magnitude point) the Vega photon flux in the same
             % weighted bandwidth
 
-            % rendered spectrum-weighted signal
-            FPCR_abram = sum(obj.ecr(:))./obj.camera.Apupil;
-
             % reference (Vega) spectrum-weighted signal
-            [~, flux_pcr_mag0_all] = vega_flux(obj.camera.QExT.lambda_min, obj.camera.QExT.lambda_max, obj.camera.QExT.values);
+            [flux_density_mag0_all, pcr_density_mag0_all] = vega_flux(obj.camera.QExT.lambda_min, obj.camera.QExT.lambda_max, obj.camera.QExT.values);
 
-            flux_pcr_mag0 = sum(flux_pcr_mag0_all);
-            mag = -2.5*log10(FPCR_abram./flux_pcr_mag0);
-            if ~isfinite(mag)
-                mag = nan;
+            % rendered spectrum-weighted signal in photon count rate density
+            pcr_density_abram = sum(obj.ecr(:))./obj.camera.Apupil;
+            pcr_density_mag0 = sum(pcr_density_mag0_all);
+            mag_pcr = -2.5*log10(pcr_density_abram./pcr_density_mag0);
+            if ~isfinite(mag_pcr)
+                mag_pcr = nan;
             end
+
+            % rendered spectrum-weighted signal in flux density
+            flux_density_abram = sum(obj.matrix.values(:)*obj.matrix.adim*sum(obj.light.L.values.*obj.camera.QExT.values))./obj.camera.Apupil;
+            flux_density_mag0 = sum(flux_density_mag0_all);
+            mag_flux = -2.5*log10(flux_density_abram./flux_density_mag0);
+            if ~isfinite(mag_flux)
+                mag_flux = nan;
+            end
+        end
+
+        function to_yml(obj, filename_yml, format)
+            % Create an inputs file in yml format using different
+            % formats copying the current properties
+            % of the object 
+            if ~exist("filename_yml", "var")
+                filename_yml = 'inputs.yml';
+            end
+            if ~exist("format", "var")
+                format = 'abram';
+            end
+            
+            fields_to_yml(filename_yml, format, obj.light, obj.body, obj.camera, obj.scene, obj.setting)
         end
 
     end

@@ -19,7 +19,7 @@ scene:
   distance_body2cam: 1.5
   phase_angle: 0
 setting:
-  general: {parallelization: true, workers: 4}
+  general: {parallelization: true, workers: auto}
   discretization: {method: fixed, number_points: 1E7}                                  # Fixed discretization with specified number of points
   sampling: {method: projecteduniform}                                                    # Projected-homogenous longitude/latitude sampling
   integration: {method: trapz, number_points: 10.0}                                     # Trapz integration with specified number of integration points (faster)

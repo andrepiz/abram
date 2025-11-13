@@ -4,7 +4,7 @@ classdef body < abram.CRenderInput
     %for the coordinates of the sampled sectors.
 
     properties
-        Rbody
+        radius
         albedo
         albedo_type
         maps       
@@ -24,31 +24,51 @@ classdef body < abram.CRenderInput
         lat_lims
     end
 
+    properties (Dependent, Hidden)
+        adim
+        radius_min
+        radius_max
+    end
+
     methods
         function obj = body(in)
             %BODY Construct a celestial body by providing an inputs YML
-            %file or a MATLAB struct
+            %file or a MATLAB struct. The default body is a unit-radius
+            %unit-albedo lambertian sphere.
 
-            % Load inputs
-            switch class(in)
-                case {'char','string'}
-                    if isfile(in)
-                        inputs = yaml.ReadYaml(in);
-                    else
-                        error('render:io','YML input file not found')
-                    end
-                case {'struct'}
-                    inputs = in;
-                otherwise 
-                    error('render:io','Plase provide input as either a YML filepath or a MATLAB struct')
+            if nargin == 0
+                warning('body:io','Initializing unit-radius unit-albedo lambertian sphere as default body')
+                inputs.body.radius = 1;
+                inputs.body.albedo = 1;
+                inputs.body.radiometry = [];
+            else
+                % Load inputs
+                switch class(in)
+                    case {'char','string'}
+                        if isfile(in)
+                            inputs = yaml.ReadYaml(in);
+                        else
+                            error('body:io','YML input file not found')
+                        end
+                    case {'struct'}
+                        inputs = in;
+                        if ~isfield(in, 'body')
+                            warning('body:io','Initializing unit-radius unit-albedo lambertian sphere as default body')
+                            inputs.body.radius = 1;
+                            inputs.body.albedo = 1;
+                            inputs.body.radiometry = [];
+                        end
+                    otherwise 
+                        error('body:io','Plase provide input as either a YML filepath or a MATLAB struct')
+                end
             end
 
             % Add missing fields
             inputs.body = add_missing_field(inputs.body, 'maps');
-            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal'});
+            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal','horizon'});
 
             % Assign properties
-            obj.Rbody       = extract_struct(inputs.body, 'radius');
+            obj.radius       = extract_struct(inputs.body, 'radius');
             obj.albedo      = extract_struct(inputs.body, 'albedo');
             obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
             obj.maps        = extract_struct(inputs.body, 'maps', []);
@@ -60,23 +80,47 @@ classdef body < abram.CRenderInput
         %% GETTERS
         function val = get.H(obj)
             % Absolute magnitude, https://cneos.jpl.nasa.gov/tools/ast_size_est.html        
-            val = 5*(3.1236 - log10(2*obj.Rbody*0.01) - 0.5*log10(obj.pGeom));
+            val = 5*(3.1236 - log10(2*obj.radius*0.01) - 0.5*log10(obj.pGeom));
         end
+
         function val = get.pGeom(obj)
             [val, ~, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
+        
         function val = get.pNorm(obj)
             [~, val, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
+
         function val = get.pBond(obj)
             [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
         end
 
+        function val = get.adim(obj)
+            % Adimensionalization coefficient to improve numerical efficiency  
+            val = max(obj.radius);
+        end
+
+        function val = get.radius_min(obj)
+            if isempty(obj.maps.displacement.min)
+                val = min(obj.radius);
+            else
+                val = min(obj.radius) + obj.maps.displacement.min;
+            end
+        end
+
+        function val = get.radius_max(obj)
+            if isempty(obj.maps.displacement.max)
+                val = max(obj.radius);
+            else
+                val = max(obj.radius) + obj.maps.displacement.max;
+            end
+        end
+        
         %% SETTERS
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
             obj.radiometry.roughness = extract_struct(in, 'roughness', 0.5);
-            obj.radiometry.shineness = extract_struct(in, 'shineness', 1);
+            obj.radiometry.shininess = extract_struct(in, 'shininess', 1);
             obj.radiometry.weight_lambert = extract_struct(in, 'weight_lambert', 0.5);
             obj.radiometry.weight_specular = extract_struct(in, 'weight_specular', 0.5);
             obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1]);
@@ -98,9 +142,11 @@ classdef body < abram.CRenderInput
                 obj.maps.(f{ix}).limits = extract_struct(in.(f{ix}), 'limits',[-pi, pi; -pi/2, pi/2]);
                 obj.maps.(f{ix}).min = extract_struct(in.(f{ix}), 'min',[]);
                 obj.maps.(f{ix}).max = extract_struct(in.(f{ix}), 'max',[]);
+                obj.maps.(f{ix}).adim = extract_struct(in.(f{ix}), 'adim',[]);
                 obj.maps.(f{ix}).lambda_min = extract_struct(in.(f{ix}), 'lambda_min',[]);
                 obj.maps.(f{ix}).lambda_max = extract_struct(in.(f{ix}), 'lambda_max',[]);
                 obj.maps.(f{ix}).bandwidth = extract_struct(in.(f{ix}), 'bandwidth',[0 inf]);
+                obj.maps.(f{ix}).res_lonlat = extract_struct(in.(f{ix}), 'res_lonlat',[0 0]);
             end
         end
     end

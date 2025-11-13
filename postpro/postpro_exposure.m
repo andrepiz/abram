@@ -1,11 +1,14 @@
-tExp_vec = tExp*logspace(-1, 2, 40);
-flag_create_gif = false;
-gif_filename = 'saturation.gif';
+ecr = rend.ecr;
+G_AD = rend.camera.G_AD;
+tSat_pixel = rend.camera.fwc./rend.ecr;
+tExp_vec = rend.camera.tExp*logspace(-1, 2, 40);
+
+flag_create_gif = true;
+gif_filename = 'gif_increasing_exposure.gif';
 
 %%
 [x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
 % Maximum exposure time to avoid saturation
-tSat_pixel = fwc./ecr;
 tSat_pixel(tSat_pixel == inf) = nan;
 
 %%
@@ -14,10 +17,10 @@ ax1 = subplot(1,2,1);
 grid on, hold on
 colormap('gray')
 colorbar
-clim([0, 2^saving_depth-1])
+clim([0, 2^rend.setting.saving.depth-1])
 xlabel('u [px]')
 ylabel('v [px]')
-title([num2str(saving_depth),'-bit Image [DN]']);
+title([num2str(rend.setting.saving.depth),'-bit Image [DN]']);
 pbaspect([1, 1, 10])
 xlim([0 res_px(1)]) 
 ylim([0 res_px(2)])
@@ -46,7 +49,7 @@ for ix = 1:length(tExp_vec)
 
     sgtitle(['Exposure time: ', num2str(round(tExp_plot*1e3, 7)),'ms'])
     ec_plot = ecr*tExp_plot;
-    img_plot = analog2digital(ec_plot, G_AD, saving_depth, saving_depth);
+    img_plot = analog2digital(ec_plot, G_AD, rend.setting.saving.depth, rend.setting.saving.depth);
 
     tSat_segmentation_mask = tSat_pixel;
     tSat_segmentation_mask(tExp_plot >= tSat_pixel) = 1;

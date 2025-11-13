@@ -2,21 +2,17 @@
 abram_install();
 
 %% INPUTS
-filename_yml = 'example.yml';
-%filename_yml = 'example_parallelized.yml'; % fast version with parallellization
+filename_yml = 'example_moon.yml';
 
-%% OOP CALL
-% Use this syntax to call the rendering in a single line using the
-% object-oriented architecture
+%% CALL
 rend = abram.render(filename_yml);
 
-%% SCRIPTS CALL
-% Use this syntax to call the rendering scripts and make available the
-% entire workspace
-% 
-% inputs_yml();
-% run_model();
-% 
-% Post-processing scripts
-% postpro();
-% %postpro_3d();
+%% POST-PROCESSING (OPTIONAL)
+
+postpro() % image visualization
+%postpro_depth() % image depth visualization
+%postpro_3d() % point cloud visualization
+%postpro_culling_3d() % culling visualization
+%postpro_sampling() % sampling visualization
+%postpro_saturation() % time before saturation 
+%postpro_exposure() % segmentation with increasing exposure
