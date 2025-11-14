@@ -104,7 +104,7 @@ classdef body < abram.CRenderInput
             if isempty(obj.maps.displacement.min)
                 val = min(obj.radius);
             else
-                val = min(obj.radius) + obj.maps.displacement.min;
+                val = min(obj.radius) + obj.maps.displacement.min*obj.maps.displacement.adim;
             end
         end
 
@@ -112,7 +112,7 @@ classdef body < abram.CRenderInput
             if isempty(obj.maps.displacement.max)
                 val = max(obj.radius);
             else
-                val = max(obj.radius) + obj.maps.displacement.max;
+                val = max(obj.radius) + obj.maps.displacement.max*obj.maps.displacement.adim;
             end
         end
         
