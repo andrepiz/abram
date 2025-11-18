@@ -236,8 +236,18 @@ classdef render
         end
 
         function res = get.bodyAngSize(obj)
-            % Angular size of the body
-            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.radius);
+            % Angular size of the body 
+
+            if isempty(obj.body.maps.displacement.F) || obj.scene.d_body2cam > max(obj.body.radius)
+                % Using the body radius when there is no displacement map or
+                % the camera distance is larger than the body radius
+                Rbody = max(obj.body.radius);
+            else
+                % In close range we compute the real body radius at nadir
+                Rbody = obj.bodyRadiusAtNadir;
+            end
+            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, Rbody); 
+            % Otherwise using the radius at the nadir point 
             res = 2*max(bodyBearingAngle); 
         end
 
@@ -383,7 +393,10 @@ classdef render
             % Compute the longitude/latitude boundaries in IAU frame
 
             % Extract data
-            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsInFov);
+            if isempty(pos_cam2sec_CAM)
+                pos_cam2sec_CAM = obj.cloud.coords(:, any(~isnan(obj.cloud.coords), 1));
+            end
             pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
             sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
             lon_IAU = sph_body2sec(2, :);
