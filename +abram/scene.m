@@ -38,6 +38,7 @@ classdef scene < abram.CRenderInput
         dcm_CAMI2CAM
         dcm_CSF2CAMI
         ang_offpoint
+        ang_offlight
         dir_body2light_IAU
         dir_body2cam_IAU
         sph_body2cam_IAU
@@ -180,6 +181,11 @@ classdef scene < abram.CRenderInput
         function val = get.ang_offpoint(obj)
             % Angle of body direction with respect to boresight
             val = acos(dot(obj.dir_boresight_CAM, obj.dir_cam2body_CAM));
+        end
+        
+        function val = get.ang_offlight(obj)
+            % Angle of light direction with respect to boresight
+            val = acos(dot(obj.dir_boresight_CAM, obj.dir_light2body_CAM));
         end
 
         function obj = set.pos_body2light_IAU(obj, val)
