@@ -209,7 +209,7 @@ classdef render
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
                 obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f'});
                 obj.update_matrix = update_flag_trigger(obj.camera, objInput, obj.update_matrix,{'distortion'});
-                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise'}) | obj.update_spectrum;
+                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise','fwc','offset','amplification'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
         end
@@ -301,7 +301,7 @@ classdef render
             obj.time_sampling = toc;
             fprintf('\n...CPU time: %f sec', obj.time_sampling)
 
-            fprintf('\n+++ Integrating scene +++'), tic, 
+            fprintf('\n+++ Integrating reflection +++'), tic, 
             obj = obj.coeffCloud(); 
             obj.time_integrating = toc;
             fprintf('\n...CPU time: %f sec', obj.time_integrating)
@@ -374,7 +374,7 @@ classdef render
 
         function obj = directGridding(obj)
             if obj.update_matrix || ~obj.smart_calling
-                obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.setting);
+                obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.scene, obj.setting);
             else
                 fprintf('\n   smart calling: no change detected, skipping direct gridding...') 
             end
@@ -445,6 +445,49 @@ classdef render
         function h = altitude(obj)
             % Compute the altitude using the real body radius at nadir
             h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
+        end
+
+        function [pGeom, pGeomMinMax] = geometric_albedo(obj)
+            % Numerically compute the geometric albedo from the object by
+            % rendering it at a very far range and with zero phase angle
+            
+            objCopy = obj;
+
+            % Find reference radius
+            Afrontal = ellipsoidFrontalArea(objCopy.body.radius, objCopy.scene.dcm_CSF2IAU*objCopy.scene.dir_body2cam_CSF);
+            Rref = sqrt(Afrontal/pi);
+
+            % Find distance such that the body spans 1 px
+            range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel));
+
+            % Render object
+            objCopy.scene.d_body2cam = range;
+            objCopy.scene.phase_angle = 0;
+            objCopy.scene.rpy_CAMI2CAM = [0; 0; 0];
+            objCopy.setting.discretization.method = 'fixed';
+            objCopy.setting.discretization.np = 5e5;    % to not undersampling too much
+            objCopy.setting.saving.filename = [];    % to not undersampling too much
+            objCopy = objCopy.rendering();
+
+            % Geometric albedo definition: ratio of intensity scattered
+            % back to the source by the sphere to the one that would
+            % scatter back a lambertian lossless disk
+            % Ilossless = psi(alpha)*R^2
+            % Itrue = PL*L/omega
+            PLobj = sum(objCopy.matrix.values, "all")*objCopy.matrix.adim;
+
+            PLR2lossless = objCopy.camera.Apupil*cos(objCopy.scene.ang_offpoint)/(range^2)*pi*(objCopy.light.radius^2)/(objCopy.scene.d_body2light^2);
+            if ~isempty(objCopy.body.maps.displacement.F)
+                dhMax = objCopy.body.maps.displacement.max*objCopy.body.maps.displacement.adim;
+                dhMin = objCopy.body.maps.displacement.min*objCopy.body.maps.displacement.adim;
+                PLlosslessdiskmax = (Rref + dhMax)^2*PLR2lossless;
+                PLlosslessdiskmin = (Rref + dhMin)^2*PLR2lossless;
+            else
+                PLlosslessdiskmax = (Rref)^2*PLR2lossless;
+                PLlosslessdiskmin = (Rref)^2*PLR2lossless;
+            end
+            pGeom = PLobj/(0.5*PLlosslessdiskmax + 0.5*PLlosslessdiskmin);                
+            pGeomMinMax = [PLobj/PLlosslessdiskmax, PLobj/PLlosslessdiskmin];
         end
 
         function [mag_pcr, mag_flux] = magnitude(obj)
