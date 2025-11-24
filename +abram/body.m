@@ -65,11 +65,17 @@ classdef body < abram.CRenderInput
 
             % Add missing fields
             inputs.body = add_missing_field(inputs.body, 'maps');
-            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal','horizon'});
+            inputs.body.maps = add_missing_field(inputs.body.maps, {'albedo','displacement','normal','horizon','radiance'});
 
             % Assign properties
             obj.radius       = extract_struct(inputs.body, 'radius');
-            obj.albedo      = extract_struct(inputs.body, 'albedo');
+            if isfield(inputs.body.maps.albedo, 'filename')
+                obj.albedo      = extract_struct(inputs.body, 'albedo', 1);
+            else
+                % raise error if albedo is missing only if albedo map is
+                % missing as well
+                obj.albedo      = extract_struct(inputs.body, 'albedo');
+            end
             obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
             obj.maps        = extract_struct(inputs.body, 'maps', []);
             obj.radiometry  = extract_struct(inputs.body, 'radiometry');

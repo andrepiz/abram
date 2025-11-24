@@ -10,7 +10,7 @@ switch format
 
         % BODY
         inputs.body = extract_fields(body, {'radius', 'albedo', 'albedo_type','radiometry'});
-        inputs.body.radius = body.Rbody;
+        inputs.body.radius = body.radius;
         if isfield(body.maps,'albedo')
             if ~isempty(body.maps.albedo.filename)
             inputs.body.maps.albedo = extract_fields(body.maps.albedo, {'filename','dimension','depth','scale','gamma','shift','mean','domain','limits','lambda_min','lambda_max','bandwidth'});
@@ -31,6 +31,12 @@ switch format
             inputs.body.maps.horizon = extract_fields(body.maps.horizon, {'filename','dimension','depth','limits'});
             end
         end
+        if isfield(setting.sampling,'limits')
+            if strcmp(setting.sampling.limits, 'fixed')
+                inputs.body.lon_lims = body.lon_lims;
+                inputs.body.lat_lims = body.lat_lims;
+            end
+        end
 
         % CAMERA
         inputs.camera.exposure_time = camera.tExp;
@@ -40,15 +46,16 @@ switch format
         inputs.camera.resolution = camera.res_px;
         inputs.camera.full_well_capacity = camera.fwc;        
         inputs.camera.gain_analog2digital = camera.G_AD;
-        inputs.camera.amplification = camera.amplification;        
-        inputs.camera.offset = camera.offset;
+        inputs.camera.amplification = camera.amplification;     
+        inputs.camera.offset = camera.offset;   
+        inputs.camera.uv_upperLeftPixel = camera.uv_upperLeftPixel;
         inputs.camera.quantum_efficiency = extract_fields(camera.QE, {'lambda_min','lambda_max','values','sampling'});
         inputs.camera.transmittance = extract_fields(camera.T, {'lambda_min','lambda_max','values','sampling'});
         inputs.camera.distortion = camera.distortion;
         inputs.camera.noise = camera.noise;
 
         % SCENE
-        inputs.scene.d_body2star = scene.d_body2star;
+        inputs.scene.d_body2light = scene.d_body2light;
         inputs.scene.d_body2cam = scene.d_body2cam;
         inputs.scene.phase_angle = scene.phase_angle;
         inputs.scene.rpy_CAMI2CAM = scene.rpy_CAMI2CAM;

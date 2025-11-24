@@ -17,6 +17,10 @@ classdef spectrum
         function obj = spectrum(in)
             %SPECTRUM Construct an instance of this class
             
+            if ( isfield(in,'lambda_min') && ~isfield(in,'lambda_max') ) || ...
+                ( isfield(in,'lambda_max') && ~isfield(in,'lambda_min') )
+                error('abram:io','Input both lambda_min and lambda_max as equal length vectors')
+            end
             obj.lambda_min = extract_struct(in, 'lambda_min', 450E-9, true);
             obj.lambda_max = extract_struct(in, 'lambda_max', 820E-9, true);
             obj.values = extract_struct(in, 'values', ones(1, length(obj.lambda_min)), true);
