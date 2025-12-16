@@ -232,7 +232,7 @@ classdef render
         
         function res = get.gsd(obj)
             % Ground sampling distance at nadir
-            res = (obj.scene.d_body2cam - obj.body.radius)*tan(obj.camera.ifov/2); 
+            res = 2*obj.altitude*tan(obj.camera.ifov/2); 
         end
 
         function res = get.bodyAngSize(obj)
@@ -401,7 +401,7 @@ classdef render
             sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
             lon_IAU = sph_body2sec(2, :);
             lat_IAU = sph_body2sec(3, :);
-            
+
             % Convex hull
             hull_idx = convhull(pos_body2sec_IAU');
             hull_vertices = unique(hull_idx(:));
@@ -417,13 +417,57 @@ classdef render
             else
                 % Find largest gap and take complement interval for limiting longitudes
                 sorted_lon = sort(lon_hull_wrapped);
-                diff_lon = diff([sorted_lon; sorted_lon(1)+2*pi]);
+                diff_lon = diff([sorted_lon, sorted_lon(1)+2*pi]);
                 [~, idx_gap] = max(diff_lon);
                 lonMin = mod(sorted_lon(idx_gap+1), 2*pi);
                 lonMax = mod(sorted_lon(idx_gap), 2*pi);
             end
             latMin = min(lat_hull);
             latMax = max(lat_hull);
+        end
+
+        function img = coverage(obj)
+            
+            % Extract data
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            if isempty(pos_cam2sec_CAM)
+                pos_cam2sec_CAM = obj.cloud.coords(:, any(~isnan(obj.cloud.coords), 1));
+            end
+            pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
+            sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
+            lon_IAU = sph_body2sec(2, :);
+            lat_IAU = sph_body2sec(3, :);
+
+            % Use albedo map as underlayer
+            if isempty(obj.body.maps.albedo.filename)
+
+                gsd_cam = max(obj.gsd);
+                gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
+
+                res_lonlat = min(gsd_cam, gsd_sampling)/min(obj.body.radius);
+                npx_map = round(pi/res_lonlat);
+                img_texture = obj.body.albedo*ones(npx_map, 2*npx_map);
+                lonMin = -pi;
+                lonMax = pi;
+                latMin = -pi/2;
+                latMax = pi/2;
+            else
+                img_texture = imread(obj.body.maps.albedo.filename);
+                lonMin = obj.body.maps.albedo.limits(1,1);
+                lonMax = obj.body.maps.albedo.limits(1,2);
+                latMin = obj.body.maps.albedo.limits(2,1);
+                latMax = obj.body.maps.albedo.limits(2,2);
+
+                % Resize texture image such that one pixel is at least equal to
+                % the minimum between the gsd of the camera or 2 times the gsd of the sampling
+                gsd_texture = max(obj.body.maps.albedo.res_lonlat)*max(obj.body.radius);
+                gsd_cam = max(obj.gsd);
+                gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
+
+                img_texture = imresize(img_texture, gsd_texture/min(gsd_cam, gsd_sampling));
+            end
+   
+            img = overlayTextureMask(img_texture, lonMin, lonMax, latMin, latMax, lon_IAU, lat_IAU);
         end
 
         function R = bodyRadiusAtNadir(obj)
@@ -438,6 +482,8 @@ classdef render
                     warning('abram:render','The longitude and latitude of the camera is outside the displacement map boundaries. The body radius will be provided equal to the spherical/ellipsoidal radius.')
                     dh = 0;
                 end
+            else
+                dh = 0;
             end
             R = Rbody + dh;
         end
@@ -458,7 +504,7 @@ classdef render
             Rref = sqrt(Afrontal/pi);
 
             % Find distance such that the body spans 1 px
-            range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel));
+            range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel),[],'all');
 
             % Render object
             objCopy.scene.d_body2cam = range;
