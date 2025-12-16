@@ -15,7 +15,7 @@ body:
   #radiometry: {model: oren, roughness: 0.5}                                                # Oren-Nayar reflection (rough surfaces)
   #radiometry: {model: specular, shininess: 1.0}                                            # Specular reflection (shiny surfaces) 
   #radiometry: {model: phong, shininess: 1.0, weight_lambert: 0.5, weight_specular: 2.0}    # Phong reflection (blend of Lambert and Specular)
-  radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 1]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
+  radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
 camera:
   exposure_time: 3E-3             # [s]
   focal_length: 0.105               # [m]

@@ -77,27 +77,28 @@ switch reflectance_model
 
             case 'singlescattering'
 
-                pSS = albedo_in;
-
+                b = varargin{1};
+                c = varargin{2};
+                SSA = albedo_in;
                 if length(varargin) == 2
-                    B0 = exp(-pSS.^2); % approx in Hapke 1981 but rejected in later articles, not use it!
+                    B0 = exp(-SSA.^2); % approx in Hapke 1981 but rejected in later articles, not use it!
                     warning('B0 approximated as exp(-albedo^2) as per [Hapke 1981] but this approximation was rejected later on')
                 else
                     B0 = varargin{3};
                 end
+                pGeom = abram.brdf.hapkeGeometricAlbedo(SSA, b, c, ...
+                                                    0, 1, ...
+                                                    B0, 1, ...
+                                                    0, 0);
                     
-                b = varargin{1};
-                c = varargin{2};
-                b2 = b.^2;
-                P0 = (1 + c)/2 .* (1 - b2)./((1 - 2*b + b2).^1.5) + ...
-                    (1 - c)/2 .* (1 - b2)./((1 + 2*b + b2).^1.5);
-    
-                gamma = sqrt(1 - pSS);
-                r0 = (1 - gamma)./(1 + gamma);
+                % b2 = b.^2;
+                % P0 = (1 + c)/2 .* (1 - b2)./((1 - 2*b + b2).^1.5) + ...
+                %     (1 - c)/2 .* (1 - b2)./((1 + 2*b + b2).^1.5);
+                % 
+                % SSPF0 = abram.brdf.hapkeSSPF(0, b, c);
+                % gamma = sqrt(1 - SSA);
+                % r0 = (1 - gamma)./(1 + gamma);
 
-                pNorm = pSS/8.*((1 + B0).*P0 - 1);    % Hapke 1981
-                pGeom = r0/2 + r0.^2/6 + pSS/8.*((1 + B0).*P0 - 1); % Hapke 1981 
-                pBond = r0.*(1 - 1/3*gamma./(1 + gamma));
 
             otherwise
                 error('When using hapke1981 reflection model, the input albedo type must be "singlescattering"')
