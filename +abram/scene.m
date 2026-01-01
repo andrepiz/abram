@@ -42,6 +42,7 @@ classdef scene < abram.CRenderInput
         dir_body2light_IAU
         dir_body2cam_IAU
         sph_body2cam_IAU
+        sph_body2light_IAU
     end
 
     properties (Constant, Hidden)
@@ -227,6 +228,10 @@ classdef scene < abram.CRenderInput
 
         function val = get.sph_body2cam_IAU(obj)
             val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2cam_CSF);
+        end
+
+        function val = get.sph_body2light_IAU(obj)
+            val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2light_CSF);
         end
     end
 end

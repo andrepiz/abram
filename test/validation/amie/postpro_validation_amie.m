@@ -1,3 +1,9 @@
+res_px = rend.camera.res_px;
+ec = rend.ec;
+tExp = rend.camera.tExp;
+img = rend.img;
+saving_depth = rend.setting.saving.depth;
+
 [x_pixel, y_pixel] = meshgrid([1:res_px(1)], [1:res_px(2)]);
 
 %% Plot
@@ -57,4 +63,4 @@ legend('ABRAM','Real')
 title('CDF of illuminated pixels')
 
 %% SSIM
-ssim_comparison(img_real_corrected, img, noise_level, true, true, 2^saving_depth-1);
+[LCS, L, C, S] = ssim_comparison(img_real_corrected, img, noise_level, true, true, 2^saving_depth-1)

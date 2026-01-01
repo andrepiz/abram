@@ -452,7 +452,6 @@ classdef render
                 latMin = -pi/2;
                 latMax = pi/2;
             else
-                img_texture = imread(obj.body.maps.albedo.filename);
                 lonMin = obj.body.maps.albedo.limits(1,1);
                 lonMax = obj.body.maps.albedo.limits(1,2);
                 latMin = obj.body.maps.albedo.limits(2,1);
@@ -464,7 +463,7 @@ classdef render
                 gsd_cam = max(obj.gsd);
                 gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
 
-                img_texture = imresize(img_texture, gsd_texture/min(gsd_cam, gsd_sampling));
+                img_texture = imresize(flip(obj.body.maps.albedo.F.Values./obj.body.maps.albedo.max, 1), gsd_texture/min(gsd_cam, gsd_sampling));
             end
    
             img = overlayTextureMask(img_texture, lonMin, lonMax, latMin, latMax, lon_IAU, lat_IAU);
