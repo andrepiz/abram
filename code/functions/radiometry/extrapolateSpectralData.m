@@ -32,11 +32,6 @@ if ~exist('flag_plot','var')
     flag_plot = false;
 end
 
-% Check if spectra are sorted
-if ~issorted([spectrum_interp(:).lambda_min])
-    error('Provide spectra sorted with ascending order of their lowest wavelength')
-end
-
 % Set reference spectrum where to interpolate
 if ~isfield(spectrum_ref,'lambda_mid')
     spectrum_ref.lambda_mid = 0.5*spectrum_ref.lambda_min + 0.5*spectrum_ref.lambda_max;

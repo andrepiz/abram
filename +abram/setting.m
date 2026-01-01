@@ -54,7 +54,7 @@ classdef setting < abram.CRenderInput
             general.nmax = extract_struct(inputs.setting.general, 'nmax', 10e3*10e3);
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
-            discretization.np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);
+            discretization.np = extract_struct(inputs.setting.discretization, 'np', 1e5);
             discretization.accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
             % Sampling
             sampling.method = extract_struct(inputs.setting.sampling, 'method', 'auto');
@@ -74,7 +74,7 @@ classdef setting < abram.CRenderInput
             culling.impact_threshold = extract_struct(inputs.setting.culling, 'impact_threshold', 5/1737.4e3);  % If my closest point on the Moon is at 5 meters, the impact is detected
             % Integration
             integration.method = extract_struct(inputs.setting.integration, 'method','constant');
-            integration.np = extract_struct(inputs.setting.integration, 'number_points', 'auto');
+            integration.np = extract_struct(inputs.setting.integration, 'np', 'auto');
             integration.correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
             integration.soft_shadows = extract_struct(inputs.setting.integration, 'soft_shadows', 0);

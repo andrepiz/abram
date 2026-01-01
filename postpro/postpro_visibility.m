@@ -1,4 +1,4 @@
-%% Maps
+%% Visibility masks
 % Check visibility of the scenario in terms of FOV, geometry observability
 % and illumination from the sun
 [latMidGrid_CSF, lonMidGrid_CSF] = meshgrid(latMid_CSF, lonMid_CSF);

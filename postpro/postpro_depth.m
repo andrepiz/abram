@@ -5,6 +5,7 @@ res_px = rend.camera.res_px;
 figure()
 grid on, hold on
 imagesc(img_depth)
+set(gca(),'YDir','reverse')
 colormap('jet')
 colorbar();
 xlabel('u [px]')
