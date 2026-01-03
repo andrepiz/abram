@@ -1,0 +1,39 @@
+light:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
+  type: bb
+body:
+  radius: 1737400.0          # [m]
+  albedo: 0.18               # [-]
+  albedo_type: bond # ['bond'/'geometric'/'normal']
+  radiometry: {model: lambert}                                                             # Lambert reflection
+camera:
+  exposure_time: 1.5E-5             # [s]
+  focal_length: 0.0507               # [m]
+  f_number: 1.495575221238938                     # [-]
+  pixel_width: 18E-6               # [m]
+  resolution: [1024.0, 1024.0]      # [px] Horizontal and vertical dimensions of pixel array
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+  quantum_efficiency: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                       lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                       values: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09, 0.04, 0.02],                                             # [-]
+                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  transmittance: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                  lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                  values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
+                  sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+scene:
+  phase_angle: 1.570797292153346
+  d_body2light: 1.494387623283681e+11
+  d_body2cam: 4.442567664624819e+07
+  rpy_CAMI2CAM:  
+  - [0]
+  - [0]
+  - [0]
+  rpy_CSF2IAU:  
+  - [0]
+  - [0]
+  - [0]
+setting:
+  saving: {filename: validation_corto, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format
