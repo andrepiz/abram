@@ -19,7 +19,7 @@ path_mfbias = 'mf\mfbias.mat';
 path_mfdc = 'mf\mfdc.mat';
 
 filename_img = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
-% filename_img = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
+%filename_img = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
 % filename_img = 'AMI_EE3_040819_00169_00010.IMG'; noise_level = 41; % Working
 % filename_img = 'AMI_EE3_041028_00269_00005.IMG'; noise_level = 116; % Working
 %filename_img = 'AMI_EE3_041111_00008_00040.IMG';
@@ -43,7 +43,7 @@ cd(path_current)
 cspice_kclear;
 
 %% ABRAM OBJECT
-rend = abram.render('validation_amie.yml');
+rend = abram.render('validation_amie.yml', false);
 
 %% INPUTS
 inputs_validation_amie();

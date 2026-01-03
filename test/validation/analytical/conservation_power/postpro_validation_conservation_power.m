@@ -91,4 +91,4 @@ colorbar
 
 P_bw_diff = sum(abs(P_bw-P_bw_comp),'all','omitnan');
 relerr = sum(P_bw_diff(:),'omitnan')./sum(P_bw_comp(:),'omitnan');
-fprintf(['Relative error: ', num2str(1e2*relerr), '%'])
+disp(['Relative error: ', num2str(1e2*relerr), '%'])
