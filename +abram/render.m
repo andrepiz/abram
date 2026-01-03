@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 01-01-2026        Andrea Pizzetti        ABRAM v1.7 - Added footprint, coverage, geometric_albedo, magnitude
     % 30-07-2025        Andrea Pizzetti        ABRAM v1.6 - Added depth map. Added default initialization
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
@@ -66,21 +67,16 @@ classdef render
 
     methods (Access = public)
 
-        function obj = render(input_args, kwargs)
+        function obj = render(input_args, flag_rendering)
             arguments
                 input_args (1,:) = -1
-            end
-            arguments
-                kwargs.objLight   (1,1) {isa(kwargs.objLight  , 'light')} 
-                kwargs.objBody    (1,1) {isa(kwargs.objBody   , 'body')}
-                kwargs.objCamera  (1,1) {isa(kwargs.objCamera , 'camera')}
-                kwargs.objScene   (1,1) {isa(kwargs.objScene  , 'scene')}
-                kwargs.objSetting (1,1) {isa(kwargs.objSetting, 'setting')}
+                flag_rendering = true
             end
             %RENDER Construct a rendering agent by providing an inputs YML
             %file or a MATLAB struct
 
             if nargin == 0
+
                 % Missing inputs
                 warning('render:io','Initializing a default render object...')
                 % Create corresponding classes (defaults)
@@ -91,10 +87,12 @@ classdef render
                 obj.scene   = abram.scene  ();
                 obj.setting = abram.setting();
                 warning on
+
             else
+                
                 % Load inputs
                 assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
-                'Unsupported input type. Please provide a path to yaml config. or a data struct containing data.');
+                'Unsupported input type. Please provide a path to a YML input configuration file or a struct containing the objects data');
 
                 % Check yaml package is available
                 if isempty( which('yaml.ReadYaml') )
@@ -110,7 +108,7 @@ classdef render
                             error('render:io',['Errors found while reading ', char(input_args)])
                         end
                         if isempty(fields(inputs))
-                            error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
+                            error('render:io',['YML input configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
                         end
                     case {'struct'}
                         inputs = input_args;
@@ -119,20 +117,14 @@ classdef render
                 end
 
                 % Create corresponding classes
-                obj.light   = abram.light   (inputs);
+                obj.light   = abram.light  (inputs);
                 obj.body    = abram.body   (inputs);
                 obj.camera  = abram.camera (inputs);
                 obj.scene   = abram.scene  (inputs);
                 obj.setting = abram.setting(inputs);
+
             end
 
-            % Get fieldnames and set input objects directly if specified
-            kwargs_fields = fieldnames(kwargs);
-
-            for field = [kwargs_fields{:}]
-                obj = obj.setInputObj(kwargs.(field));
-            end
-        
             % Default properties
             obj.smart_calling = true;
             obj.homepath = abram_home();
@@ -149,7 +141,7 @@ classdef render
 
             % If smart calling is activated, perform a pre-rendering to
             % fill the render object
-            if obj.smart_calling
+            if obj.smart_calling && flag_rendering
                 obj = obj.rendering();
             end
         end

@@ -1,0 +1,43 @@
+light:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
+  type: sun
+body:
+  radius: 1737400.0          # [m]
+  albedo: 0.51               # [-]
+  albedo_type: normal        # SSA (Hapke)
+  radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0]} 
+camera:
+  exposure_time: 0.03            # [s]
+  focal_length: 0.1547               # [m]
+  f_number: 10                     # [-]
+  pixel_width: 14E-6               # [m]
+  resolution: [512, 512]      # [px]
+  full_well_capacity: 300000.0      # [e-] So to have 24 DN/(nJ/cm2) of responsivity at 550 nm and considering 12 bits
+  gain_analog2digital: 0.003571428571429       # [DN/e-]
+  quantum_efficiency: {lambda_min: [450E-9, 550E-9, 650E-9, 750E-9, 850E-9, 950E-9, 1050E-9],    # [m] Detector wavebands lower limits
+                       lambda_max: [550E-9, 650E-9, 750E-9, 850E-9, 950E-9, 1050E-9, 1150E-9],   # [m] Detector wavebands upper limits
+                       values: [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15],                                             # [-]
+                       sampling: midpoint}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  transmittance: {lambda_min: [450E-9, 550E-9, 650E-9, 750E-9, 850E-9, 950E-9, 1050E-9],    # [m] Detector wavebands lower limits
+                       lambda_max: [550E-9, 650E-9, 750E-9, 850E-9, 950E-9, 1050E-9, 1150E-9],   # [m] Detector wavebands upper limits
+                       values: [0.228, 0.31, 0.465, 0.487, 0.439, 0.316, 0.271],                                             # [-]
+                       sampling: midpoint}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  noise: {shot: {flag: false, seed: 2},                              # Shot Noise. 
+          prnu: {flag: false, sigma: 0.02, seed: 3},                 # Photo-Response Non-Uniformity multiplicative standard deviation [%]. Not modelled for absence of data
+          dark: {flag: false, sigma: 1.3245, mean: 590, seed: 1},    # Dark Current multiplicative standard deviation [%] and mean [e-/s]. Not active as it is already corrected by calibration.
+          readout: {flag: false, sigma: 100, seed: []}}                # Readout Noise standard deviation [e-]. From 3.5 DN in 10 bits to e-: 3.5/0.0036 = 97.22 
+scene:
+  distance_body2star: 1.5110e+11      # [m]
+  distance_body2cam: 1.9792e8            # [m]
+  phase_angle: 1.8357           # [rad]
+  rollpitchyaw_cami2cam:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  - [0]
+  - [0]
+  - [0]
+  rollpitchyaw_csf2iau:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
+  - [0]
+  - [0]
+  - [0]
+setting:
+  saving: {depth: 10, filename: validation_amie, format: png}               # Image saving with a specified bit depth, filename and format
