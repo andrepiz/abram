@@ -5,7 +5,8 @@ if flag_hapke
     rend.body.albedo_type = 'normal';
     rend.body.maps.albedo.filename = 'moon\lroc_cgi\lroc_color_16bit_srgb_8k.tif';
     rend.body.maps.albedo.depth = 16;
-    rend.body.maps.albedo.mean = 0.51;
+    %rend.body.maps.albedo.mean = 0.51;    
+    rend.body.maps.albedo.domain = [0.12 0.75];
 else
     rend.body.radiometry.model = 'oren'; 
     rend.body.radiometry.roughness = 0.3;    % roughness in oren model (>> more rough)

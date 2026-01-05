@@ -1,0 +1,43 @@
+light:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
+  type: bb
+body:
+  radius: 1737400.0          # [m]
+  albedo: 0.51               # [-]
+  albedo_type: normal     # ['bond'/'geometric'/'normal']
+  radiometry: {model: hapke, parameters: [0.25, 0.25, 0, 1, 1.8, 0.07, 0.4084, 0]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
+camera:                             # Blackfly S BFS-U3-31S4M
+  exposure_time: 80E-6             # [s]   Range: 11 us - 30 s
+  focal_length: 0.025               # [m]
+  f_number: 4                     # [-]
+  pixel_width: 3.45E-6               # [m]
+  resolution: [2048, 1536]      # [px] Horizontal and vertical directions of pixel array
+  full_well_capacity: 10760     # [e-]
+  gain_analog2digital: 20.6237       # [DN/e-]
+  quantum_efficiency: {lambda_min: [2.72e-07,3.22e-07,3.72e-07,4.22e-07,4.72e-07,5.22e-07,5.72e-07,6.22e-07,6.72e-07,7.22e-07,7.72e-07,8.22e-07,8.72e-07,9.22e-07,9.72e-07,1.022e-06,1.072e-06],    # [m] Detector wavebands lower limits
+                       lambda_max: [3.22e-07,3.72e-07,4.22e-07,4.72e-07,5.22e-07,5.72e-07,6.22e-07,6.72e-07,7.22e-07,7.72e-07,8.22e-07,8.72e-07,9.22e-07,9.72e-07,1.022e-06,1.072e-06,1.122e-06],   # [m] Detector wavebands upper limits
+                       values: [0.046335,0.21472,0.46362,0.63806,0.66967,0.68317,0.62862,0.56362,0.46565,0.35428,0.26281,0.16923,0.10733,0.057816,0.028469,0.011971,0],                                             # [-]
+                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  transmittance: {lambda_min: [2.72e-07,3.22e-07,3.72e-07,4.22e-07,4.72e-07,5.22e-07,5.72e-07,6.22e-07,6.72e-07,7.22e-07,7.72e-07,8.22e-07,8.72e-07,9.22e-07,9.72e-07,1.022e-06,1.072e-06],    # [m] Detector wavebands lower limits
+                       lambda_max: [3.22e-07,3.72e-07,4.22e-07,4.72e-07,5.22e-07,5.72e-07,6.22e-07,6.72e-07,7.22e-07,7.72e-07,8.22e-07,8.72e-07,9.22e-07,9.72e-07,1.022e-06,1.072e-06,1.122e-06],   # [m] Detector wavebands upper limits
+                       values: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],                                             # [-]
+                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  noise: {shot: {flag: false, seed: 2},                              # Shot Noise
+          prnu: {flag: false, sigma: 0.02, seed: 3},                 # Dark Current multiplicative standard deviation [%] and mean [e-/s]
+          dark: {flag: false, sigma: 1.3245, mean: 590, seed: 1},    # Photo-Response Non-Uniformity multiplicative standard deviation [%]
+          readout: {flag: false, sigma: 100, seed: 4}}               # Readout Noise standard deviation [e-]
+scene:
+  d_body2light: 1.49597870707E11      # [m]
+  d_body2cam: 3.212E6                    # [m]
+  phase_angle: 1.51393                         # [rad]
+  rpy_CAMI2CAM:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  - [-0.0114]
+  - [0.6058]
+  - [3.1355]
+  rpy_CSF2IAU:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
+  - [1.7264]
+  - [-0.9906]
+  - [3.0373]
+setting:
+  saving: {filename: validation_opensky_bfs, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format
