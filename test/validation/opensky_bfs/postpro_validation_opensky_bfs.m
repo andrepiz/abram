@@ -1,10 +1,12 @@
+res_px = rend.camera.res_px;
+saving_depth = rend.setting.saving.depth;
 nbit_real = 8;
 IMG_real = imread(image_filepath_real);
-IMG_render = digital2digital(img, saving_depth, nbit_real);
+IMG_render = digital2digital(rend.img, saving_depth, nbit_real);
 
 %% SSIM
 if flag_ssim
-    ssim_comparison(IMG_real, IMG_render, noise_level, flag_apply_ncc, true, 2^8-1, flip(colormap('sky'),1))
+    ssim_comparison(IMG_real, IMG_render, noise_level, flag_apply_ncc, true, 2^8-1, flip(colormap('sky'),1));
 end
 
 %% IMAGES

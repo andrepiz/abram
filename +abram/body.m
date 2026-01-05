@@ -129,7 +129,7 @@ classdef body < abram.CRenderInput
             obj.radiometry.shininess = extract_struct(in, 'shininess', 1);
             obj.radiometry.weight_lambert = extract_struct(in, 'weight_lambert', 0.5);
             obj.radiometry.weight_specular = extract_struct(in, 'weight_specular', 0.5);
-            obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 1]);
+            obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 0]);
         end
 
         function obj = set.maps(obj, in)
