@@ -14,8 +14,8 @@ abram_install()
 %   delta_r = delta_i + alpha
 %
 % Reflected radiance [W/(sr m^2)]:
-%   L = BRDF * E = pBond/pi * F * cos(delta_i) = 
-%     = pBond/pi * pi * Rsun^2/d_body2sun^2 * Lstar * cos(delta_i)
+%   L = BRDF * E = pNorm/pi * F * cos(delta_i) = 
+%     = pNorm/pi * pi * Rsun^2/d_body2sun^2 * Lstar * cos(delta_i)
 %
 % By equivalence of radiance (in and out of pupil):
 %   Lin = Lout = L
@@ -29,17 +29,17 @@ abram_install()
 %   OMin = Apupil * cos(alpha) / rin^2 = Apupil / (f/(cos(alpha))^3
 %
 % For a final expression of: 
-%   P = pBond/pi * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Apx * cos(alpha) * Apupil /(f/(cos(alpha))^3 = 
-%     = pBond * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Apx * cos(alpha)^4 * Apupil / f^2
+%   P = pNorm/pi * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Apx * cos(alpha) * Apupil /(f/(cos(alpha))^3 = 
+%     = pNorm * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Apx * cos(alpha)^4 * Apupil / f^2
 % 
 % Note that instead in ABRAM the power is computed as:
 %   P = Iout * OMout = L * Asph * cos(delta_r) * Apupil * cos(offpoint) / rout^2 = 
-%     = pBond * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Asph * cos(delta_r) * Apupil * cos(offpoint) / r_sphere^2
+%     = pNorm * Rstar^2/d_body2star^2 * Lstar * cos(delta_i) * Asph * cos(delta_r) * Apupil * cos(offpoint) / r_sphere^2
 %
 
 %% ABRAM Rendering
 
-filename_yml = 'sphere_zero_phase.yml'; % must be wide angle, full FOV covering example!
+filename_yml = 'validation_conservation_power.yml'; % must be wide angle, full FOV covering example!
 rend = abram.render(filename_yml);
 
 res_px = rend.camera.res_px;

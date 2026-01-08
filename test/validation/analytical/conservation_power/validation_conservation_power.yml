@@ -1,4 +1,4 @@
-star:
+light:
   temperature: 5782.0        
   radius: 6.95E8             
 body:
@@ -15,11 +15,11 @@ camera:
   resolution: 1024
   full_well_capacity: 100000.0      # [e-]
 scene:
-  distance_body2star: 1.49597870707E11     
-  distance_body2cam: 1.5
+  d_body2light: 1.49597870707E11     
+  d_body2cam: 1.5
   phase_angle: 0
 setting:
   discretization: {method: fixed, np: 1E7}                                  # Fixed discretization with specified number of points
   sampling: {method: projecteduniform}                                                    # Projected-homogenous longitude/latitude sampling
-  integration: {method: trapz, number_points: 10.0}                                     # Trapz integration with specified number of integration points (faster)
+  integration: {method: trapz}                                     # Trapz integration with specified number of integration points (faster)
   saving: {depth: 16}
