@@ -26,6 +26,7 @@ classdef render
         ec
         noise
         img        
+        radiance
         depth
         smart_calling
         homepath
@@ -70,15 +71,14 @@ classdef render
         function obj = render(input_args, flag_rendering)
             arguments
                 input_args (1,:) = -1
-                flag_rendering = true
+                flag_rendering = false  % Default: do not render
             end
             %RENDER Construct a rendering agent by providing an inputs YML
             %file or a MATLAB struct
 
-            if nargin == 0
-
+            if nargin == 0 || isempty(input_args) || islogical(input_args)
                 % Missing inputs
-                warning('render:io','Initializing a default render object...')
+
                 % Create corresponding classes (defaults)
                 warning off
                 obj.light   = abram.light  ();
@@ -88,8 +88,20 @@ classdef render
                 obj.setting = abram.setting();
                 warning on
 
+                % Automatic rendering
+                if islogical(input_args)
+                    flag_rendering = input_args;
+                end
+                if flag_rendering
+                    warning('render:io','Default render object rendering...')
+                else
+                    warning('render:io','Default render object initialized...')
+                end
+
             else
                 
+                flag_rendering = true;  % Default: render
+
                 % Load inputs
                 assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
                 'Unsupported input type. Please provide a path to a YML input configuration file or a struct containing the objects data');
@@ -273,6 +285,16 @@ classdef render
         function res = get.depth(obj)
             % Depth map from coordinates point cloud
             res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
+        end
+
+        function res = get.radiance(obj)
+            % Radiance map from the raw collected power matrix,
+            % dividing for the collecting area (pupil) and the solid angle
+            % of each pixel
+            omegaPixel = mean(obj.camera.muPixel(1)*obj.camera.muPixel(2) ./ obj.camera.f.^2);
+            P = obj.matrix.values.*obj.matrix.adim.*reshape(obj.light.L.values, 1, 1, []);
+            P(P == 0) = nan;
+            res = P ./ (obj.camera.Apupil * omegaPixel);
         end
 
         %% RENDERING

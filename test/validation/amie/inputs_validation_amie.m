@@ -48,4 +48,5 @@ rend.setting.gridding.method = 'weightedsum';
 rend.setting.gridding.algorithm = 'gaussian';
 rend.setting.gridding.window = 2;
 rend.setting.gridding.sigma = 1;
+
 rend.setting.reconstruction.granularity = 2;
