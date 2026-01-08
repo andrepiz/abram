@@ -1,5 +1,5 @@
 # ABRAM
-The _**A**stronomical **B**odies **R**endering **A**pplication for **M**ission design_ is a validated physically-based render engine for planets, moons and small bodies.
+_**A** physically-**B**ased **R**endering **A**pplication in **M**atlab_ for planets, moons, and small bodies.
 
 ### Installation & Usage
 Clone the repository and the linked submodules by running the following git commands:
@@ -10,15 +10,21 @@ Clone the repository and the linked submodules by running the following git comm
 
 `git submodule update`
 
-Then, simply run the script _call()_ to generate your first rendering.
+Then, simply run the script 
+`call()` to generate your first rendering.
+
 Check the [ABRAM wiki](https://github.com/andrepiz/abram/wiki) to access the full documentation.
 
+### Dependencies 
+ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
+- Image Processing Toolbox (required)
+- Parallel Computing Toolbox (required for multi-threading)
+- Statistics and Machine Learning Toolbox (required for image noises)
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546" width="457" />
-  <img src="https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0" width="343" />
-  <img src="https://github.com/user-attachments/assets/f48c43e6-996b-46fc-9ed6-ca815d1941ab" height="400" />
-  <img src="https://github.com/user-attachments/assets/67997677-9934-4707-8bdb-86c1c35ebce3" height="400" />
+  <img src="https://github.com/user-attachments/assets/1dbbfb22-8131-48f5-b696-126932abd70b" width="800" />
 </p>
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9211622b-cfd4-4cae-a7a2-45427ed514c9" height="200" />
   <img src="https://github.com/user-attachments/assets/2331dccb-6b9b-4926-b54e-6c5d374c27fd" height="200" />
@@ -30,15 +36,16 @@ Check the [ABRAM wiki](https://github.com/andrepiz/abram/wiki) to access the ful
   <img src="https://github.com/user-attachments/assets/5eba8dd5-4351-4833-9181-57678352ba61" height="200" />
 </p>
 
-### Dependencies 
-ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
-- Image Processing Toolbox (required)
-- Parallel Computing Toolbox (for multi-thread rendering)
-- Statistics and Machine Learning Toolbox (for image noises)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546" width="457" />
+  <img src="https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0" width="343" />
+  <img src="https://github.com/user-attachments/assets/67997677-9934-4707-8bdb-86c1c35ebce3" height="400" />
+  <img src="https://github.com/user-attachments/assets/c26ddb2e-e44f-4b11-9723-3365647d604f" height="400" />
+</p>
 
 ### Credits 
-If you use the tool, please cite it in your work as: 
-> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Under review.
+If you use the tool, please cite it in your work with: 
+> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Acta Astronautica (2026).
 
 ### Publications 
 ABRAM has been used in the following publications:
@@ -49,8 +56,10 @@ ABRAM has been used in the following publications:
 > P. Panicucci, C. Balossi, F. Ornati, F. Piccolo, A. Pizzetti, F.Topputo, F. Capolupo. "What if Star Trackers Were Navigation Cameras?". 35th AAS/AIAA Space Flight Mechanics Meeting.
 
 ### Get involved 
-Feel free to open an issue to report a bug or ask for a functionality. Do you want to contribute to the project or you need some help in the usage? e-mail me at andrea.pizzetti@polimi.it 
+Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
+If you want to contribute to the project, or you need some help in the usage of the tool, e-mail me at andrea.pizzetti@polimi.it 
 
+### Changelog 
 | Version | Changelog |
 | ------ | ------ |
 |    v1.7    |Changed algorithm of frustum culling; added raymarching shadow culling algorithm; added depthbuffer shadow culling algorithm; added depth map as optional output; added new concentrated sampling; refactored code and architecture; added default objects initialization; extended flexibility of inputs |
