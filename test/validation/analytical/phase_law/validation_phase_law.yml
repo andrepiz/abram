@@ -1,0 +1,22 @@
+light:
+  temperature: 5782.0        
+  radius: 6.95E8             
+body:
+  radius: 3389.5E3          # [m]
+  albedo: 0.25               # [-]
+  albedo_type: normal     # ['bond'/'geometric'/'normal']
+  radiometry: {model: lambert}                                                             # Lambert reflection
+camera:
+  exposure_time: 0.02E-3             # [s]
+  focal_length: 0.127               # [m]
+  f_number: 2.5                     # [-]
+  pixel_width: 13.3E-6               # [m]
+  resolution: [1024.0, 1024.0]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+scene:
+  d_body2light: 1.49597870707E11     
+  d_body2cam: 1e8           
+  phase_angle: 0
+setting:
+  saving: {image_depth: 16}
