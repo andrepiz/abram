@@ -1,10 +1,10 @@
 abram_install();
 
+flag_hapke = true;        % Use hapke model
 flag_displacement = true; % Use displacement map in ABRAM rendering
 flag_normal = true;       % Use normal map in ABRAM rendering
-flag_occlusions = true;   % Use occlusions
 flag_horizon = true;      % Use horizon map
-flag_hapke = true;        % Use hapke model
+flag_occlusions = true;   % Use occlusions
 flag_plot = true;
 flag_correct_camera_spice = 0;  % 0 - keep data as given
                                 % 1 - correct focal length using res_px, muPixel and fov
@@ -19,9 +19,9 @@ path_mfbias = 'mf\mfbias.mat';
 path_mfdc = 'mf\mfdc.mat';
 
 filename_img = 'AMI_EE3_040819_00208_00030.IMG'; noise_level = 57; % Working 
-% filename_img = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
+%filename_img = 'AMI_EE3_041111_00070_00018.IMG'; noise_level = 72; % Working
 % filename_img = 'AMI_EE3_040819_00169_00010.IMG'; noise_level = 41; % Working
-%filename_img = 'AMI_EE3_041028_00269_00005.IMG'; noise_level = 116; % Working
+% filename_img = 'AMI_EE3_041028_00269_00005.IMG'; noise_level = 116; % Working
 %filename_img = 'AMI_EE3_041111_00008_00040.IMG';
 %filename_img = 'AMI_EE3_040504_00038_00020.IMG';
 filepath_img = fullfile(path_img, filename_img); 
@@ -42,9 +42,21 @@ cd(path_current)
 % Clear SPICE kernel pool
 cspice_kclear;
 
-%% ABRAM
+%% ABRAM OBJECT
+rend = abram.render('validation_amie.yml', false);
+
+%% INPUTS
 inputs_validation_amie();
-run_model();
+
+rend.camera.tExp = params.tExp;
+rend.scene.phase_angle = params.phase_angle;
+rend.scene.d_body2light = params.d_body2sun;
+rend.scene.d_body2cam = params.d_body2cam;
+rend.scene.rpy_CAMI2CAM = quat_to_euler(params.q_CAMI2CAM);
+rend.scene.rpy_CSF2IAU = quat_to_euler(params.q_CSF2IAU);
+
+%% RENDERING
+rend = rend.rendering();
 
 %% POSTPRO
 postpro_validation_amie();

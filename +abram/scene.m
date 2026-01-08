@@ -38,9 +38,11 @@ classdef scene < abram.CRenderInput
         dcm_CAMI2CAM
         dcm_CSF2CAMI
         ang_offpoint
+        ang_offlight
         dir_body2light_IAU
         dir_body2cam_IAU
         sph_body2cam_IAU
+        sph_body2light_IAU
     end
 
     properties (Constant, Hidden)
@@ -181,6 +183,11 @@ classdef scene < abram.CRenderInput
             % Angle of body direction with respect to boresight
             val = acos(dot(obj.dir_boresight_CAM, obj.dir_cam2body_CAM));
         end
+        
+        function val = get.ang_offlight(obj)
+            % Angle of light direction with respect to boresight
+            val = acos(dot(obj.dir_boresight_CAM, obj.dir_light2body_CAM));
+        end
 
         function obj = set.pos_body2light_IAU(obj, val)
             obj.pos_body2light_IAU = val;
@@ -210,17 +217,35 @@ classdef scene < abram.CRenderInput
             dcm_CAMI2IAU = obj.dcm_CSF2IAU*obj.dcm_CSF2CAMI';
             obj.rpy_CAMI2CAM = dcm_to_euler(quat_to_dcm(val)*dcm_CAMI2IAU);
         end
+        
+        function val = get.pos_body2cam_IAU(obj)
+            val = obj.pos_body2cam_IAU;
+            if isempty(val) && ~isempty(obj.pos_body2cam_CSF)
+                val = obj.dcm_CSF2IAU*obj.pos_body2cam_CSF;
+            end
+        end
 
-        function val = get.dir_body2light_IAU(obj)
-            val = obj.pos_body2light_IAU./obj.d_body2light;
+        function val = get.pos_body2light_IAU(obj)
+            val = obj.pos_body2light_IAU;
+            if isempty(val) && ~isempty(obj.pos_body2light_CSF)
+                val = obj.dcm_CSF2IAU*obj.pos_body2light_CSF;
+            end
         end
 
         function val = get.dir_body2cam_IAU(obj)
             val = obj.pos_body2cam_IAU./obj.d_body2cam;
         end
 
+        function val = get.dir_body2light_IAU(obj)
+            val = obj.pos_body2light_IAU./obj.d_body2light;
+        end
+
         function val = get.sph_body2cam_IAU(obj)
             val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2cam_CSF);
+        end
+
+        function val = get.sph_body2light_IAU(obj)
+            val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2light_CSF);
         end
     end
 end

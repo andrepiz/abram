@@ -4,7 +4,7 @@ mice_install()
 filename_metakernel = 'default.tm';
 
 %% Choose scenario
-flag_scenario = 2; % Scenario 1: 50mm
+flag_scenario = 1; % Scenario 1: 50mm
                    % Scenario 2: 25mm
 
 % Flags
@@ -19,12 +19,11 @@ flag_apply_ncc = true;
 % Arbitrary values
 noise_level = 3;   
 
-%% Inputs
-inputs_validation_opensky_bfs();     
-
-%% Run Model
-run_model();
+%% ABRAM rendering
+rend = abram.render('validation_opensky_bfs.yml', false);
+inputs_validation_opensky_bfs();
+rend = rend.rendering();
+img = rend.img;
 
 %% Post-processing
 postpro_validation_opensky_bfs();
-%postpro_3d();

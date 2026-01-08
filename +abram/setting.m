@@ -54,7 +54,7 @@ classdef setting < abram.CRenderInput
             general.nmax = extract_struct(inputs.setting.general, 'nmax', 10e3*10e3);
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
-            discretization.np = extract_struct(inputs.setting.discretization, 'number_points', 1e5);
+            discretization.np = extract_struct(inputs.setting.discretization, 'np', 1e5);
             discretization.accuracy = extract_struct(inputs.setting.discretization, 'accuracy','medium');
             % Sampling
             sampling.method = extract_struct(inputs.setting.sampling, 'method', 'auto');
@@ -64,14 +64,17 @@ classdef setting < abram.CRenderInput
             culling.ignore_outfov = extract_struct(inputs.setting.culling, 'ignore_outfov', true);
             culling.ignore_unobservable = extract_struct(inputs.setting.culling, 'ignore_unobservable', true);
             culling.ignore_occluded = extract_struct(inputs.setting.culling, 'ignore_occluded', true);
+            culling.ignore_outrange = extract_struct(inputs.setting.culling, 'ignore_outrange', 'auto');
             culling.occlusion_method = extract_struct(inputs.setting.culling, 'occlusion_method', 'raytracing');
             culling.occlusion_algorithm = extract_struct(inputs.setting.culling, 'occlusion_algorithm', 'iterative');
             culling.occlusion_rays = extract_struct(inputs.setting.culling, 'occlusion_rays', 'auto');
             culling.occlusion_angle = extract_struct(inputs.setting.culling, 'occlusion_angle', 'auto');
             culling.occlusion_accuracy = extract_struct(inputs.setting.culling, 'occlusion_accuracy', 'auto');
+            culling.outrange_threshold = extract_struct(inputs.setting.culling, 'outrange_threshold', 100); % If my closest point is at 1 meter, I do not render points over 100 meters
+            culling.impact_threshold = extract_struct(inputs.setting.culling, 'impact_threshold', 5/1737.4e3);  % If my closest point on the Moon is at 5 meters, the impact is detected
             % Integration
             integration.method = extract_struct(inputs.setting.integration, 'method','constant');
-            integration.np = extract_struct(inputs.setting.integration, 'number_points', 'auto');
+            integration.np = extract_struct(inputs.setting.integration, 'np', 'auto');
             integration.correct_incidence = extract_struct(inputs.setting.integration, 'correct_incidence', true);
             integration.correct_reflection = extract_struct(inputs.setting.integration, 'correct_reflection', true);
             integration.soft_shadows = extract_struct(inputs.setting.integration, 'soft_shadows', 0);

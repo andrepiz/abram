@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 01-01-2026        Andrea Pizzetti        ABRAM v1.7 - Added footprint, coverage, geometric_albedo, magnitude
     % 30-07-2025        Andrea Pizzetti        ABRAM v1.6 - Added depth map. Added default initialization
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
     % 11-11-2024        Andrea Pizzetti        ABRAM v1.2 - OOP design prototype
@@ -25,6 +26,7 @@ classdef render
         ec
         noise
         img        
+        radiance
         depth
         smart_calling
         homepath
@@ -66,23 +68,17 @@ classdef render
 
     methods (Access = public)
 
-        function obj = render(input_args, kwargs)
+        function obj = render(input_args, flag_rendering)
             arguments
                 input_args (1,:) = -1
-            end
-            arguments
-                kwargs.objLight   (1,1) {isa(kwargs.objLight  , 'light')} 
-                kwargs.objBody    (1,1) {isa(kwargs.objBody   , 'body')}
-                kwargs.objCamera  (1,1) {isa(kwargs.objCamera , 'camera')}
-                kwargs.objScene   (1,1) {isa(kwargs.objScene  , 'scene')}
-                kwargs.objSetting (1,1) {isa(kwargs.objSetting, 'setting')}
+                flag_rendering = false  % Default: do not render
             end
             %RENDER Construct a rendering agent by providing an inputs YML
             %file or a MATLAB struct
 
-            if nargin == 0
+            if nargin == 0 || isempty(input_args) || islogical(input_args)
                 % Missing inputs
-                warning('render:io','Initializing a default render object...')
+
                 % Create corresponding classes (defaults)
                 warning off
                 obj.light   = abram.light  ();
@@ -91,10 +87,27 @@ classdef render
                 obj.scene   = abram.scene  ();
                 obj.setting = abram.setting();
                 warning on
+
+                % Automatic rendering
+                if islogical(input_args)
+                    flag_rendering = input_args;
+                end
+                if flag_rendering
+                    warning('render:io','Default render object rendering...')
+                else
+                    warning('render:io','Default render object initialized...')
+                end
+
             else
+                
+                if nargin == 1
+                    % Default: render
+                    flag_rendering = true;  
+                end
+
                 % Load inputs
                 assert( isnumeric(input_args) || ( isa(input_args, 'string') || isa(input_args, 'char') || isa(input_args, 'struct') ), ...
-                'Unsupported input type. Please provide a path to yaml config. or a data struct containing data.');
+                'Unsupported input type. Please provide a path to a YML input configuration file or a struct containing the objects data');
 
                 % Check yaml package is available
                 if isempty( which('yaml.ReadYaml') )
@@ -110,7 +123,7 @@ classdef render
                             error('render:io',['Errors found while reading ', char(input_args)])
                         end
                         if isempty(fields(inputs))
-                            error('render:io',['Configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
+                            error('render:io',['YML input configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
                         end
                     case {'struct'}
                         inputs = input_args;
@@ -119,20 +132,14 @@ classdef render
                 end
 
                 % Create corresponding classes
-                obj.light   = abram.light   (inputs);
+                obj.light   = abram.light  (inputs);
                 obj.body    = abram.body   (inputs);
                 obj.camera  = abram.camera (inputs);
                 obj.scene   = abram.scene  (inputs);
                 obj.setting = abram.setting(inputs);
+
             end
 
-            % Get fieldnames and set input objects directly if specified
-            kwargs_fields = fieldnames(kwargs);
-
-            for field = [kwargs_fields{:}]
-                obj = obj.setInputObj(kwargs.(field));
-            end
-        
             % Default properties
             obj.smart_calling = true;
             obj.homepath = abram_home();
@@ -149,7 +156,7 @@ classdef render
 
             % If smart calling is activated, perform a pre-rendering to
             % fill the render object
-            if obj.smart_calling
+            if obj.smart_calling && flag_rendering
                 obj = obj.rendering();
             end
         end
@@ -209,7 +216,7 @@ classdef render
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
                 obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f'});
                 obj.update_matrix = update_flag_trigger(obj.camera, objInput, obj.update_matrix,{'distortion'});
-                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise'}) | obj.update_spectrum;
+                obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise','fwc','offset','amplification'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
         end
@@ -232,12 +239,22 @@ classdef render
         
         function res = get.gsd(obj)
             % Ground sampling distance at nadir
-            res = (obj.scene.d_body2cam - obj.body.radius)*tan(obj.camera.ifov/2); 
+            res = 2*obj.altitude*tan(obj.camera.ifov/2); 
         end
 
         function res = get.bodyAngSize(obj)
-            % Angular size of the body
-            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, obj.body.radius);
+            % Angular size of the body 
+
+            if isempty(obj.body.maps.displacement.F) || obj.scene.d_body2cam > max(obj.body.radius)
+                % Using the body radius when there is no displacement map or
+                % the camera distance is larger than the body radius
+                Rbody = max(obj.body.radius);
+            else
+                % In close range we compute the real body radius at nadir
+                Rbody = obj.bodyRadiusAtNadir;
+            end
+            [bodyTangencyAngle, bodyBearingAngle] = find_sphere_tangent_angle(obj.scene.d_body2cam, Rbody); 
+            % Otherwise using the radius at the nadir point 
             res = 2*max(bodyBearingAngle); 
         end
 
@@ -273,6 +290,16 @@ classdef render
             res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
         end
 
+        function res = get.radiance(obj)
+            % Radiance map from the raw collected power matrix,
+            % dividing for the collecting area (pupil) and the solid angle
+            % of each pixel
+            omegaPixel = mean(obj.camera.muPixel(1)*obj.camera.muPixel(2) ./ obj.camera.f.^2);
+            P = obj.matrix.values.*obj.matrix.adim.*reshape(obj.light.L.values, 1, 1, []);
+            P(P == 0) = nan;
+            res = P ./ (obj.camera.Apupil * omegaPixel);
+        end
+
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene
@@ -291,7 +318,7 @@ classdef render
             obj.time_sampling = toc;
             fprintf('\n...CPU time: %f sec', obj.time_sampling)
 
-            fprintf('\n+++ Integrating scene +++'), tic, 
+            fprintf('\n+++ Integrating reflection +++'), tic, 
             obj = obj.coeffCloud(); 
             obj.time_integrating = toc;
             fprintf('\n...CPU time: %f sec', obj.time_integrating)
@@ -364,7 +391,7 @@ classdef render
 
         function obj = directGridding(obj)
             if obj.update_matrix || ~obj.smart_calling
-                obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.setting);
+                obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.scene, obj.setting);
             else
                 fprintf('\n   smart calling: no change detected, skipping direct gridding...') 
             end
@@ -383,12 +410,15 @@ classdef render
             % Compute the longitude/latitude boundaries in IAU frame
 
             % Extract data
-            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsInFov);
+            if isempty(pos_cam2sec_CAM)
+                pos_cam2sec_CAM = obj.cloud.coords(:, any(~isnan(obj.cloud.coords), 1));
+            end
             pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
             sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
             lon_IAU = sph_body2sec(2, :);
             lat_IAU = sph_body2sec(3, :);
-            
+
             % Convex hull
             hull_idx = convhull(pos_body2sec_IAU');
             hull_vertices = unique(hull_idx(:));
@@ -404,13 +434,56 @@ classdef render
             else
                 % Find largest gap and take complement interval for limiting longitudes
                 sorted_lon = sort(lon_hull_wrapped);
-                diff_lon = diff([sorted_lon; sorted_lon(1)+2*pi]);
+                diff_lon = diff([sorted_lon, sorted_lon(1)+2*pi]);
                 [~, idx_gap] = max(diff_lon);
                 lonMin = mod(sorted_lon(idx_gap+1), 2*pi);
                 lonMax = mod(sorted_lon(idx_gap), 2*pi);
             end
             latMin = min(lat_hull);
             latMax = max(lat_hull);
+        end
+
+        function img = coverage(obj)
+            
+            % Extract data
+            pos_cam2sec_CAM = obj.cloud.coords(:, obj.cloud.ixsActive);
+            if isempty(pos_cam2sec_CAM)
+                pos_cam2sec_CAM = obj.cloud.coords(:, any(~isnan(obj.cloud.coords), 1));
+            end
+            pos_body2sec_IAU = obj.scene.dcm_CSF2IAU*obj.scene.pos_body2cam_CSF + obj.scene.dcm_CAM2IAU*pos_cam2sec_CAM;
+            sph_body2sec = sph_coord_fast(pos_body2sec_IAU);
+            lon_IAU = sph_body2sec(2, :);
+            lat_IAU = sph_body2sec(3, :);
+
+            % Use albedo map as underlayer
+            if isempty(obj.body.maps.albedo.filename)
+
+                gsd_cam = max(obj.gsd);
+                gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
+
+                res_lonlat = min(gsd_cam, gsd_sampling)/min(obj.body.radius);
+                npx_map = round(pi/res_lonlat);
+                img_texture = obj.body.albedo*ones(npx_map, 2*npx_map);
+                lonMin = -pi;
+                lonMax = pi;
+                latMin = -pi/2;
+                latMax = pi/2;
+            else
+                lonMin = obj.body.maps.albedo.limits(1,1);
+                lonMax = obj.body.maps.albedo.limits(1,2);
+                latMin = obj.body.maps.albedo.limits(2,1);
+                latMax = obj.body.maps.albedo.limits(2,2);
+
+                % Resize texture image such that one pixel is at least equal to
+                % the minimum between the gsd of the camera or 2 times the gsd of the sampling
+                gsd_texture = max(obj.body.maps.albedo.res_lonlat)*max(obj.body.radius);
+                gsd_cam = max(obj.gsd);
+                gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
+
+                img_texture = imresize(flip(obj.body.maps.albedo.F.Values./obj.body.maps.albedo.max, 1), gsd_texture/min(gsd_cam, gsd_sampling));
+            end
+   
+            img = overlayTextureMask(img_texture, lonMin, lonMax, latMin, latMax, lon_IAU, lat_IAU);
         end
 
         function R = bodyRadiusAtNadir(obj)
@@ -425,6 +498,8 @@ classdef render
                     warning('abram:render','The longitude and latitude of the camera is outside the displacement map boundaries. The body radius will be provided equal to the spherical/ellipsoidal radius.')
                     dh = 0;
                 end
+            else
+                dh = 0;
             end
             R = Rbody + dh;
         end
@@ -432,6 +507,49 @@ classdef render
         function h = altitude(obj)
             % Compute the altitude using the real body radius at nadir
             h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
+        end
+
+        function [pGeom, pGeomMinMax] = geometric_albedo(obj)
+            % Numerically compute the geometric albedo from the object by
+            % rendering it at a very far range and with zero phase angle
+            
+            objCopy = obj;
+
+            % Find reference radius
+            Afrontal = ellipsoidFrontalArea(objCopy.body.radius, objCopy.scene.dcm_CSF2IAU*objCopy.scene.dir_body2cam_CSF);
+            Rref = sqrt(Afrontal/pi);
+
+            % Find distance such that the body spans 1 px
+            range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel),[],'all');
+
+            % Render object
+            objCopy.scene.d_body2cam = range;
+            objCopy.scene.phase_angle = 0;
+            objCopy.scene.rpy_CAMI2CAM = [0; 0; 0];
+            objCopy.setting.discretization.method = 'fixed';
+            objCopy.setting.discretization.np = 5e5;    % to not undersampling too much
+            objCopy.setting.saving.filename = [];    % to not undersampling too much
+            objCopy = objCopy.rendering();
+
+            % Geometric albedo definition: ratio of intensity scattered
+            % back to the source by the sphere to the one that would
+            % scatter back a lambertian lossless disk
+            % Ilossless = psi(alpha)*R^2
+            % Itrue = PL*L/omega
+            PLobj = sum(objCopy.matrix.values, "all")*objCopy.matrix.adim;
+
+            PLR2lossless = objCopy.camera.Apupil*cos(objCopy.scene.ang_offpoint)/(range^2)*pi*(objCopy.light.radius^2)/(objCopy.scene.d_body2light^2);
+            if ~isempty(objCopy.body.maps.displacement.F)
+                dhMax = objCopy.body.maps.displacement.max*objCopy.body.maps.displacement.adim;
+                dhMin = objCopy.body.maps.displacement.min*objCopy.body.maps.displacement.adim;
+                PLlosslessdiskmax = (Rref + dhMax)^2*PLR2lossless;
+                PLlosslessdiskmin = (Rref + dhMin)^2*PLR2lossless;
+            else
+                PLlosslessdiskmax = (Rref)^2*PLR2lossless;
+                PLlosslessdiskmin = (Rref)^2*PLR2lossless;
+            end
+            pGeom = PLobj/(0.5*PLlosslessdiskmax + 0.5*PLlosslessdiskmin);                
+            pGeomMinMax = [PLobj/PLlosslessdiskmax, PLobj/PLlosslessdiskmin];
         end
 
         function [mag_pcr, mag_flux] = magnitude(obj)

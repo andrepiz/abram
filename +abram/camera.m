@@ -40,6 +40,10 @@ classdef camera < abram.CRenderInput
         etaNormalizationFactor
     end
     
+    properties (Hidden)
+        uv_upperLeftPixel = [0.5 0.5]; % upperLeft corner of upperLeft pixel in UV coordinates 
+    end
+
     methods
         function obj = camera(in)
             %CAMERA Construct a camera by providing an inputs YML
@@ -99,6 +103,7 @@ classdef camera < abram.CRenderInput
             obj.G_AD = extract_struct(inputs.camera,'gain_analog2digital');
             obj.amplification = extract_struct(inputs.camera,'amplification',0);
             obj.offset = extract_struct(inputs.camera,'offset', 0);
+            obj.uv_upperLeftPixel = extract_struct(inputs.camera, 'uv_upperLeftPixel', obj.uv_upperLeftPixel);
             obj.dnr = extract_struct(inputs.camera,'dnr', 20*log10(obj.fwc/obj.G_DA));
             obj.distortion.radial = extract_struct(inputs.camera.distortion,'radial',[0, 0, 0]);
             obj.distortion.decentering = extract_struct(inputs.camera.distortion,'decentering',[0, 0]);
@@ -138,10 +143,10 @@ classdef camera < abram.CRenderInput
             end
         end
         function val = get.cu(obj)
-            val = (obj.res_px(1) + 1)/2; % [px] horizontal optical center
+            val = obj.res_px(1)/2 + obj.uv_upperLeftPixel(1); % [px] horizontal optical center
         end
         function val = get.cv(obj)
-            val = (obj.res_px(2) + 1)/2; % [px] vertical optical center
+            val = obj.res_px(2)/2 + obj.uv_upperLeftPixel(2); % [px] vertical optical center
         end
         function val = get.fu(obj)
             val = obj.f./obj.muPixel(1); % [px] horizontal focal length in pixel
