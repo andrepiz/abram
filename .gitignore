@@ -7,6 +7,13 @@
 *.IMG
 *.pdf
 *.JP2
+*.LBL
+*.jpg
+*.tiff
+*.zip
+*.asv
+*.fig
+*.csv
 
 # Folder
 debug/src_backup/*
