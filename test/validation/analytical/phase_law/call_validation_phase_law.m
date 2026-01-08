@@ -7,10 +7,10 @@ abram_install()
 
 % Phase law model
 %   Ir = phase_law*I0 = phase_law*Rbody^2*F*pGeom 
-%      = phase_law*Rbody^2*pGeom*pi*Rstar^2/d_body2light^2*Lstar
+%      = phase_law*Rbody^2*pGeom*pi*Rlight^2/d_body2light^2*Lstar
 %   P = Ir*OM = Ir*Apupil/(d_body2cam)^2
-%   G = phase_law*Rbody^2*pGeom*pi*Rstar^2/d_body2light^2*Apupil/(d_body2cam)^2 = 
-%      = pi*phase_law*pGeom*(Rbody*Rstar/(d_body2light*d_body2cam))^2*Apupil
+%   G = phase_law*Rbody^2*pGeom*pi*Rlight^2/d_body2light^2*Apupil/(d_body2cam)^2 = 
+%      = pi*phase_law*pGeom*(Rbody*Rlight/(d_body2light*d_body2cam))^2*Apupil
 %
 % We should see the difference between the two models going towards
 % zero as the distance increases.This because the different d_body2cam
@@ -18,32 +18,29 @@ abram_install()
 
 %% Inputs
 d_body2cam_vec = logspace(8, 12, 20);  % [m]
-filename_yml = 'mars_no_texture_zero_phase_far.yml';
-rend = abram.render(filename_yml);
+filename_yml = 'validation_phase_law.yml';
+rend = abram.render(filename_yml, false);
 
 rend.body.radiometry.model = 'lambert'
 rend.scene.phase_angle = pi/3
-% rend.setting.discretization.method = 'fixed';
-% rend.setting.discretization.np = 1e6;
-rend.setting.discretization.method = 'adaptive';
-rend.setting.discretization.accuracy = 10;
+rend.setting.discretization.method = 'fixed';
+rend.setting.discretization.np = 4e5;
+% rend.setting.discretization.method = 'adaptive';
+% rend.setting.discretization.accuracy = 10;
 rend.setting.integration.method = 'trapz';
+rend.setting.reconstruction.granularity = 1;
 
 % Extract data
 phase_angle = rend.scene.phase_angle;
 model = rend.body.radiometry.model;
-pGeom = rend.body.pGeom;
 Rbody = rend.body.radius;
-Rstar = rend.light.radius;
+Rlight = rend.light.radius;
 d_body2light = rend.scene.d_body2light;
 Apupil = rend.camera.Apupil;
 res_px = rend.camera.res_px;
 
 %% ABRAM
 % Loop
-rend = rend.getParPool(); 
-rend = rend.loadMaps(); 
-rend = rend.setSpectrum();
 
 for ix = 1:length(d_body2cam_vec)
     
@@ -61,23 +58,29 @@ end
 %% Analytical model
 switch model
     case 'lambert'
-        phase_law =  @(alpha) 1/pi*((pi-alpha)*cos(alpha) + sin(alpha));
+        phase_law = @(alpha) abram.brdf.lambertPhase(alpha);
+        pGeom = rend.body.pGeom;
 
     case 'lommel'
-        phase_law = @(alpha) 1 + sin(alpha/2)*tan(alpha/2)*log(tan(alpha/4));
+        phase_law = @(alpha) abram.brdf.lommelPhase(alpha);
+        pGeom = rend.body.pGeom;
 
     case 'area'
-        phase_law = @(alpha) 1/2*(1 + cos(alpha));
+        phase_law = @(alpha) abram.brdf.areaPhase(alpha);
+        pGeom = rend.body.pGeom;
 
-    case 'hg'
-        phase_law = @(alpha) nan;
+    case 'hapke'
+        radiometry_parameters = num2cell(rend.body.radiometry.parameters);
+        phase_law = @(alpha) abram.brdf.hapkePhase(phase_angle, rend.body.albedo, radiometry_parameters{:});
+        pGeom = abram.brdf.hapkeAlbedo(rend.body.albedo, radiometry_parameters{:});
 end
-Astar = pi*Rstar^2;
+
+Astar = pi*Rlight^2;
 Gcomp = phase_law(phase_angle)*pGeom*(Rbody./(d_body2light*d_body2cam_vec)).^2*Apupil*Astar;
-d_body2cam_inv = sqrt(pi*phase_law(phase_angle)*pGeom*(Rbody*Rstar./d_body2light).^2*Apupil ./ G);
+d_body2cam_inv = sqrt(pi*phase_law(phase_angle)*pGeom*(Rbody*Rlight./d_body2light).^2*Apupil ./ G);
 modelDiff = d_body2cam_vec - d_body2cam_inv;
 
 phase_law_comp = G./(pGeom*(Rbody./(d_body2light*d_body2cam_vec)).^2*Apupil*Astar);
 
-%%
-postpro_validation_phase_law
+%% POST-PRO
+postpro_validation_phase_law()
