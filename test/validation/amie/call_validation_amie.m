@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 abram_install();
 
 flag_hapke = true;        % Use hapke model
