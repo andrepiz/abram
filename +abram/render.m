@@ -296,22 +296,7 @@ classdef render
             P(P == 0) = nan;
             res = P ./ (obj.camera.Apupil * omegaPixel);
         end
-
-        function res = get.depth(obj)
-            % Depth map from coordinates point cloud
-            res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
-        end
-
-        function res = get.radiance(obj)
-            % Radiance map from the raw collected power matrix,
-            % dividing for the collecting area (pupil) and the solid angle
-            % of each pixel
-            omegaPixel = mean(obj.camera.muPixel(1)*obj.camera.muPixel(2) ./ obj.camera.f.^2);
-            P = obj.matrix.values.*obj.matrix.adim.*reshape(obj.light.L.values, 1, 1, []);
-            P(P == 0) = nan;
-            res = P ./ (obj.camera.Apupil * omegaPixel);
-        end
-
+        
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene

@@ -72,6 +72,8 @@ for ix = ixs_picture
     rend.scene.pos_body2cam_IAU = pos_body2cam_IAU(:, ix);
     rend.scene.q_IAU2CAM = q_IAU2CAM(:, ix);
 
+    rend.camera.tExp = 0.1e-4;
+    
     rend = rend.rendering();
     
     IMG_vec(:,:,c) = rend.img;

@@ -4,22 +4,21 @@ abram_install();
 %% INPUTS
 filename_yml = 'light_variability_pole.yml'; % fast version with parallellization
 
-%
-swath_angle = deg2rad(20);  % swath of south pole region
-altitude = 12500e3;         % altitude
-altitude = 15358e3;         % altitude
-altitude = 40967e3;         % altitude
-altitude = 83648e3;         % altitude
-Rbody = 1737.4e3;           % target body radius
-
-% assumed
-res_px = 1024;
-muPixel = 6e-3*tan(deg2rad(61)/2)/(1024/2);   % using LRO data;
-
-distance = altitude + Rbody
-fov = swath2fov(swath_angle, distance, Rbody)
-f = (res_px*muPixel/2)/(tan(fov/2))
-
+% %
+% swath_angle = deg2rad(20);  % swath of south pole region
+% altitude = 12500e3;         % altitude
+% altitude = 15358e3;         % altitude
+% altitude = 40967e3;         % altitude
+% altitude = 83648e3;         % altitude
+% Rbody = 1737.4e3;           % target body radius
+% 
+% % assumed
+% res_px = 1024;
+% muPixel = 6e-3*tan(deg2rad(61)/2)/(1024/2);   % using LRO data;
+% 
+% distance = altitude + Rbody
+% fov = swath2fov(swath_angle, distance, Rbody)
+% f = (res_px*muPixel/2)/(tan(fov/2))
 
 %% RENDER OBJECT
 % Perform a first rendering and save the render object
@@ -29,7 +28,6 @@ rend = abram.render(filename_yml, false);
 % Following renderings can be called with the rendering method
 % on the render object
 
-rend.setting.general.workers = 12;
 rend.setting.discretization.np = 1e7;
 rend.setting.gridding.window = 1;
 rend.setting.reconstruction.granularity = 1;
