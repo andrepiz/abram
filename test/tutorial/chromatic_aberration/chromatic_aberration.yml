@@ -1,0 +1,41 @@
+light: {temperature: 5782.0, radius: 6.95E8}
+body:
+  radius: 1737400.0
+  albedo: 0.12
+  albedo_type: geometric
+  maps:
+    albedo: {filename: moon/lroc_cgi/lroc_color_poles_16k.tif, depth: 8.0, mean: 0.12}                       # Albedo map
+    displacement: {filename: moon/ldem_16.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)
+    normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_16ppd_pizzetti2025.tif, depth: 32.0, frame: body}        # Normal map (RGB = XYZ)
+    horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                     # Horizon map (BW = 0-1)
+  radiometry: {model: lambert}
+camera:
+  exposure_time: 1.5E-3
+  focal_length: 0.105
+  f_number: 4.0
+  pixel_width: 5.5E-6
+  resolution: [1024.0, 1024.0]
+  full_well_capacity: 100000.0
+  gain_analog2digital: 0.6553
+  quantum_efficiency: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                       lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                       values: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09, 0.04, 0.02],                                             # [-]
+                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  transmittance: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
+                  lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
+                  values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
+                  sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+scene:
+  distance_body2star: 1.49597870707E11
+  distance_body2cam: 1E8 
+  phase_angle: 0.5236 
+  rollpitchyaw_cami2cam:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+  rollpitchyaw_csf2iau:
+  - [0.0]
+  - [0.0]
+  - [0.0]
+setting:
+  saving: {depth: 16, filename: chromatic_aberration, format: png}
