@@ -214,8 +214,7 @@ classdef render
             if ~isempty(obj.camera)
                 obj.update_spectrum = update_flag_trigger(obj.camera, objInput, obj.update_spectrum, {'QExT'});
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
-                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f'});
-                obj.update_matrix = update_flag_trigger(obj.camera, objInput, obj.update_matrix,{'distortion'});
+                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f','distortion'});
                 obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise','fwc','offset','amplification'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
@@ -279,10 +278,23 @@ classdef render
         end
 
         function res = get.Feff(obj)
-            % Spectral Feff
-            c = 299792458;      % m/s
-            h = 6.62607015e-34; % J/Hz
-            res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
+            % Effective radiant flux density used for HIL optical facility
+            res = obj.ecr * obj.camera.ecr2Feff;
+        end
+
+        function res = get.depth(obj)
+            % Depth map from coordinates point cloud
+            res = abram.render.depthImage(obj.cloud, obj.body, obj.camera, obj.setting);
+        end
+
+        function res = get.radiance(obj)
+            % Radiance map from the raw collected power matrix,
+            % dividing for the collecting area (pupil) and the solid angle
+            % of each pixel
+            omegaPixel = mean(obj.camera.muPixel(1)*obj.camera.muPixel(2) ./ obj.camera.f.^2);
+            P = obj.matrix.values.*obj.matrix.adim.*reshape(obj.light.L.values, 1, 1, []);
+            P(P == 0) = nan;
+            res = P ./ (obj.camera.Apupil * omegaPixel);
         end
 
         function res = get.depth(obj)
@@ -346,6 +358,10 @@ classdef render
             obj.update_methods = false;
             obj.update_matrix = false;
             obj.update_processing = false;
+
+            if nargout == 0
+                warning('The object is not returned as output to the rendering method. Call obj = obj.rendering() to save rendering data inside obj.')
+            end
         end
 
         function obj = getParPool(obj)
@@ -462,7 +478,7 @@ classdef render
                 gsd_sampling = 2*min(diff(obj.body.lon_lims)/obj.body.sampling.nlon, diff(obj.body.lat_lims)/obj.body.sampling.nlat)*max(obj.body.radius);
 
                 res_lonlat = min(gsd_cam, gsd_sampling)/min(obj.body.radius);
-                npx_map = round(pi/res_lonlat);
+                npx_map = min(1024, round(pi/res_lonlat));
                 img_texture = obj.body.albedo*ones(npx_map, 2*npx_map);
                 lonMin = -pi;
                 lonMax = pi;
@@ -509,26 +525,38 @@ classdef render
             h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
         end
 
-        function [pGeom, pGeomMinMax] = geometric_albedo(obj)
+        function [pGeom, pGeomMinMax] = geometric_albedo(obj, radius_reference)
             % Numerically compute the geometric albedo from the object by
             % rendering it at a very far range and with zero phase angle
             
             objCopy = obj;
 
-            % Find reference radius
-            Afrontal = ellipsoidFrontalArea(objCopy.body.radius, objCopy.scene.dcm_CSF2IAU*objCopy.scene.dir_body2cam_CSF);
-            Rref = sqrt(Afrontal/pi);
+            if ~exist("radius_reference","var")
+                % Find reference radius
+                Afrontal = ellipsoidFrontalArea(objCopy.body.radius, objCopy.scene.dcm_CSF2IAU*objCopy.scene.dir_body2cam_CSF);
+                Rref = sqrt(Afrontal/pi);
+            else
+                Rref = radius_reference;
+            end
 
             % Find distance such that the body spans 1 px
             range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel),[],'all');
 
-            % Render object
+            % Retain body-fixed relative orientation 
+            dcm_CSF2IAU = lonlat2dcm(obj.scene.sph_body2cam_IAU(2), obj.scene.sph_body2cam_IAU(3));
+
+            % Render object at zero phase angle, far range and along
+            % boresight
             objCopy.scene.d_body2cam = range;
             objCopy.scene.phase_angle = 0;
+            objCopy.scene.rpy_CSF2IAU = dcm_to_euler(dcm_CSF2IAU');
             objCopy.scene.rpy_CAMI2CAM = [0; 0; 0];
+
+            % Set new object rendering setting
             objCopy.setting.discretization.method = 'fixed';
             objCopy.setting.discretization.np = 5e5;    % to not undersampling too much
-            objCopy.setting.saving.filename = [];    % to not undersampling too much
+            objCopy.setting.reconstruction.granularity = 1;    % not needed
+            objCopy.setting.saving.filename = [];    
             objCopy = objCopy.rendering();
 
             % Geometric albedo definition: ratio of intensity scattered
@@ -539,16 +567,17 @@ classdef render
             PLobj = sum(objCopy.matrix.values, "all")*objCopy.matrix.adim;
 
             PLR2lossless = objCopy.camera.Apupil*cos(objCopy.scene.ang_offpoint)/(range^2)*pi*(objCopy.light.radius^2)/(objCopy.scene.d_body2light^2);
+            PLlosslessref = (Rref)^2*PLR2lossless;
             if ~isempty(objCopy.body.maps.displacement.F)
                 dhMax = objCopy.body.maps.displacement.max*objCopy.body.maps.displacement.adim;
                 dhMin = objCopy.body.maps.displacement.min*objCopy.body.maps.displacement.adim;
                 PLlosslessdiskmax = (Rref + dhMax)^2*PLR2lossless;
                 PLlosslessdiskmin = (Rref + dhMin)^2*PLR2lossless;
             else
-                PLlosslessdiskmax = (Rref)^2*PLR2lossless;
-                PLlosslessdiskmin = (Rref)^2*PLR2lossless;
+                PLlosslessdiskmax = PLlosslessref;
+                PLlosslessdiskmin = PLlosslessref;
             end
-            pGeom = PLobj/(0.5*PLlosslessdiskmax + 0.5*PLlosslessdiskmin);                
+            pGeom = PLobj/PLlosslessref;                
             pGeomMinMax = [PLobj/PLlosslessdiskmax, PLobj/PLlosslessdiskmin];
         end
 
@@ -576,6 +605,18 @@ classdef render
             if ~isfinite(mag_flux)
                 mag_flux = nan;
             end
+        end
+
+        function tExp = optimalExposureTime(obj)
+           % Find the exposure time to have a well-exposed picture, defined 
+           % as a picture taken with a exposure time such
+           % that the most illuminated pixel is at saturation level
+           ecrMax = max(obj.ecr(:));
+           if ecrMax > 0
+               tExp = obj.camera.fwc/ecrMax;
+           else
+               tExp = nan;
+           end
         end
 
         function to_yml(obj, filename_yml, format)

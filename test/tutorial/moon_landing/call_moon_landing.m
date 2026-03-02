@@ -23,9 +23,11 @@ rpy_CAMI2CAM_waypts = [0.1 0.2   0.4  0.65  0.95 1.1  1.2 1.35 1.48 1.55 1.6; ..
 d_body2cam_vec = interp1(linspace(0, 1, length(d_body2cam_waypts)), d_body2cam_waypts, linspace(0, 1, nPlot));
 rpy_CAMI2CAM_vec = interp1(linspace(0, 1, length(d_body2cam_waypts)), rpy_CAMI2CAM_waypts', linspace(0, 1, nPlot))';
 
-% rend.camera.res_px = [1366 768]; % cinematic
+rend.camera.res_px = [1366 768]; % cinematic
 
 idxPlot = 1:nPlot;
+idxPlot = 18:nPlot;
+idxPlot = 18; 
 
 lonMin = nan;
 lonMax = nan;

@@ -1,0 +1,39 @@
+star: {temperature: 5782.0, radius: 6.95E8}
+body:
+  radius: 1737400.0
+  albedo: 0.12
+  albedo_type: geometric
+  maps:
+    albedo: {filename: moon/lroc_cgi/lroc_color_poles_16k.tif, depth: 8.0, mean: 0.12}
+    displacement: {filename: moon/ldem_16.tif, depth: 1, scale: 1000.0}
+    normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_16ppd_pizzetti2025.tif, depth: 32.0, frame: body}
+  radiometry: {model: lambert}
+camera:
+  exposure_time: 1E-3
+  focal_length: 1
+  f_number: 4.0
+  pixel_width: 6.9029E-6
+  resolution: [1024.0, 1024.0]
+  full_well_capacity: 100000.0
+  gain_analog2digital: 0.0026
+scene:
+  distance_body2star: 1.49597870707E11
+  distance_body2cam: 85385400
+  phase_angle: 1.570796327
+  rollpitchyaw_cami2cam:
+  - [0]
+  - [0]
+  - [-1.570796327]
+  rollpitchyaw_csf2iau:
+  - [1.570796327]
+  - [0]
+  - [0]
+setting:
+  general: {environment: matlab, parallelization: true, workers: 6}                                 # Choose environment and parallelization 
+  discretization: {method: fixed, number_points: 1e6}
+  sampling: {method: projecteduniform}
+  integration: {method: constant}
+  gridding: {method: weightedsum, algorithm: area}                                      # Sum of the point values falling into the same pixel.
+  reconstruction: {granularity: 1}                                                      # Grid upsampled up to the specified granularity, then resized to nominal size with a ['nearest','bilinear','bicubic','lanczos2','lanczos3','osculatory'] reconstruction filter
+  processing: {distortion: false, diffraction: false, blooming: false, noise: false}
+  saving: {depth: 8, filename: test/application/light_variability_pole/results/test/light_variability_pole, format: png}

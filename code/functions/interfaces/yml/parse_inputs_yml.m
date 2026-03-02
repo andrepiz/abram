@@ -1,7 +1,7 @@
-%% STAR
-Tstar  = extract_struct(inputs.star, 'temperature', 5782, true);
-Rstar = extract_struct(inputs.star, 'radius', 695000e3, true);
-star_type = extract_struct(inputs.star, 'type', 'bb');
+%% LIGHT
+Tstar  = extract_struct(inputs.light, 'temperature', 5782, true);
+Rstar = extract_struct(inputs.light, 'radius', 695000e3, true);
+star_type = extract_struct(inputs.light, 'type', 'bb');
 
 %% BODY
 inputs.body = add_missing_field(inputs.body, 'maps');

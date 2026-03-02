@@ -107,6 +107,36 @@ classdef scene < abram.CRenderInput
 
         end
 
+        function obj = point_camera(obj, lon, lat)
+            % Point camera such to have the target at the boresight and north
+            % pole at the top of the image.
+
+            dirCami_IAU = cart_coord([1; lon; lat]);
+            zCami_IAU = -dirCami_IAU;
+            northPole_IAU = [0; 0; 1];
+            xCami_IAU = cross(zCami_IAU, northPole_IAU);
+            xCami_IAU = xCami_IAU/norm(xCami_IAU);
+            yCami_IAU = cross(zCami_IAU, xCami_IAU);
+            yCami_IAU = yCami_IAU/norm(yCami_IAU);
+            % Phase angle and CSF2IAU must be set because we can't set
+            % q_IAU2CAM otherwise
+            obj.phase_angle = acos(max(-1, min(1, dot(obj.dir_body2light_IAU, dirCami_IAU))));
+                [~, dcm_IAU2CSF] = csf(obj.dir_body2light_IAU, dirCami_IAU);
+            obj.rpy_CSF2IAU = dcm_to_euler(dcm_IAU2CSF');
+            obj.q_IAU2CAM = dcm_to_quat([xCami_IAU, yCami_IAU, zCami_IAU]');
+        end
+
+        function obj = point_light(obj, lon, lat)
+            % Point light to a specific longitude/latitude coordinate.
+            dcm_CAMI2IAU = obj.dcm_CAM2IAU*obj.dcm_CAMI2CAM;
+            dirLight_IAU = cart_coord([1; lon; lat]);
+            [~, dcm_IAU2CSF] = csf(dirLight_IAU, obj.dir_body2cam_IAU);
+            obj.phase_angle = acos(max(-1, min(1, dot(dirLight_IAU, obj.dir_body2cam_IAU))));
+            obj.rpy_CSF2IAU = dcm_to_euler(dcm_IAU2CSF');
+            % CAMI2IAU must remain the same
+            obj.q_IAU2CAM = dcm_to_quat(dcm_CAMI2IAU');
+        end
+
         %% GETTERS
         function val = get.d_light2body(obj)
             val = obj.d_body2light;
@@ -157,11 +187,19 @@ classdef scene < abram.CRenderInput
         end
 
         function val = get.dcm_CSF2IAU(obj)
-            val = euler_to_dcm(obj.rpy_CSF2IAU);
+            if isempty(obj.rpy_CSF2IAU)
+                val = [];
+            else
+                val = euler_to_dcm(obj.rpy_CSF2IAU);
+            end
         end
 
         function val = get.dcm_CAMI2CAM(obj)
-            val = euler_to_dcm(obj.rpy_CAMI2CAM);
+            if isempty(obj.rpy_CAMI2CAM)
+                val = [];
+            else
+                val = euler_to_dcm(obj.rpy_CAMI2CAM);
+            end
         end
         
         function val = get.dcm_CSF2CAMI(obj)
@@ -181,54 +219,43 @@ classdef scene < abram.CRenderInput
 
         function val = get.ang_offpoint(obj)
             % Angle of body direction with respect to boresight
-            val = acos(dot(obj.dir_boresight_CAM, obj.dir_cam2body_CAM));
+            val = acos(max(-1, min(1, dot(obj.dir_boresight_CAM, obj.dir_cam2body_CAM))));
         end
         
         function val = get.ang_offlight(obj)
             % Angle of light direction with respect to boresight
-            val = acos(dot(obj.dir_boresight_CAM, obj.dir_light2body_CAM));
+            val = acos(max(-1, min(1, dot(obj.dir_boresight_CAM, obj.dir_light2body_CAM))));
         end
 
-        function obj = set.pos_body2light_IAU(obj, val)
-            obj.pos_body2light_IAU = val;
-            obj.d_body2light = norm(val);
-            if ~isempty(obj.dir_body2cam_IAU)
-                obj.phase_angle = acos(dot(obj.dir_body2light_IAU, obj.dir_body2cam_IAU));
-                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(obj.dir_body2light_IAU, obj.dir_body2cam_IAU)));
-            end
-        end
-
-        function obj = set.pos_body2cam_IAU(obj, val)
-            obj.pos_body2cam_IAU = val;
-            obj.d_body2cam = norm(val);
-            if ~isempty(obj.dir_body2light_IAU)
-                obj.phase_angle = acos(dot(obj.dir_body2light_IAU, obj.dir_body2cam_IAU));
-                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(obj.dir_body2light_IAU, obj.dir_body2cam_IAU)));
-            end
-        end
-
-        function obj = set.q_IAU2CAM(obj, val)
-            if abs(norm(val) - 1) > 1e-6
-                warning('abram:scene','The provided quaternion will be normalized as its norm is different from 1.')
-                obj.q_IAU2CAM = val./norm(val);
-            else
-                obj.q_IAU2CAM = val;
-            end
-            dcm_CAMI2IAU = obj.dcm_CSF2IAU*obj.dcm_CSF2CAMI';
-            obj.rpy_CAMI2CAM = dcm_to_euler(quat_to_dcm(val)*dcm_CAMI2IAU);
-        end
-        
-        function val = get.pos_body2cam_IAU(obj)
+        function val = get.pos_body2cam_IAU(obj) 
             val = obj.pos_body2cam_IAU;
             if isempty(val) && ~isempty(obj.pos_body2cam_CSF)
                 val = obj.dcm_CSF2IAU*obj.pos_body2cam_CSF;
             end
+            % if ~isempty(obj.pos_body2cam_CSF) && ~isempty(obj.dcm_CSF2IAU)
+            %     val = obj.dcm_CSF2IAU*obj.pos_body2cam_CSF;
+            % else
+            %     val = obj.pos_body2cam_IAU;
+            % end
         end
 
         function val = get.pos_body2light_IAU(obj)
             val = obj.pos_body2light_IAU;
             if isempty(val) && ~isempty(obj.pos_body2light_CSF)
                 val = obj.dcm_CSF2IAU*obj.pos_body2light_CSF;
+            end
+            % if ~isempty(obj.pos_body2light_CSF) && ~isempty(obj.dcm_CSF2IAU)
+            %     val = obj.dcm_CSF2IAU*obj.pos_body2light_CSF;
+            % else
+            %     val = obj.pos_body2light_IAU;
+            % end
+        end
+
+        function val = get.q_IAU2CAM(obj)
+            if ~isempty(obj.dcm_CAM2IAU)
+                val = dcm_to_quat(obj.dcm_CAM2IAU') ;
+            else
+                val = obj.q_IAU2CAM;
             end
         end
 
@@ -247,5 +274,38 @@ classdef scene < abram.CRenderInput
         function val = get.sph_body2light_IAU(obj)
             val = sph_coord(obj.dcm_CSF2IAU*obj.pos_body2light_CSF);
         end
+
+        %% SETTERS
+        function obj = set.pos_body2light_IAU(obj, val)
+            obj.pos_body2light_IAU = val;
+            obj.d_body2light = norm(val);
+            if ~isempty(obj.dir_body2cam_IAU)
+                dir = val/obj.d_body2light;
+                obj.phase_angle = acos(max(-1, min(1, dot(dir, obj.dir_body2cam_IAU))));
+                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(dir, obj.dir_body2cam_IAU)));
+            end
+        end
+
+        function obj = set.pos_body2cam_IAU(obj, val)
+            obj.pos_body2cam_IAU = val;
+            obj.d_body2cam = norm(val);
+            if ~isempty(obj.dir_body2light_IAU)
+                dir = val/obj.d_body2cam;
+                obj.phase_angle = acos(max(-1, min(1, dot(obj.dir_body2light_IAU, dir))));
+                obj.rpy_CSF2IAU = quat_to_euler(quat_conj(csf(obj.dir_body2light_IAU, dir)));
+            end
+        end
+
+        function obj = set.q_IAU2CAM(obj, val)
+            if abs(norm(val) - 1) > 1e-6
+                warning('abram:scene','The provided quaternion will be normalized as its norm is different from 1.')
+                obj.q_IAU2CAM = val./norm(val);
+            else
+                obj.q_IAU2CAM = val;
+            end
+            dcm_CAMI2IAU = obj.dcm_CSF2IAU*obj.dcm_CSF2CAMI';
+            obj.rpy_CAMI2CAM = dcm_to_euler(quat_to_dcm(val)*dcm_CAMI2IAU);
+        end
+        
     end
 end
