@@ -1,10 +1,8 @@
 # ABRAM
-_**A**stronomical **B**odies **R**endering **A**pplication for **M**ission design_
+_**A** physically-**B**ased **R**endering **A**pplication in **M**atlab_ for planets, moons, and small bodies.
 
-![optimal_texp](https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546)
-
-**INSTALLATION:** 
-clone the repository and the linked submodules by running the following git commands:
+### Installation & Usage
+Clone the repository and the linked submodules by running the following git commands:
 
 `git clone https://github.com/andrepiz/abram`
 
@@ -14,6 +12,18 @@ clone the repository and the linked submodules by running the following git comm
 
 Then, simply run the script 
 `call()` to generate your first rendering.
+
+Check the [ABRAM wiki](https://github.com/andrepiz/abram/wiki) to access the full documentation.
+
+### Dependencies 
+ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
+- Image Processing Toolbox (required)
+- Parallel Computing Toolbox (required for multi-threading)
+- Statistics and Machine Learning Toolbox (required for image noises)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1dbbfb22-8131-48f5-b696-126932abd70b" width="800" />
+</p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9211622b-cfd4-4cae-a7a2-45427ed514c9" height="200" />
@@ -26,67 +36,34 @@ Then, simply run the script
   <img src="https://github.com/user-attachments/assets/5eba8dd5-4351-4833-9181-57678352ba61" height="200" />
 </p>
 
-**USAGE:** 
-a single configuration file in YAML format is enough to generate a rendering. Provide the filepath of the yml file to the _abram.render_ constructor method in MATLAB:
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b46155fe-9300-4ca2-bd49-9c792e8a4546" width="457" />
+  <img src="https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0" width="343" />
+  <img src="https://github.com/user-attachments/assets/67997677-9934-4707-8bdb-86c1c35ebce3" height="400" />
+  <img src="https://github.com/user-attachments/assets/c26ddb2e-e44f-4b11-9723-3365647d604f" height="400" />
+</p>
 
-`rend = abram.render('YOUR_FILE.YML')`
+### Credits 
+If you use the tool, please cite it in your work with: 
+> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Acta Astronautica (2026).
 
-And a first image will be rendered. 
-To generate new renderings, you can first modify the render properties with the desired parameters (for instance, new pose or new camera properties), then call: 
-
-`rend = rend.rendering()`
-
-In this way most of the pre-processing activities will be skipped to lower computational time. Examples of a multi-rendering call are provided in the script _call_multi()_.
-
-The repository also includes some tutorials to help users become familiar with the toolbox:
-- moon_trajectory: generate a dataset of Moon images along a trajectory defined in ECI or IAU Body-fixed frame
-- hyperspectral_texture: how to embed an high-resolution hyperspectral albedo texture tile in the rendering workflow
-  
-![https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc](https://github.com/user-attachments/assets/22ebb7a9-32e4-49f9-992c-5c37f973b47a)
-
-**DEPENDENCIES:**
-ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
-- Image Processing Toolbox (required)
-- Parallel Computing Toolbox (for multi-thread rendering)
-- Statistics and Machine Learning Toolbox (for image noises)
-  
-**DESCRIPTION:**
-ABRAM is a physically-based validated render engine to generate images of celestial quasi-spherical objects with radiometric consistency. The tool integrates radiometry equations on discretized surface sectors of a sphere according to the desired Bidirectional Reflectance Distribution Function (BRDF), resulting in a 3D point cloud of points that is then direct-gridded to the image frame. ABRAM can be used for camera design, radiometry-related analysis and generation of datasets for training or testing of vision-based navigation algorithms. 
-
-Several BRDFs are implemented and the user can mix them to find the more realistic model depending on the body considered. 
-
-![image](https://github.com/user-attachments/assets/5affe851-186d-4cd4-b9d6-60eaf67562ba)
-
-The user can provide also texture maps to increase the fidelity of the model at close range. Examples of renderings using only albedo (left), albedo + displacement (middle) and albedo + displacement + normal (right) are shown in the following: 
-
-![temp](https://github.com/user-attachments/assets/20ef4518-5e67-48cf-a2be-605e1f6d0abc)
-
-Normal maps of different planets and moons of the solar system have been generated as byproduct of ABRAM development and are available at the following [link](https://zenodo.org/records/14936972).
-
-ABRAM has been validated against real space images acquired by the AMIE camera on-board of the SMART-1 mission. Examples of real images (above) versus their rendering (bottom) at the same exposure time are depicted in the following pictures: 
-
-![validation_amie_corr_tiled_horz](https://github.com/user-attachments/assets/5416e9f9-cfd0-48ac-bf6f-f3465ed26f1e)
-![validation_amie_ideal_tiled_horz](https://github.com/user-attachments/assets/c73be108-327f-4f7f-94c0-2bc640a23349)
-
-ABRAM also supports simple non-spherical shapes such as disks, cylinders, cubes, sticks, plates:
-
-![debrisField](https://github.com/user-attachments/assets/8b6ca482-f38b-41ca-b07d-0f9907651cc0)
-
-**DOCUMENTATION:** documentation is on its way. In the meantime, for more details on the implementation and capabilities, check the following publications:
+### Publications 
+ABRAM has been used in the following publications:
+> A. Pizzetti, P. Panicucci, F.Topputo. "A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery". Inter-Agency GNC V&V Workshop (IAGNC 2025).
+> 
 > A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
 > 
 > P. Panicucci, C. Balossi, F. Ornati, F. Piccolo, A. Pizzetti, F.Topputo, F. Capolupo. "What if Star Trackers Were Navigation Cameras?". 35th AAS/AIAA Space Flight Mechanics Meeting.
 
-**CREDITS:**
-if you use the tool, please cite it in your work as: 
-> A. Pizzetti, P. Panicucci, F.Topputo. "Development and Validation of an Astronomical Bodies Rendering Application for Mission design". Under review.
-
-**CONTRIBUTING:**
-feel free to open an issue to report a bug or ask for a functionality. Do you want to contribute to the project or you need some help in the usage? e-mail me at andrea.pizzetti@polimi.it 
+### Get involved 
+Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
+If you want to contribute to the project, or you need some help in the usage of the tool, e-mail me at andrea.pizzetti@polimi.it 
 
 ### Changelog 
 | Version | Changelog |
 | ------ | ------ |
+|    v1.7    |Changed algorithm of frustum culling; added raymarching shadow culling algorithm; added depthbuffer shadow culling algorithm; added depth map as optional output; added new concentrated sampling; refactored code and architecture; added default objects initialization; extended flexibility of inputs |
+|    v1.6    |Added horizon maps; added support to tiled maps; added support to multi-threads parallelization |
 |    v1.5    |Added support to hyperspectral maps; added support to non-spherical shapes; added tutorials |
 |    v1.4    |Improved frame rate; added Hapke reflection model; added ellipsoidal shapes |
 |    v1.3    |Added occlusions; improved direct gridding efficiency; added smart-calling of methods       |
