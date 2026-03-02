@@ -1,0 +1,30 @@
+light:
+  temperature: 5782.0        # [K]
+  radius: 6.95E8             # [m]
+body:
+  radius: 1737400.0          # [m]
+  albedo: 0.12               # [-]
+  albedo_type: normal          # ['bond'/'geometric'/'normal']
+  maps: 
+    albedo: {filename: moon/lroc_cgi/lroc_color_poles_8k.tif, depth: 8.0, domain: [0.12, 0.48], gamma: 2.8}                       # Albedo map
+    displacement: {filename: moon/ldem_16.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)
+    normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_16ppd_pizzetti2025.tif, depth: 32.0, frame: body}        # Normal map (RGB = XYZ)
+  radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
+camera:
+  exposure_time: 0.1E-3             # [s]
+  focal_length: 35E-3               # [m]
+  f_number: 1.9                     # [-]
+  pixel_width: 4.8E-6               # [m]
+  resolution: [2592, 2048]      # [px]
+  full_well_capacity: 110000.0      # [e-] So to have 24 DN/(nJ/cm2) of responsivity at 550 nm and considering 12 bits
+  gain_analog2digital: 0.0376       # [DN/e-]
+  lambda_min: [400E-9, 500E-9, 600E-9, 700E-9, 800E-9, 900E-9]    # [m] Detector wavebands lower limits
+  lambda_max: [500E-9, 600E-9, 700E-9, 800E-9, 900E-9, 1000E-9]   # [m] Detector wavebands upper limits
+  quantum_efficiency: [0.46, 0.53, 0.47, 0.33, 0.20, 0.05]                                 # [-]
+  transmittivity: [0.83, 0.89, 0.89, 0.89, 0.89, 0.88]                         # [-]  
+scene:
+  d_body2light: 1.49597870707E11      # [m]
+  d_body2cam: 6.779E10            # [m]
+  phase_angle: 0.6981           # [rad]
+params:
+  saving: {image_depth: 12, image_filename: artemis_flyby, image_format: png}               # Image saving with a specified bit depth, filename and format
