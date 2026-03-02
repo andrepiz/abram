@@ -37,7 +37,12 @@ classdef camera < abram.CRenderInput
         QExT
         electronNoiseFloor
         dnNoiseFloor
+    end
+
+    properties (Dependent, Hidden)
         etaNormalizationFactor
+        DN2Feff
+        ecr2Feff
     end
     
     properties (Hidden)
@@ -127,10 +132,12 @@ classdef camera < abram.CRenderInput
         function val = get.dpupil(obj)
             val = obj.f/obj.fNum;
         end
+        
         function val = get.Apupil(obj)
             % [m^2] area of the pupil
             val = pi*(obj.dpupil/2)^2; 
         end
+        
         function val = get.fov(obj)
             % [rad] field of view
             switch obj.fov_type
@@ -142,50 +149,80 @@ classdef camera < abram.CRenderInput
                     error('abram:camera','FOV shape not supported')
             end
         end
+        
         function val = get.cu(obj)
             val = obj.res_px(1)/2 + obj.uv_upperLeftPixel(1); % [px] horizontal optical center
         end
+        
         function val = get.cv(obj)
             val = obj.res_px(2)/2 + obj.uv_upperLeftPixel(2); % [px] vertical optical center
         end
+        
         function val = get.fu(obj)
             val = obj.f./obj.muPixel(1); % [px] horizontal focal length in pixel
         end
+        
         function val = get.fv(obj)
             val = obj.f./obj.muPixel(2); % [px] vertical focal length in pixel
         end
+        
         function val = get.K(obj)
             val = [obj.fu    0           obj.cu;...
                    0         obj.fv      obj.cv;...
                    0         0           1]; % [-] projection matrix
         end
+        
         function val = get.G_DA(obj)
             val = 1/obj.G_AD;
         end
+        
         function val = get.QExT(obj)
             spectrum_vec = [obj.QE, obj.T];
             val = spectrum_vec.merge();   
         end
+        
         function val = get.ifov(obj)
             val = 2*atan((obj.muPixel/2)/obj.f);
         end
+        
         function val = get.sensorSize(obj)
             val = obj.res_px.*obj.muPixel;
         end
+        
         function val = get.electronNoiseFloor(obj)
             % DNR Is the ratio between the signal at saturation versus the minimum
             % signal the sensor can measure. EMVA1288 Standard.
             val = obj.fwc/(10^(obj.dnr/20));   
         end
+        
         function val = get.dnNoiseFloor(obj)
             val = obj.G_AD*10^(obj.amplification/20)*obj.electronNoiseFloor;
         end
+
         function val = get.etaNormalizationFactor(obj)
             % Normalization factor used to retrieve effective radiant flux
             % density
             val = max(obj.QExT.values.*obj.QExT.lambda_mid);
         end
+
+        function res = get.ecr2Feff(obj)
+            % Feff = int(F * lambda * T * QE dlambda) / eta
+            % ecr = Apupil *  int(F * lambda / (hc) * T * QE dlambda)
+            % --> ecr = Apupil *  Feff * eta / (hc)
+            % --> ecr2Feff = (hc) / (Apupil * eta)
+            c = 299792458;      % m/s
+            h = 6.62607015e-34; % J/Hz
+            res = (h*c)/(obj.Apupil*obj.etaNormalizationFactor);
+        end
+        
+        function res = get.DN2Feff(obj)
+            % DN = ecr * tExp * G_AD
+            % --> DN2Feff = (hc) / (Apupil * eta * tExp * G_AD) = ecr2Feff / (tExp * G_AD)
+            res = obj.ecr2Feff/(obj.G_AD*obj.tExp);
+        end
+
         %% SETTERS
+        
         function obj = set.muPixel(obj, val)
             if length(obj.res_px) == 1 && length(val) == 1
                 obj.muPixel = [val, val];

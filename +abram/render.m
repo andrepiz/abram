@@ -214,8 +214,7 @@ classdef render
             if ~isempty(obj.camera)
                 obj.update_spectrum = update_flag_trigger(obj.camera, objInput, obj.update_spectrum, {'QExT'});
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
-                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f'});
-                obj.update_matrix = update_flag_trigger(obj.camera, objInput, obj.update_matrix,{'distortion'});
+                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f','distortion'});
                 obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise','fwc','offset','amplification'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
@@ -279,10 +278,8 @@ classdef render
         end
 
         function res = get.Feff(obj)
-            % Spectral Feff
-            c = 299792458;      % m/s
-            h = 6.62607015e-34; % J/Hz
-            res = obj.ecr * (h*c)/(obj.camera.Apupil*obj.camera.etaNormalizationFactor);
+            % Effective radiant flux density used for HIL optical facility
+            res = obj.ecr * obj.camera.ecr2Feff;
         end
 
         function res = get.depth(obj)

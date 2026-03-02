@@ -18,3 +18,6 @@
 # Folder
 debug/src_backup/*
 autocoding/codegen*
+
+# Tests to not share publicly
+test/validation/opensky_aastr/*

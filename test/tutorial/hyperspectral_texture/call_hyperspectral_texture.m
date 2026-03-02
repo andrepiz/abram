@@ -10,7 +10,7 @@ map_hyperspectral = 1;  % Case 1: using WAC_HAPKE_3BAND_E350N0450 hyperspectral 
                         
 %% RENDER OBJECT
 % Perform a first rendering and save the render object
-rend = abram.render(filename_yml);
+rend = abram.render(filename_yml, false);
 
 %% SET SPECTRAL DATA
 
