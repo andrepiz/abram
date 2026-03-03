@@ -264,5 +264,19 @@ classdef camera < abram.CRenderInput
                 obj.T = abram.spectrum(sp); 
             end
         end
+
+        %% UTILS
+        function obj = set_QE_and_T(obj, QE, T)
+            if isa(QE,'abram.spectrum')
+                obj.QE = QE;
+            else
+                obj.QE = abram.spectrum(QE); 
+            end
+            if isa(T,'abram.spectrum')
+                obj.T = T;
+            else
+                obj.T = abram.spectrum(T); 
+            end
+        end
     end
 end

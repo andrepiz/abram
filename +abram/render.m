@@ -296,7 +296,7 @@ classdef render
             P(P == 0) = nan;
             res = P ./ (obj.camera.Apupil * omegaPixel);
         end
-
+        
         %% RENDERING
         function obj = rendering(obj)
             %RENDERING Render the scene
