@@ -45,19 +45,7 @@ ABRAM has been developed and tested in MATLAB r2023b with the following dependen
 
 ### Credits 
 If you use the tool, please cite it in your work with: 
-> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Acta Astronautica (2026).
-
-### Publications 
-ABRAM has been used in the following publications:
-> A. Pizzetti, P. Panicucci, F.Topputo. "A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery". Inter-Agency GNC V&V Workshop (IAGNC 2025).
-> 
-> A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
-> 
-> P. Panicucci, C. Balossi, F. Ornati, F. Piccolo, A. Pizzetti, F.Topputo, F. Capolupo. "What if Star Trackers Were Navigation Cameras?". 35th AAS/AIAA Space Flight Mechanics Meeting.
-
-### Get involved 
-Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
-If you want to contribute to the project, or you need some help in the usage of the tool, e-mail me at andrea.pizzetti@polimi.it 
+> Pizzetti, A., Panicucci, P., Capolupo, F., & Topputo, F. (2026). Development and validation of a physically based rendering methodology for celestial bodies. Acta Astronautica. https://doi.org/10.1016/j.actaastro.2026.03.003
 
 ### Changelog 
 | Version | Changelog |
@@ -70,3 +58,20 @@ If you want to contribute to the project, or you need some help in the usage of 
 |    v1.2    |New object-oriented architecture; new fast mode with constant BRDF and no loops; increased fps at close range by pre-computing fov intersection; capability to merge QE and T spectra defined at different wavelengths        |
 |    v1.1    |Added parallelization        |
 |    v1.0    |Ready for dissemination        |
+
+### Get involved 
+Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
+If you want to contribute to the project, or you need some help in the usage of the tool, e-mail me at andrea.pizzetti@polimi.it 
+
+### Publications 
+ABRAM was used in the following publications:
+> Ornati, F., Panicucci, P., Pizzetti, A., Capolupo, F. & Topputo, F. (2026). On the radiometric calibration of optical hardware-in-the-loop stimulators. Journal of Spacecraft and Rockets.
+>
+> Pizzetti, A., Panicucci, P., Mages, D., & Topputo, F. (2026). Single-Beacon Positioning via Radiometry Ranging. In 48th AAS Guidance, Navigation and Control Conference (pp. 1-19).
+> 
+> Pizzetti, A., Panicucci, P., & Topputo, F. (2025). A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery. In Inter-Agency GNC V&V Workshop (2025).
+> 
+> Panicucci, P., Balossi, C., Ornati, F., Piccolo, F., Pizzetti, A., Topputo, F., & Capolupo, F. (2025). What if Star Trackers Were Navigation Cameras?. In 35th AAS/AIAA Space Flight Mechanics Meeting (pp. 1-23).
+> 
+> Pizzetti, A., Panicucci, P., & Topputo, F. (2024, October). A Radiometric Consistent Render Procedure for Planets and Moons. In 4th Space Imaging Workshop (pp. 1-3).
+ 
