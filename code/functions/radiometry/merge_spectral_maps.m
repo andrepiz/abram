@@ -1,17 +1,35 @@
 function [map, w_maps] = merge_spectral_maps(bandwidth, maps, lambda_min, lambda_max)
-% Merge multiple spectral maps defined between minimum and maximum
-% wavelengths into a single map defined in a single bandwidth
+% MERGE_SPECTRAL_MAPS  Merge multiple spectral maps into a single
+%                      bandwidth-weighted map.
+%
+% Each input map covers a spectral band [lambda_min(i), lambda_max(i)].
+% The function computes a weighted average of all maps whose bands
+% intersect the camera bandwidth, where weights are proportional to the
+% fraction of each band that falls within the bandwidth.
+%
+% INPUTS:
+%   bandwidth   [1x2] Camera sensitivity bandwidth [lambda_lo, lambda_hi]
+%   maps        [RxCxN] Stack of N spectral maps (one per spectral band)
+%   lambda_min  [Nx1] Lower wavelength bound of each band [nm]
+%   lambda_max  [Nx1] Upper wavelength bound of each band [nm]
+%
+% OUTPUTS:
+%   map         [RxC] Merged map (weighted average over intersecting bands)
+%   w_maps      [1xN] Normalized weights in original input order
 
-if size(lambda_min, 1) ~= size(lambda_max, 1)
-    error('Minimum and maximum wavelength vectors should have the same dimension')
+% --- Input validation ---
+if numel(lambda_min) ~= numel(lambda_max)
+    error('merge_spectral_maps:dimMismatch', ...
+          'lambda_min and lambda_max must have the same number of elements.');
+end
+if size(maps, 3) ~= numel(lambda_min)
+    error('merge_spectral_maps:dimMismatch', ...
+          'maps 3rd dimension (%d) must match the number of spectral bands (%d).', ...
+          size(maps, 3), numel(lambda_min));
 end
 
 % Find mid wavelength for each map
 lambda_mid = (lambda_min + lambda_max)/2;
-
-if size(maps, 3) ~= length(lambda_mid)
-    error('Maps 3rd dimension should be equal to the dimension of the minimum and maximum wavelengths')
-end
 
 % Order maps by increasing wavelength
 [lambda_mid, ixs_sorted] = sort(lambda_mid);
@@ -19,25 +37,39 @@ maps = maps(:, :, ixs_sorted);
 lambda_min = lambda_min(ixs_sorted);
 lambda_max = lambda_max(ixs_sorted);
 
-% Cap bandwidth between the albedos bandwidth
-lambdaCam_min = max(bandwidth(1), min(lambda_min));
-lambdaCam_max = min(bandwidth(2), max(lambda_max));
+% Check band contiguity (after sorting)
+if ~all(abs(lambda_max(1:end-1) - lambda_min(2:end)) < 1e-9)
+    error('merge_spectral_maps:nonContiguous', ...
+          'Spectral bands must be contiguous (lambda_max(i) == lambda_min(i+1)).');
+end
 
-% Init weight vector
-w_maps = zeros(1, length(lambda_mid));
+% Find bands intersecting the bandwidth
+ix_left  = find(lambda_max >= bandwidth(1), 1, 'first');  % first band crossing left edge
+ix_right = find(lambda_min <= bandwidth(2), 1, 'last');   % last band crossing right edge
 
-% Find the map points that intersect the bandwidth
-ix_left = find(lambda_min - lambdaCam_min <= 0);
-ix_right = find(lambda_max - lambdaCam_max >= 0);
+band_widths = lambda_max - lambda_min;
+w_maps = zeros(1, numel(lambda_mid));
+dbw = bandwidth(2) - bandwidth(1);
 
-% Find corresponding weights for those points
-w_left = (lambda_max(ix_left) - lambdaCam_min)/(lambda_max(ix_left) - lambda_min(ix_left));
-w_right = (lambdaCam_max - lambda_min(ix_right))/(lambda_max(ix_right) - lambda_min(ix_right));
+if ix_left == ix_right
+    % Bandwidth falls entirely within one band
+    w_maps(ix_left) = dbw / band_widths(ix_left);
+else
+    % Partial left edge band
+    w_maps(ix_left) = (lambda_max(ix_left) - bandwidth(1)) / band_widths(ix_left);
+    % Partial right edge band
+    w_maps(ix_right) = (bandwidth(2) - lambda_min(ix_right)) / band_widths(ix_right);
+    % Full interior bands
+    for i = ix_left+1 : ix_right-1
+        w_maps(i) = band_widths(i) / band_widths(i);  % = 1, fully inside
+    end
+    w_maps(ix_left+1 : ix_right-1) = 1;
+end
 
-% Assign weights
-w_maps(ix_left) = w_left;
-w_maps(ix_right) = w_right;
-w_maps(ix_left + 1:ix_right - 1) = 1;
+% Clip negatives (safety, should not occur with correct indices)
+w_maps(w_maps < 0) = 0;
+
+% Normalize weights
 w_maps = w_maps/sum(w_maps);
 
 % Merge the albedos

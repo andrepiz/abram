@@ -9,8 +9,7 @@ classdef setting < abram.CRenderInput
         culling                            
         integration           
         gridding                                          
-        reconstruction                  
-        processing      
+        reconstruction         
         saving  
     end
     
@@ -44,7 +43,7 @@ classdef setting < abram.CRenderInput
             end
 
             % Add missing fields
-            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','culling','integration','gridding','reconstruction','processing','saving'});
+            inputs.setting = add_missing_field(inputs.setting, {'general','discretization','sampling','culling','integration','gridding','reconstruction','saving'});
 
             % General
             general.environment = extract_struct(inputs.setting.general, 'environment','matlab');
@@ -52,6 +51,7 @@ classdef setting < abram.CRenderInput
             general.workers = extract_struct(inputs.setting.general, 'workers', 'auto');
             general.profile = extract_struct(inputs.setting.general, 'profile', 'threads');
             general.nmax = extract_struct(inputs.setting.general, 'nmax', 10e3*10e3);
+            general.verbose = extract_struct(inputs.setting.general, 'verbose', true);
             % Discretization
             discretization.method = extract_struct(inputs.setting.discretization, 'method','adaptive');
             discretization.np = extract_struct(inputs.setting.discretization, 'np', 1e5);
@@ -95,15 +95,11 @@ classdef setting < abram.CRenderInput
             end
             reconstruction.filter = extract_struct(inputs.setting.reconstruction, 'filter', 'bilinear');
             reconstruction.antialiasing = extract_struct(inputs.setting.reconstruction, 'antialiasing', true);
-            % Processing
-            processing.distortion = extract_struct(inputs.setting.processing, 'distortion', false);
-            processing.diffraction = extract_struct(inputs.setting.processing, 'diffraction', false);
-            processing.blooming = extract_struct(inputs.setting.processing, 'blooming', false);
-            processing.noise = extract_struct(inputs.setting.processing, 'noise', false);
             % Saving
             saving.depth = extract_struct(inputs.setting.saving, 'depth', 8);
             saving.filename = extract_struct(inputs.setting.saving, 'filename', []);
             saving.format = extract_struct(inputs.setting.saving, 'format', 'png');
+            saving.color = extract_struct(inputs.setting.saving, 'color', 'mono');
 
             obj.general = general;                    
             obj.discretization = discretization;                             
@@ -112,7 +108,6 @@ classdef setting < abram.CRenderInput
             obj.integration = integration;
             obj.gridding = gridding;                         
             obj.reconstruction = reconstruction;            
-            obj.processing = processing;
             obj.saving = saving;
         end
         

@@ -81,8 +81,15 @@ if nargin>0
       % This is what the user wants to call the new .gif file: 
       gif_filename = varargin{1}; 
       
+      tmp = strncmpi(varargin,'append',1);
+      if any(tmp)
+         flag_append = varargin{find(tmp)+1}; 
+      else
+         flag_append = false;
+      end
+
       % Check for an existing .gif file by the same name: 
-      if exist(gif_filename,'file')==2
+      if exist(gif_filename,'file')==2 && ~flag_append
 
          OverWrite = false; % By default, do NOT overwrite an existing file by the input name. 
          if nargin>1
@@ -113,7 +120,7 @@ if nargin>0
          
       end
       
-      firstframe = true; 
+      firstframe = true && ~flag_append; 
       
       % Set defaults: 
       DelayTime = 1/15; 

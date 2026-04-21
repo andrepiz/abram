@@ -60,7 +60,7 @@ classdef camera < abram.CRenderInput
                 warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens as default camera')
                 inputs.camera.resolution = [1024 1024];
                 inputs.camera.pixel_width = 1e-6;
-                inputs.camera.exposure_time = 1e-7;
+                inputs.camera.exposure_time = 1e-5;
                 inputs.camera.focal_length = 50e-3;
                 inputs.camera.f_number = 2;
                 inputs.camera.full_well_capacity = 10e3;
@@ -94,7 +94,7 @@ classdef camera < abram.CRenderInput
             % Add missing fields 
             inputs.camera = add_missing_field(inputs.camera, {'quantum_efficiency','transmittance','distortion','noise'});
             inputs.camera.distortion = add_missing_field(inputs.camera.distortion, {'radial','decentering'});
-            inputs.camera.noise = add_missing_field(inputs.camera.noise, {'dark','prnu','readout','shot'});
+            inputs.camera.noise = add_missing_field(inputs.camera.noise, {'aberration','blooming','shot','dark','prnu','smearing','readout'});
 
             % Fix resolution and size pixel sizes
             obj.res_px = extract_struct(inputs.camera,'resolution');
@@ -112,17 +112,27 @@ classdef camera < abram.CRenderInput
             obj.dnr = extract_struct(inputs.camera,'dnr', 20*log10(obj.fwc/obj.G_DA));
             obj.distortion.radial = extract_struct(inputs.camera.distortion,'radial',[0, 0, 0]);
             obj.distortion.decentering = extract_struct(inputs.camera.distortion,'decentering',[0, 0]);
+            obj.noise.aberration.flag = extract_struct(inputs.camera.noise.aberration, 'flag',false);
+            obj.noise.aberration.polychromatic = extract_struct(inputs.camera.noise.aberration, 'polychromatic',false);
+            obj.noise.aberration.coefficients = extract_struct(inputs.camera.noise.aberration, 'coefficients', []);
+            obj.noise.blooming.flag = extract_struct(inputs.camera.noise.blooming, 'flag', false);
+            obj.noise.blooming.alpha = extract_struct(inputs.camera.noise.blooming, 'alpha', 0.05);
+            obj.noise.blooming.beta = extract_struct(inputs.camera.noise.blooming, 'beta', 0.02);
+            obj.noise.blooming.sigma = extract_struct(inputs.camera.noise.blooming, 'sigma', 200);
             obj.noise.shot.flag = extract_struct(inputs.camera.noise.shot, 'flag',false);
-            obj.noise.prnu.flag = extract_struct(inputs.camera.noise.prnu, 'flag',false);
-            obj.noise.dark.flag = extract_struct(inputs.camera.noise.dark, 'flag', false);
-            obj.noise.readout.flag = extract_struct(inputs.camera.noise.readout, 'flag',false);
-            obj.noise.prnu.sigma = extract_struct(inputs.camera.noise.prnu,'sigma',0);
-            obj.noise.dark.sigma = extract_struct(inputs.camera.noise.dark,'sigma',0);
-            obj.noise.readout.sigma = extract_struct(inputs.camera.noise.readout,'sigma',0);
-            obj.noise.dark.mean = extract_struct(inputs.camera.noise.dark,'mean',0);
             obj.noise.shot.seed = extract_struct(inputs.camera.noise.shot, 'seed', 0);
-            obj.noise.prnu.seed = extract_struct(inputs.camera.noise.prnu, 'seed',0);
+            obj.noise.dark.flag = extract_struct(inputs.camera.noise.dark, 'flag', false);
+            obj.noise.dark.mean = extract_struct(inputs.camera.noise.dark,'mean',0);
+            obj.noise.dark.sigma = extract_struct(inputs.camera.noise.dark,'sigma',0);
             obj.noise.dark.seed = extract_struct(inputs.camera.noise.dark, 'seed', 0);
+            obj.noise.prnu.flag = extract_struct(inputs.camera.noise.prnu, 'flag',false);
+            obj.noise.prnu.sigma = extract_struct(inputs.camera.noise.prnu,'sigma',0);
+            obj.noise.prnu.seed = extract_struct(inputs.camera.noise.prnu, 'seed',0);
+            obj.noise.smearing.flag = extract_struct(inputs.camera.noise.smearing, 'flag',false);
+            obj.noise.smearing.direction = extract_struct(inputs.camera.noise.smearing,'direction','up');
+            obj.noise.smearing.readout_time = extract_struct(inputs.camera.noise.smearing,'readout_time',0);
+            obj.noise.readout.flag = extract_struct(inputs.camera.noise.readout, 'flag',false);
+            obj.noise.readout.sigma = extract_struct(inputs.camera.noise.readout,'sigma',0);
             obj.noise.readout.seed = extract_struct(inputs.camera.noise.readout, 'seed',0);
             obj.QE = abram.spectrum(inputs.camera.quantum_efficiency);
             obj.T = abram.spectrum(inputs.camera.transmittance);

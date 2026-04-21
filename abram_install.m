@@ -51,7 +51,14 @@ end
 
 % Check that CVT is installed
 if isempty(which('cvt_home.m'))
-    error('CVT submodule not found. Please install CVT using git submodule or download it from https://github.com/andrepiz/cvt')
+    try
+        cd('code\lib\cvt')
+        cvt_install();
+        addpath(genpath(cvt_home()))
+        cd('..\..\..')
+    catch
+        error('CVT submodule not found. Please install CVT using git submodule or download it from https://github.com/andrepiz/cvt')
+    end
 else
     addpath(genpath(cvt_home()))
 end
