@@ -5,12 +5,13 @@ switch format
     case 'abram'
 
         % STAR
-        inputs.light = extract_fields(light, {'temperature','type'});
-        inputs.light.radius = light.radius;
+        inputs.light = extract_fields(light, {'temperature','radius','shape','type'});
+        if strcmp(inputs.light.type,'spectrum')
+            inputs.light.radiance = extract_fields(light.L, {'lambda_min','lambda_max','values','sampling'});
+        end
 
         % BODY
         inputs.body = extract_fields(body, {'radius', 'albedo', 'albedo_type','radiometry'});
-        inputs.body.radius = body.radius;
         if isfield(body.maps,'albedo')
             if ~isempty(body.maps.albedo.filename)
             inputs.body.maps.albedo = extract_fields(body.maps.albedo, {'filename','dimension','depth','scale','gamma','shift','mean','domain','limits','lambda_min','lambda_max','bandwidth'});
@@ -29,6 +30,11 @@ switch format
         if isfield(body.maps,'horizon')
             if ~isempty(body.maps.horizon.filename)
             inputs.body.maps.horizon = extract_fields(body.maps.horizon, {'filename','dimension','depth','limits'});
+            end
+        end
+        if isfield(body.maps,'radiance')
+            if ~isempty(body.maps.radiance.filename)
+            inputs.body.maps.radiance = extract_fields(body.maps.radiance, {'filename','dimension','depth','scale','gamma','shift','mean','domain','limits','lambda_min','lambda_max','bandwidth'});
             end
         end
         if isfield(setting.sampling,'limits')
@@ -79,11 +85,27 @@ function sOut = extract_fields(sIn, fields)
         fname = fields{i};
         if isstruct(sIn) && isfield(sIn, fname)
             if ~isempty(sIn.(fname))
-                sOut.(fname) = sIn.(fname);
+                vIn = sIn.(fname);
+                if isstruct(vIn)
+                    sOut.(fname) = extract_fields(vIn, fieldnames(vIn));
+                else
+                    if isstring(vIn)
+                        vIn = char(vIn);    % yml do not support strings
+                    end
+                    sOut.(fname) = vIn;
+                end
             end
         elseif isobject(sIn) && any(strcmp(fname, properties(sIn)))
             if ~isempty(sIn.(fname))
-                sOut.(fname) = sIn.(fname);
+                vIn = sIn.(fname);
+                if isstruct(vIn)
+                    sOut.(fname) = extract_fields(vIn, fieldnames(vIn));
+                else
+                    if isstring(vIn)
+                        vIn = char(vIn);    % yml do not support strings
+                    end
+                    sOut.(fname) = vIn;
+                end
             end
         end
     end

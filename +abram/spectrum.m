@@ -19,12 +19,16 @@ classdef spectrum
             
             if ( isfield(in,'lambda_min') && ~isfield(in,'lambda_max') ) || ...
                 ( isfield(in,'lambda_max') && ~isfield(in,'lambda_min') )
-                error('abram:io','Input both lambda_min and lambda_max as equal length vectors')
+                error('abram:io','Specify the starting and ending wavelength of each camera band with the lambda_min and lambda_max vectors.')
             end
             obj.lambda_min = extract_struct(in, 'lambda_min', 450E-9, true);
             obj.lambda_max = extract_struct(in, 'lambda_max', 820E-9, true);
             obj.values = extract_struct(in, 'values', ones(1, length(obj.lambda_min)), true);
             obj.sampling = extract_struct(in, 'sampling', 'piecewise');
+
+            if ~isequal(size(obj.lambda_min), size(obj.lambda_max), size(obj.values))
+                error('abram:io','The size of lambda_min, lambda_max and values vectors of the spectrum must be the same.')
+            end
         end
 
         function spectrum_merged = merge(spectrum_vec)

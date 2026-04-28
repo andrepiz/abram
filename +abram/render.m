@@ -195,7 +195,7 @@ classdef render
                 obj.update_sectors = update_flag_trigger(obj.setting, objInput, obj.update_sectors, {'discretization','sampling'});
                 obj.update_methods = update_flag_trigger(obj.setting, objInput, obj.update_methods, {'culling','integration'});
                 obj.update_matrix = update_flag_trigger(obj.setting, objInput, obj.update_matrix, {'gridding','reconstruction'});
-                obj.update_processing = update_flag_trigger(obj.setting, objInput, obj.update_processing, {'processing','saving'});
+                obj.update_processing = update_flag_trigger(obj.setting, objInput, obj.update_processing, {'saving'});
             end
             obj.setting = objInput;
         end
@@ -301,38 +301,40 @@ classdef render
         function obj = rendering(obj)
             %RENDERING Render the scene
             
-            fprintf('\n### RENDERING STARTED ###')
+            verbose = obj.setting.general.verbose;
 
-            fprintf('\n+++ Loading data +++'), tic, 
+            if verbose; fprintf('\n### RENDERING STARTED ###'); end
+
+            if verbose; fprintf('\n+++ Loading data +++'); end, tic, 
             obj = obj.getParPool(); 
             obj = obj.loadMaps(); 
             obj.time_loading = toc;
-            fprintf('\n...CPU time: %f sec', obj.time_loading)
+            if verbose; fprintf('\n...CPU time: %f sec', obj.time_loading); end
 
-            fprintf('\n+++ Sampling points +++'), tic, 
+            if verbose; fprintf('\n+++ Sampling points +++'); end, tic, 
             obj = obj.setSpectrum();
             obj = obj.sampleSectors();
             obj.time_sampling = toc;
-            fprintf('\n...CPU time: %f sec', obj.time_sampling)
+            if verbose; fprintf('\n...CPU time: %f sec', obj.time_sampling); end
 
-            fprintf('\n+++ Integrating reflection +++'), tic, 
+            if verbose; fprintf('\n+++ Integrating reflection +++'); end, tic, 
             obj = obj.coeffCloud(); 
             obj.time_integrating = toc;
-            fprintf('\n...CPU time: %f sec', obj.time_integrating)
+            if verbose; fprintf('\n...CPU time: %f sec', obj.time_integrating); end
 
-            fprintf('\n+++ Direct gridding +++'), tic, 
+            if verbose; fprintf('\n+++ Direct gridding +++'); end, tic, 
             obj = obj.directGridding(); 
             obj.time_gridding = toc;
-            fprintf('\n...CPU time: %f sec', obj.time_gridding)
+            if verbose; fprintf('\n...CPU time: %f sec', obj.time_gridding); end
 
-            fprintf('\n+++ Process image +++'), tic, 
+            if verbose; fprintf('\n+++ Process image +++'); end, tic, 
             obj = obj.processImage();
             abram.render.saveImage(obj.img, obj.setting);
             obj.time_processing = toc;
-            fprintf('\n...CPU time: %f sec', obj.time_processing)
+            if verbose; fprintf('\n...CPU time: %f sec', obj.time_processing); end
 
             obj.time_rendering = obj.time_sampling + obj.time_integrating + obj.time_gridding;
-            fprintf('\n### FINISHED IN %f SEC ###\n', obj.time_loading + obj.time_rendering + obj.time_processing)
+            if verbose; fprintf('\n### FINISHED IN %f SEC ###\n', obj.time_loading + obj.time_rendering + obj.time_processing); end
 
             % Set to false the updates to prepare for next rendering
             obj.update_sectors = false;
@@ -353,15 +355,15 @@ classdef render
             if obj.update_parpool || ~obj.smart_calling
                 obj.setting = abram.render.getParPool(obj.setting);
             else
-                fprintf('\n   smart calling: no change detected, skipping parpool loading...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping parpool loading...'); end 
             end
         end
 
         function obj = loadMaps(obj)
             if obj.update_maps || ~obj.smart_calling
-                obj.body = abram.body.loadMaps(obj.body);
+                obj.body = abram.body.loadMaps(obj.body, obj.setting);
             else
-                fprintf('\n   smart calling: no change detected, skipping maps loading...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping maps loading...'); end 
             end
         end
 
@@ -369,7 +371,7 @@ classdef render
             if obj.update_spectrum || ~obj.smart_calling
                 obj.light = obj.light.integrateRadiance(obj.camera.QExT);
             else
-                fprintf('\n   smart calling: no change detected, skipping spectrum setting...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping spectrum setting...'); end 
             end
         end
 
@@ -377,7 +379,7 @@ classdef render
             if obj.update_sectors || ~obj.smart_calling
                 obj.body = abram.body.sampleSectors(obj.body, obj.camera, obj.scene, obj.setting);
             else
-                fprintf('\n   smart calling: no change detected, skipping sectors sampling...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping sectors sampling...'); end 
             end
         end
 
@@ -386,7 +388,7 @@ classdef render
                 obj.cloud = abram.render.coeffCloud(obj.light, obj.body, obj.camera, obj.scene, obj.setting);
                 obj.update_matrix = true;
             else
-                fprintf('\n   smart calling: no change detected, skipping cloud generation...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping cloud generation...'); end 
             end
         end
 
@@ -394,7 +396,7 @@ classdef render
             if obj.update_matrix || ~obj.smart_calling
                 obj.matrix = abram.render.directGridding(obj.cloud, obj.body, obj.camera, obj.scene, obj.setting);
             else
-                fprintf('\n   smart calling: no change detected, skipping direct gridding...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping direct gridding...'); end
             end
         end
 
@@ -402,7 +404,7 @@ classdef render
             if obj.update_image || ~obj.smart_calling
                 [obj.img, obj.noise, obj.ec, obj.ecr] = abram.render.processImage(obj.matrix, obj.light, obj.camera, obj.setting);
             else
-                fprintf('\n   smart calling: no change detected, skipping image processing...') 
+                if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping image processing...'); end
             end
         end
 

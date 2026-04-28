@@ -45,7 +45,19 @@ ABRAM has been developed and tested in MATLAB r2023b with the following dependen
 
 ### Credits 
 If you use the tool, please cite it in your work with: 
-> Pizzetti, A., Panicucci, P., Capolupo, F., & Topputo, F. (2026). Development and validation of a physically based rendering methodology for celestial bodies. Acta Astronautica. https://doi.org/10.1016/j.actaastro.2026.03.003
+> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Acta Astronautica (2026).
+
+### Publications 
+ABRAM has been used in the following publications:
+> A. Pizzetti, P. Panicucci, F.Topputo. "A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery". Inter-Agency GNC V&V Workshop (IAGNC 2025).
+> 
+> A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
+> 
+> P. Panicucci, C. Balossi, F. Ornati, F. Piccolo, A. Pizzetti, F.Topputo, F. Capolupo. "What if Star Trackers Were Navigation Cameras?". 35th AAS/AIAA Space Flight Mechanics Meeting.
+
+### Get involved 
+Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
+If you want to contribute to the project, or you need some help in the usage of the tool, e-mail me at andrea.pizzetti@polimi.it 
 
 ### Changelog 
 | Version | Changelog |

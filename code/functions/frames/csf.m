@@ -1,4 +1,4 @@
-function [q_REF2CSF, dcm_REF2CSF] = csf(dir_body2star_REF, dir_body2cam_REF)
+function [q_REF2CSF, dcm_REF2CSF, ixs_flip] = csf(dir_body2star_REF, dir_body2cam_REF)
 % Find the orientation of the Camera-Star Frame (CSF) given the star and
 % camera direction with respect to body in a reference frame (REF).
 
@@ -12,6 +12,11 @@ if any(ixs_sing)
         zCSF_REF(:, ixs_sing) = cross(xCSF_REF, repmat([-1; 0; 0], 1, size(xCSF_REF, 2)));
     end
 end
+
+% --- Enforce CSF Z-axis always points upward emisphere
+ixs_flip = zCSF_REF(3,:) < 0;
+zCSF_REF(:, ixs_flip) = -zCSF_REF(:, ixs_flip);
+ 
 zCSF_REF = vecnormalize(zCSF_REF);
 yCSF_REF = vecnormalize(cross(zCSF_REF, xCSF_REF));
 dcm_REF2CSF(1,1:3,:) = xCSF_REF;

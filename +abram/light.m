@@ -43,15 +43,27 @@ classdef light < abram.CRenderInput
                         error('light:io','Plase provide input as either a YML filepath or a MATLAB struct')
                 end
             end
-                                
+
             obj.shape = extract_struct(inputs.light, 'shape', 'sphere', false);
             switch obj.shape
                 case 'sphere'            
                     obj.radius = extract_struct(inputs.light, 'radius', 695000e3, false);
                     obj.temperature  = extract_struct(inputs.light, 'temperature', 5782, false);
                     obj.type = extract_struct(inputs.light, 'type', 'bb');
+                    if strcmp(obj.type, 'spectrum')
+                        if isfield(inputs.light, 'radiance')
+                            L = extract_struct(inputs.light, 'radiance');
+                            obj.L = abram.spectrum(L);
+                        else
+                            error('When light type is spectrum, a radiance spectrum has to be defined.')
+                        end
+                    else
+                        if isfield(inputs.light, 'radiance')
+                            warning('Specify light type as "spectrum" if you want to provide a radiance spectrum.')
+                        end
+                    end
                 otherwise
-                    error('light:io','Light sources with a different shape than "sphere" are not supported yet')
+                    error('light:io','Light sources with a different shape than "sphere" are not supported yet.')
             end
         end
 
@@ -59,14 +71,29 @@ classdef light < abram.CRenderInput
             %INTEGRATERADIANCE Integrate the radiance of the light using a
             %given spectrum
 
-            spectrum.sampling = 'integral';
-            obj.L = spectrum;
-            obj.LPCR = spectrum;
             switch obj.type
                 case 'bb'
+                    spectrum.sampling = 'integral';
+                    obj.L = spectrum;
+                    obj.LPCR = spectrum;
                     [obj.L.values, obj.LPCR.values] = black_body_radiance(obj.temperature, spectrum.lambda_min, spectrum.lambda_max);
+
                 case 'sun'
-                    [obj.L.values, obj.LPCR.values] = sun_radiance(spectrum.lambda_min, spectrum.lambda_max);                    
+                    spectrum.sampling = 'integral';
+                    obj.L = spectrum;
+                    obj.LPCR = spectrum;
+                    [obj.L.values, obj.LPCR.values] = sun_radiance(spectrum.lambda_min, spectrum.lambda_max);  
+
+                case 'spectrum'
+                    
+                    if isa(obj.L,'struct')
+                        obj.L = abram.spectrum(obj.L);
+                    end
+                    obj.LPCR = obj.L;
+                    c = 299792458;      % m/s
+                    h = 6.62607015e-34; % J/Hz
+                    obj.LPCR.values = obj.L.lambda_mid/(h*c).*obj.L.values;
+
                 otherwise
                     error('light:io','Light type not supported')
             end
