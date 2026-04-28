@@ -1,0 +1,31 @@
+body:
+  radius: 11100
+  albedo: 0.071
+  albedo_type: normal
+  maps:
+    albedo: {filename: phobos/Phobos_Viking_Mosaic_40ppd_DLRcontrol.tif, depth: 8.0, domain: [0.02, 0.11]}
+    displacement: {filename: phobos/Phobos_ME_HRSC_DEM_Global_2ppd.tif, depth: 1, scale: 1}
+    normal: {filename: phobos/Phobos_ME_HRSC_NBM_Global_2ppd_pizzetti2025.tif, depth: 16.0, frame: body}
+  radiometry: {model: lommel}
+camera:
+  exposure_time: 0.06E-3             # [s]
+  focal_length: 0.522506050686842               # [m]
+  f_number: 2.5                     # [-]
+  pixel_width: 13.3E-6               # [m]
+  resolution: [1056, 1182]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+scene:
+  d_body2light: 1.49597870707E11      # [m]
+  d_body2cam: 670e3            # [m]
+  phase_angle: -0.828318530717959           # [rad]
+  rpy_CAMI2CAM:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  - [0.0]
+  - [0.0]
+  - [0.0]
+  rpy_CSF2IAU:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
+  - [-0.3]
+  - [0]
+  - [-0.3]
+setting:
+  saving: {depth: 16, filename: phobos, format: png}               
