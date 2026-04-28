@@ -1,0 +1,31 @@
+body:
+  radius: 250
+  albedo_type: normal
+  maps:
+    albedo: {filename: bennu/Bennu_global_ShapeV20_GndControl_ROLOphase_ALBEDO_8bit_v6_cleaned_pizzetti2026.tif, depth: 8.0, domain: [0.002, 0.007]}
+    displacement: {filename: bennu/Bennu_v20_4k_pizzetti2026.tif, depth: 1, scale: 1000}
+    normal: {filename: bennu/Bennu_v20_4k_NBM_pizzetti2026.tif, depth: 16.0, frame: body}
+  #radiometry: {model: lommel}
+  radiometry: {model: hapke, parameters: [0.301, 0.477, 0, 1, 2.06, 0.11, 0.465, 0]}           # [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
+camera:
+  exposure_time: 1E-2             # [s]
+  focal_length: 0.625               # [m]
+  f_number: 3.2                     # [-]
+  pixel_width: 8.5E-6               # [m]
+  resolution: [1024, 1024]      # [px]
+  full_well_capacity: 100000.0      # [e-]
+  gain_analog2digital: 0.6553       # [DN/e-]
+scene:
+  d_body2light: 1.49597870707E11      # [m]
+  d_body2cam: 136e3                   # [m]
+  phase_angle: -0.5 # [rad]
+  rpy_CAMI2CAM:                    # [rad] Attitude angles of Camera frame (CAM) with respect to Camera Ideal frame (CAMI)
+  - [0.0]
+  - [0.0]
+  - [0.0]
+  rpy_CSF2IAU:                     # [rad] Attitude angles of Camera-target-Sun frame (CSF) with respect to International Astronomical Union frame (IAU)
+  - [0]
+  - [0]
+  - [6.1785]
+setting:
+  saving: {depth: 16, filename: bennu, format: png}               
