@@ -2,10 +2,12 @@ function [phase_angle, q_IAU2CSF, dcm_IAU2CSF] = dir2phase(dir_body2light_IAU, d
 % Univocally define the phase angle from light and camera
 % directions in body-fixed frame.
 
-if abs(dot(dir_body2light_IAU, dir_body2cam_IAU) - 1) < eps
+numTol = 1e-11; 
+
+if abs(dot(dir_body2light_IAU, dir_body2cam_IAU) - 1) < numTol
     phase_angle = 0;
     q_IAU2CSF = csf(dir_body2light_IAU, dir_body2cam_IAU);
-elseif abs(dot(dir_body2light_IAU, dir_body2cam_IAU) + 1) < eps
+elseif abs(dot(dir_body2light_IAU, dir_body2cam_IAU) + 1) < numTol
     phase_angle = pi;
     q_IAU2CSF = csf(dir_body2light_IAU, dir_body2cam_IAU);
 else

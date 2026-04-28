@@ -2,12 +2,14 @@ function [q_REF2CSF, dcm_REF2CSF, ixs_flip] = csf(dir_body2star_REF, dir_body2ca
 % Find the orientation of the Camera-Star Frame (CSF) given the star and
 % camera direction with respect to body in a reference frame (REF).
 
+numTol = 1e-11;
+
 xCSF_REF = dir_body2star_REF;
 zCSF_REF = cross(xCSF_REF, dir_body2cam_REF);
-ixs_sing = vecnorm(zCSF_REF) <= eps;
+ixs_sing = vecnorm(zCSF_REF) <= numTol;
 if any(ixs_sing)
     zCSF_REF(:, ixs_sing) = cross(xCSF_REF, repmat([0; 1; 0], 1, size(xCSF_REF, 2)));
-    ixs_sing = vecnorm(zCSF_REF) <= eps;
+    ixs_sing = vecnorm(zCSF_REF) <= numTol;
     if any(ixs_sing)
         zCSF_REF(:, ixs_sing) = cross(xCSF_REF, repmat([-1; 0; 0], 1, size(xCSF_REF, 2)));
     end

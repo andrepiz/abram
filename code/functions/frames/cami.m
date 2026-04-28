@@ -2,9 +2,11 @@ function [q_REF2CAMI, dcm_REF2CAMI, ixs_flip] = cami(dir_body2star_REF, dir_body
 % Find the orientation of the Camera Ideal frame (CAMI) given the star and
 % camera direction with respect to body in a reference frame (REF).
 
+numTol = 1e-11;
+
 zCAMI_REF = vecnormalize(-dir_body2cam_REF);
 yCAMI_REF = vecnormalize(-cross(dir_body2star_REF, dir_body2cam_REF));
-ixs_sing = abs(dot(dir_body2star_REF, dir_body2cam_REF) - 1) <= eps;
+ixs_sing = abs(dot(dir_body2star_REF, dir_body2cam_REF) - 1) <= numTol;
 if any(ixs_sing)
     yCAMI_REF(:, ixs_sing) = [0; 0; -1];
 end
