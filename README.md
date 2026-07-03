@@ -1,5 +1,5 @@
 # ABRAM
-_**A** physically-**B**ased **R**endering **A**pplication in **M**atlab_ for planets, moons, and small bodies.
+_**A** physically-**B**ased **R**endering **A**pplication in **M**atlab_ for planets, moons, small bodies and space debris.
 
 ### Installation & Usage
 Clone the repository and the linked submodules by running the following git commands:
@@ -13,7 +13,7 @@ Clone the repository and the linked submodules by running the following git comm
 Then, simply run the script 
 `call()` to generate your first rendering.
 
-Check the [ABRAM wiki](https://github.com/andrepiz/abram/wiki) to access the full documentation.
+Check the [ABRAM wiki](https://github.com/andrepiz/abram/wiki) to access the full documentation and follow the [LinkedIn Page](https://www.linkedin.com/company/abram-render-engine) for release updates.
 
 ### Dependencies 
 ABRAM has been developed and tested in MATLAB r2023b with the following dependencies:
@@ -45,15 +45,18 @@ ABRAM has been developed and tested in MATLAB r2023b with the following dependen
 
 ### Credits 
 If you use the tool, please cite it in your work with: 
-> A. Pizzetti, P. Panicucci, F. Capolupo, F.Topputo. "Development and Validation of a Physically Based Rendering Methodology for Celestial Bodies". Acta Astronautica (2026).
+> Pizzetti, A., Panicucci, P., Capolupo, F., & Topputo, F. (2026). Development and validation of a physically based rendering methodology for celestial bodies. Acta Astronautica. https://doi.org/10.1016/j.actaastro.2026.03.003
 
 ### Publications 
 ABRAM has been used in the following publications:
-> A. Pizzetti, P. Panicucci, F.Topputo. "A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery". Inter-Agency GNC V&V Workshop (IAGNC 2025).
+
+> Ornati, F., Panicucci, P., Pizzetti, A., Capolupo, F., & Topputo, F. (2026). On the radiometric calibration of optical Hardware-In-the-Loop stimulators. Journal of Spacecraft and Rockets, 1-14. https://doi.org/10.2514/1.A36543
 > 
-> A. Pizzetti, P. Panicucci, F.Topputo. "A Radiometric Consistent Render Procedure for Planets and Moons". 4th Space Imaging Workshop.
+> Pizzetti, A., Panicucci, P., & Topputo, F. (2025). A Bottom-Up Approach for Radiometric Validation of Synthetic Imagery. In Inter-Agency GNC V&V Workshop.
 > 
-> P. Panicucci, C. Balossi, F. Ornati, F. Piccolo, A. Pizzetti, F.Topputo, F. Capolupo. "What if Star Trackers Were Navigation Cameras?". 35th AAS/AIAA Space Flight Mechanics Meeting.
+> Pizzetti, A., Panicucci, P., & Topputo, F. (2024, October). A Radiometric Consistent Render Procedure for Planets and Moons. In 4th Space Imaging Workshop (pp. 1-3).
+> 
+> Panicucci, P., Balossi, C., Ornati, F., Piccolo, F., Pizzetti, A., Topputo, F., & Capolupo, F. (2025). What if Star Trackers Were Navigation Cameras?. In 35th AAS/AIAA Space Flight Mechanics Meeting (pp. 1-23).
 
 ### Get involved 
 Feel free to open an [issue](https://github.com/andrepiz/abram/issues) to report a bug or ask for a feature. 
@@ -62,6 +65,7 @@ If you want to contribute to the project, or you need some help in the usage of 
 ### Changelog 
 | Version | Changelog |
 | ------ | ------ |
+|    v1.8    |Added support to rgb and multispectral image saving; Added support to multiple lights; Added smearing, aberration and blooming noise models |
 |    v1.7    |Changed algorithm of frustum culling; added raymarching shadow culling algorithm; added depthbuffer shadow culling algorithm; added depth map as optional output; added new concentrated sampling; refactored code and architecture; added default objects initialization; extended flexibility of inputs |
 |    v1.6    |Added horizon maps; added support to tiled maps; added support to multi-threads parallelization |
 |    v1.5    |Added support to hyperspectral maps; added support to non-spherical shapes; added tutorials |
