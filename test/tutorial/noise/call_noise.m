@@ -24,7 +24,7 @@ rend.camera.noise.polychromatic = true;
 % Blooming occurs at saturation and cause photon leakage of saturated pixels 
 % to neighboring pixels. Alpha controls the percentage of excess to distribute 
 % and beta the offset wrt fwc after which where leakage start.
-rend.camera.tExp = 10e-3; % increase tExp to reach saturation
+rend.camera.tExp = 20e-3; % increase tExp to reach saturation
 rend.camera.noise.blooming.flag = true;
 rend.camera.noise.blooming.alpha = 0.05;    % to be tuned in HIL experiments
 rend.camera.noise.blooming.beta = 0.02;     % to be tuned in HIL experiments

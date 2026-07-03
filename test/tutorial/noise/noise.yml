@@ -12,7 +12,7 @@ body:                        #Moon
     horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                     # Horizon map (BW = 0-1)
   radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
 camera:
-  exposure_time: 71.0E-3             # [s] RS
+  exposure_time: 1.0E-4             # [s] RS
   focal_length: 0.127               # [m]
   f_number: 2.5                     # [-]
   pixel_width: 10E-6               # [m]
@@ -29,13 +29,13 @@ camera:
                   lambda_max: [4.375E-7, 4.75E-7, 5.25E-7, 5.755E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7,10.25E-7],   # [m] Detector wavebands upper limits
                   values: [0.28, 0.58, 0.81, 0.835, 0.85, 0.903, 0.93, 0.903, 0.872, 0.88, 0.912, 0.943,0.943],                                 # [-]  LUMIOCam layout trasmittance (including dicronic cube splitting) VIS(2:9) IR(11:13)
                   sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
-  noise: {aberration: {flag: true, coefficients: [], polychromatic: false},  # Zernike coefficients as RMS of diffraction wave (OSA/ANSI). [tiltX, tiltY, defocus, astig45, astig0, comaY, comaX, trefoilY, trefoilX]. Pass [] for diffraction-limited (all zeros). Set polychromatic to compute a different PSF for each waveband.
-          smearing: {flag: true, readout_time: 1E-6, direction: up},  # Smearing Noise. Readout time is the time to read the pixel array. Reading direction can be up or down
-          blooming: {flag: true, alpha: 0.05, beta: 0.02},           # Blooming occurs at saturation and cause photon leakage of saturated pixels to neighboring pixels. Alpha controls the percentage of excess to distribute and beta the offset wrt fwc after which where leakage start
-          shot: {flag: true, seed: 2},                              # Shot Noise
-          prnu: {flag: true, sigma: 0.03, seed: 3},                 # Photo-Response Non-Uniformity multiplicative standard deviation [%]
-          dark: {flag: true, sigma: 62.5 , mean: 391, seed: 1},    # Dark Current multiplicative standard deviation  [%] and mean [e-/s]
-          readout: {flag: true, sigma: 82.06, seed: 4}}               # Readout Noise standard deviation [e-]
+  noise: {aberration: {flag: false, coefficients: [], polychromatic: false},  # Zernike coefficients as RMS of diffraction wave (OSA/ANSI). [tiltX, tiltY, defocus, astig45, astig0, comaY, comaX, trefoilY, trefoilX]. Pass [] for diffraction-limited (all zeros). Set polychromatic to compute a different PSF for each waveband.
+          smearing: {flag: false, readout_time: 1E-6, direction: up},  # Smearing Noise. Readout time is the time to read the pixel array. Reading direction can be up or down
+          blooming: {flag: false, alpha: 0.05, beta: 0.02},           # Blooming occurs at saturation and cause photon leakage of saturated pixels to neighboring pixels. Alpha controls the percentage of excess to distribute and beta the offset wrt fwc after which where leakage start
+          shot: {flag: false, seed: 2},                              # Shot Noise
+          prnu: {flag: false, sigma: 0.03, seed: 3},                 # Photo-Response Non-Uniformity multiplicative standard deviation [%]
+          dark: {flag: false, sigma: 62.5 , mean: 391, seed: 1},    # Dark Current multiplicative standard deviation  [%] and mean [e-/s]
+          readout: {flag: false, sigma: 82.06, seed: 4}}               # Readout Noise standard deviation [e-]
 scene:
   distance_body2star: 2.49597870707E11      # [m]
   distance_body2cam: 80.500E6               # [m]

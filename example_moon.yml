@@ -3,29 +3,27 @@ light:
   radius: 6.95E8             # [m]
 body:
   radius: 1737400.0          # [m]
-  albedo_type: normal     # ['bond'/'geometric'/'normal']
+  albedo_type: ssa     # ['bond'/'geometric'/'normal'/'ssa']
   maps: 
-    albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, domain: [0.12, 0.48], gamma: 2.8}                       # Albedo map
+    albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, encoding: linear, 
+            scale: [0.2567, 0.2388, 0.2308], shift: [0.1711, 0.1592, 0.1538], gamma: 2.8, domain: [[0.17, 0.67], [0.13, 0.54], [0.13, 0.46]],
+            dimension: hyperspectral, lambda_mid: [643E-9, 532E-9, 472E-9]}                                 # Albedo map
     displacement: {filename: moon/ldem_4.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)
-    normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif, depth: 32.0, frame: body}        # Normal map (RGB = XYZ)
-    horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                     # Horizon map (BW = 0-1)
+    normal: {filename: moon/Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif, depth: 32.0, frame: body}       # Normal map (RGB = XYZ)
+    horizon: {filename: moon/Moon_LRO_LOLA_HM_Global_4ppd_pizzetti2025.tif, depth: 1}                       # Horizon map (BW = 0-1)
   radiometry: {model: hapke, parameters: [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0]}           # Hapke reflection (Ideal for the Moon) [b_HG, c_HG, B0_CBOE, h_CBOE, B0_SHOE, h_SHOE, roughness, filling_factor]
 camera:
-  exposure_time: 3E-3             # [s]
+  exposure_time: 2E-3             # [s]
   focal_length: 0.105               # [m]
   f_number: 4.0                     # [-]
   pixel_width: 5.5E-6               # [m]
   resolution: [1024.0, 1024.0]      # [px] Horizontal and vertical dimensions of pixel array
   full_well_capacity: 100000.0      # [e-]
   gain_analog2digital: 0.6553       # [DN/e-]
-  quantum_efficiency: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
-                       lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
-                       values: [0.35, 0.43, 0.46, 0.45, 0.42, 0.37, 0.3, 0.23, 0.16, 0.09, 0.04, 0.02],                                             # [-]
-                       sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
-  transmittance: {lambda_min: [4.25E-7, 4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7],    # [m] Detector wavebands lower limits
-                  lambda_max: [4.75E-7, 5.25E-7, 5.75E-7, 6.25E-7, 6.75E-7, 7.25E-7, 7.75E-7, 8.25E-7, 8.75E-7, 9.25E-7, 9.75E-7, 1.025E-6],   # [m] Detector wavebands upper limits
-                  values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
-                  sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
+  quantum_efficiency: {lambda_mid: [450E-9, 650E-9, 850E-9, 1000E-9],    # [m] Detector wavelengths
+                       values: [0.35, 0.42, 0.16, 0.02]}                 # [-]
+  transmittance: {lambda_mid: [450E-9, 650E-9, 850E-9, 1000E-9],         # [m] Optics wavelengths
+                  values: [0.41, 0.967, 0.984, 0.992]}                   # [-]  
 scene:
   pos_body2light_IAU: # [m] Position of light with respect to body in body-fixed IAU frame
   - [1.042258402256167e11]
@@ -41,4 +39,4 @@ scene:
   - [-0.5]
   - [0.5]
 setting:
-  saving: {filename: example, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format
+  saving: {filename: example_moon, format: png, depth: 16}                                   # Image saving with a specified bit depth, filename and format

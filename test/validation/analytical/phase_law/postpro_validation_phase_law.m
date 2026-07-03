@@ -19,7 +19,7 @@ hold on, grid on
 plot(d_body2cam_vec, 1e2*abs(G-Gcomp)./Gref,'bo-')
 set(gca,'XScale','log')
 set(gca,'YScale','log')
-ylabel('Relative Error [%]')
+ylabel('Relative Error [\%]')
 xlabel('Distance from target [m]')
 
 figure('Name','validation_phase_law_distance_error')
@@ -36,5 +36,5 @@ hold on, grid on
 plot(d_body2cam_vec, 1e2*abs(d_body2cam_vec-d_body2cam_inv)./d_body2cam_vec,'bo-')
 set(gca,'XScale','log')
 set(gca,'YScale','log')
-ylabel('Relative error [%]')
+ylabel('Relative error [\%]')
 xlabel('Distance from target [m]')

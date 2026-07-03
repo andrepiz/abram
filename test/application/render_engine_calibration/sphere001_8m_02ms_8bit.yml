@@ -1,13 +1,13 @@
-star: {temperature: 5782.0, radius: 6.95E8}
+light: {temperature: 5782.0, radius: 6.95E8}
 body:
   radius: 1
   albedo: 0.01
-  albedo_type: bond
+  albedo_type: normal
   maps:
   radiometry: {model: lambert}
 camera:
   exposure_time: 0.2E-3
-  focal_length: 0.0507
+  focal_length: 0.0507 
   f_number: 1.495575221238938 # constant pupil diameter of 33.9E-3
   pixel_width: 18E-6
   resolution: [1024.0, 1024.0]
@@ -22,22 +22,12 @@ camera:
                   values: [0.41, 0.687, 0.915, 0.954, 0.967, 0.977, 0.979, 0.982, 0.984, 0.987, 0.989, 0.992],                                 # [-]  
                   sampling: piecewise}                                                                                                         # Sampling method ['piecewise'/'midpoint']
 scene:
-  distance_body2star: 1.49597870707E11
-  distance_body2cam: 8
+  d_body2light: 1.49597870707E11
+  d_body2cam: 8
   phase_angle: 0
-  rollpitchyaw_cami2cam:
-  - [0.0]
-  - [0.0]
-  - [0.0]
-  rollpitchyaw_csf2iau:
-  - [0.0]
-  - [0.0]
-  - [0.0]
 setting:
-  discretization: {method: fixed, number_points: 1e7}
+  discretization: {method: fixed, np: 1e7}
   sampling: {method: projecteduniform}
   #integration: {method: trapz, number_points: 10.0}
   integration: {method: constant}
-  gridding: {method: weightedsum, algorithm: area}
-  processing: {distortion: false, diffraction: false, blooming: false, noise: false}
   saving: {depth: 8, filename: sphere001_8m_02ms_8bit, format: png}

@@ -1,6 +1,5 @@
 body:
   radius: 250
-  albedo_type: normal
   maps:
     albedo: {filename: bennu/Bennu_global_ShapeV20_GndControl_ROLOphase_ALBEDO_8bit_v6_cleaned_pizzetti2026.tif, depth: 8.0, domain: [0.002, 0.007]}
     displacement: {filename: bennu/Bennu_v20_4k_pizzetti2026.tif, depth: 1, scale: 1000}

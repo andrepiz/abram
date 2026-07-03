@@ -29,7 +29,11 @@ else
 if isfield(st, field)
     val = st.(field);
     if iscell(val)
-        val = cell2mat(val);
+        if numel(val) > 1 && all(cellfun(@(x) ischar(x) || isstring(x), val), "all")
+            % a cell array of chars or strings is kept as a cell array
+        else
+            val = cell2mat(val);
+        end
     end
 else
     if ~exist('def','var')

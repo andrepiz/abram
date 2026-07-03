@@ -3,7 +3,7 @@ abram_install()
 flag_show_footprint = false;
 
 %% SET OBJECT
-rend = abram.render('moon_landing.yml');
+rend = abram.render('moon_landing.yml', false);
 
 %% LANDING SCENARIO [1500 km - 50 m]
 h0 = rend.altitude;

@@ -34,6 +34,7 @@ classdef camera < abram.CRenderInput
         sensorSize
         K
         G_DA
+        digitalGain
         QExT
         electronNoiseFloor
         dnNoiseFloor
@@ -57,9 +58,9 @@ classdef camera < abram.CRenderInput
 
             if nargin == 0
                 % Missing inputs
-                warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens as default camera')
+                warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens and 2 micrometers pixel pitch as default camera.')
                 inputs.camera.resolution = [1024 1024];
-                inputs.camera.pixel_width = 1e-6;
+                inputs.camera.pixel_width = 2e-6;
                 inputs.camera.exposure_time = 1e-5;
                 inputs.camera.focal_length = 50e-3;
                 inputs.camera.f_number = 2;
@@ -77,9 +78,9 @@ classdef camera < abram.CRenderInput
                     case {'struct'}
                         inputs = in;
                         if ~isfield(in, 'camera')
-                            warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens as default camera')
+                            warning('camera:io','Initializing 1024 px detector with 50mm f/2.0 lens and 2 micrometers pixel pitch as default camera.')
                             inputs.camera.resolution = [1024 1024];
-                            inputs.camera.pixel_width = 1e-6;
+                            inputs.camera.pixel_width = 2e-6;
                             inputs.camera.exposure_time = 1e-7;
                             inputs.camera.focal_length = 50e-3;
                             inputs.camera.f_number = 2;
@@ -199,6 +200,10 @@ classdef camera < abram.CRenderInput
             val = obj.res_px.*obj.muPixel;
         end
         
+        function val = get.digitalGain(obj)
+            val = 10^(obj.amplification/20);
+        end
+
         function val = get.electronNoiseFloor(obj)
             % DNR Is the ratio between the signal at saturation versus the minimum
             % signal the sensor can measure. EMVA1288 Standard.
@@ -277,16 +282,8 @@ classdef camera < abram.CRenderInput
 
         %% UTILS
         function obj = set_QE_and_T(obj, QE, T)
-            if isa(QE,'abram.spectrum')
-                obj.QE = QE;
-            else
-                obj.QE = abram.spectrum(QE); 
-            end
-            if isa(T,'abram.spectrum')
-                obj.T = T;
-            else
-                obj.T = abram.spectrum(T); 
-            end
+            obj.QE = QE;
+            obj.T = T;
         end
     end
 end

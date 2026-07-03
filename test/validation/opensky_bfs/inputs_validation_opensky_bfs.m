@@ -1,22 +1,11 @@
 %% BODY
-rend.body.maps.albedo.filename = 'moon\lroc_cgi\lroc_color_16bit_srgb_8k.tif';
-rend.body.maps.albedo.depth = 16;
-if flag_hapke
-    rend.body.albedo = 0.51; %0.18;
-    rend.body.radiometry.model = 'hapke'; 
-    rend.body.radiometry.parameters = [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4129, 0];     % Found from Sato et al. Bandwidth: 450-1150 nm
-    rend.body.maps.albedo.domain = [0.12 0.75];% + 0.3;
-else
-    rend.body.albedo = 0.20; %0.18
-    rend.body.radiometry.model = 'oren'; 
-    rend.body.radiometry.roughness = 0.3;     
-    rend.body.maps.albedo.mean = rend.body.albedo;    
-end          
+
 if flag_displacement
     rend.body.maps.displacement.filename = 'moon\ldem_4.tif';
     rend.body.maps.displacement.depth = 1;
     rend.body.maps.displacement.scale = 1000;
 end
+
 if flag_normal
     rend.body.maps.normal.filename = 'moon\Moon_LRO_LOLA_NBM_Global_4ppd_pizzetti2025.tif';
     rend.body.maps.normal.depth = 32;
@@ -77,24 +66,18 @@ elseif flag_scenario == 2   % 25 mm
      end
 end
 
-
 %% CAMERA
 
 if flag_scenario == 1
-    rend.camera.T.values = 0.6*rend.camera.T.values;    
+    rend.camera.T.values = 0.667*rend.camera.T.values;     
 else
-    rend.camera.T.values = 0.95*rend.camera.T.values; % transmittance of 25 mm is 1.5 times the 50 mm. Estimated through visual check of pattern using same fNum and exposure time.
+    rend.camera.T.values = 1*rend.camera.T.values;  % transmittance of 25 mm is 1.5 times the 50 mm. Estimated through visual check of pattern using same fNum and exposure time.
 end
 
 % BFS-PGE-31S4M-C Sony IMX265
 gain_electron2adu = 5.88;       % 16 bit DN over electrons 
 adc_depth = 12;
-if flag_account_for_atmosphere
-    atm_red_factor = 0.85; % assumed a reduction factor caused by the atmosphere on the gain. From "On the radiometric calibration of optical Hardware-In-the-Loop stimulators", Ornati et al.
-else
-    atm_red_factor = 1;
-end
-rend.camera.G_AD  = atm_red_factor*gain_electron2adu/(2^16-1)*(2^adc_depth-1);
+rend.camera.G_AD  = gain_electron2adu/(2^16-1)*(2^adc_depth-1);
 rend.camera.offset = 0;
 
 %% SCENARIO
@@ -107,9 +90,14 @@ if flag_use_spice
 end
 
 %% SETTING
+
+% Set image saving depth
 rend.setting.saving.depth = adc_depth;
+
+% Use large number of points for increased accuracy
 rend.setting.discretization.method = 'fixed';
 rend.setting.discretization.np = 1e6;
-%rend.setting.integration.method = 'trapz';
+
+% Simulate PSF with a gaussian-weighted gridding          
 rend.setting.gridding.window = 2;
 rend.setting.gridding.sigma = 1;

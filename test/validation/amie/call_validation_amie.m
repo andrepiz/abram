@@ -1,6 +1,5 @@
 abram_install();
 
-flag_hapke = true;        % Use hapke model
 flag_displacement = true; % Use displacement map in ABRAM rendering
 flag_normal = true;       % Use normal map in ABRAM rendering
 flag_horizon = true;      % Use horizon map
@@ -44,6 +43,7 @@ cspice_kclear;
 
 %% ABRAM OBJECT
 rend = abram.render('validation_amie.yml', false);
+rend.setting.general.verbose = false;
 
 %% INPUTS
 inputs_validation_amie();

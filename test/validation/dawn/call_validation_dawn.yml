@@ -2,7 +2,6 @@ light: {temperature: 5782.0, type: bb, radius: 6.95E8}
 body:
   radius: 262700.0
   albedo: 0.55
-  albedo_type: normal
   radiometry:
     model: hapke
     parameters: [-0.27, -1.0, 0.0, 1.0, 0.054, 0.07, 0.3141592653589793, 0]

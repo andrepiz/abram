@@ -30,7 +30,6 @@ classdef render
         depth
         smart_calling
         homepath
-        mapspath
     end
 
     properties (Dependent)
@@ -117,11 +116,7 @@ classdef render
                 % Load inputs
                 switch class(input_args)
                     case {'char', 'string'}
-                        try
-                            inputs = yaml.ReadYaml(char(input_args));
-                        catch
-                            error('render:io',['Errors found while reading ', char(input_args)])
-                        end
+                        inputs = yaml.ReadYaml(char(input_args));
                         if isempty(fields(inputs))
                             error('render:io',['YML input configuration file ', char(input_args), ' not found. Please check if the file name is correct and if the file folder has been added to the path'])
                         end
@@ -143,7 +138,6 @@ classdef render
             % Default properties
             obj.smart_calling = true;
             obj.homepath = abram_home();
-            obj.mapspath = fullfile(abram_home(),'inputs','maps');
 
             % Set to true the updates to prepare for first rendering
             obj.update_sectors = true;
@@ -203,9 +197,11 @@ classdef render
         function obj = set.body(obj, objInput)   
             if ~isempty(obj.body)
                 obj.update_maps = update_flag_trigger(obj.body, objInput, obj.update_maps, {'maps'});
-                obj.update_radiometry = update_flag_trigger(obj.body.radiometry, objInput, obj.update_radiometry) | ...
-										(isempty(obj.body.maps) & (update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo'}) | update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo_type'})));
+                obj.update_radiometry = update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'radiometry'}) | ...
+										(isempty(obj.body.maps.albedo.filename) & update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo'})) | ...
+                                        update_flag_trigger(obj.body, objInput, obj.update_radiometry, {'albedo_type'});
                 obj.update_sectors = update_flag_trigger(obj.body, objInput, obj.update_sectors, {'radius','lon_lims','lat_lims'});
+                obj.update_spectrum = update_flag_trigger(obj.body.radiometry, objInput.radiometry, obj.update_spectrum, {'type'});
             end
             obj.body = objInput;
         end
@@ -214,7 +210,8 @@ classdef render
             if ~isempty(obj.camera)
                 obj.update_spectrum = update_flag_trigger(obj.camera, objInput, obj.update_spectrum, {'QExT'});
                 obj.update_sectors = update_flag_trigger(obj.camera, objInput, obj.update_sectors, {'fov'});
-                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f','distortion'});
+                obj.update_radiometry = update_flag_trigger(obj.camera, objInput, obj.update_radiometry, {'fNum','f','distortion'}) || ...
+                                        (~isempty(obj.body.radiometry.type) & obj.update_spectrum); % radiometry parameters are different if type is not empty and camera spectrum changes
                 obj.update_processing = update_flag_trigger(obj.camera, objInput, obj.update_processing, {'tExp','G_AD','noise','fwc','offset','amplification'}) | obj.update_spectrum;
             end
             obj.camera = objInput;
@@ -370,6 +367,7 @@ classdef render
         function obj = setSpectrum(obj)
             if obj.update_spectrum || ~obj.smart_calling
                 obj.light = obj.light.integrateRadiance(obj.camera.QExT);
+                obj.body = obj.body.setRadiometryParameters(obj.camera.QExT);
             else
                 if obj.setting.general.verbose; fprintf('\n   smart calling: no change detected, skipping spectrum setting...'); end 
             end
@@ -512,12 +510,14 @@ classdef render
             h = obj.scene.d_cam2body - obj.bodyRadiusAtNadir;
         end
 
-        function [pGeom, pGeomMinMax] = geometric_albedo(obj, radius_reference)
+        function [pGeom, pGeomMinMax] = geometric_albedo(obj, radius_reference, number_points)
             % Numerically compute the geometric albedo from the object by
             % rendering it at a very far range and with zero phase angle
             
             objCopy = obj;
-
+            if ~exist("number_points","var")
+                number_points = 5e5;
+            end
             if ~exist("radius_reference","var")
                 % Find reference radius
                 Afrontal = ellipsoidFrontalArea(objCopy.body.radius, objCopy.scene.dcm_CSF2IAU*objCopy.scene.dir_body2cam_CSF);
@@ -529,19 +529,15 @@ classdef render
             % Find distance such that the body spans 1 px
             range = max(opr2range(1, Rref, obj.camera.f, obj.camera.muPixel),[],'all');
 
-            % Retain body-fixed relative orientation 
-            dcm_CSF2IAU = lonlat2dcm(obj.scene.sph_body2cam_IAU(2), obj.scene.sph_body2cam_IAU(3));
-
             % Render object at zero phase angle, far range and along
-            % boresight
+            % boresight, but keeping same position in body-fixed frame.
             objCopy.scene.d_body2cam = range;
-            objCopy.scene.phase_angle = 0;
-            objCopy.scene.rpy_CSF2IAU = dcm_to_euler(dcm_CSF2IAU');
+            objCopy.scene.pos_body2light_IAU = objCopy.scene.pos_body2cam_IAU;
             objCopy.scene.rpy_CAMI2CAM = [0; 0; 0];
 
             % Set new object rendering setting
             objCopy.setting.discretization.method = 'fixed';
-            objCopy.setting.discretization.np = 5e5;    % to not undersampling too much
+            objCopy.setting.discretization.np = number_points;    % to not undersampling too much
             objCopy.setting.reconstruction.granularity = 1;    % not needed
             objCopy.setting.saving.filename = [];    
             objCopy = objCopy.rendering();
@@ -597,10 +593,12 @@ classdef render
         function tExp = optimalExposureTime(obj)
            % Find the exposure time to have a well-exposed picture, defined 
            % as a picture taken with a exposure time such
-           % that the most illuminated pixel is at saturation level
+           % that the most illuminated pixel fills the well or reach saturation
            ecrMax = max(obj.ecr(:));
            if ecrMax > 0
-               tExp = obj.camera.fwc/ecrMax;
+               tExpWell = obj.camera.fwc/ecrMax;
+               tExpSat = (2^obj.setting.saving.depth-1)/(ecrMax*obj.camera.G_AD*obj.camera.digitalGain);
+               tExp = min(tExpWell, tExpSat);
            else
                tExp = nan;
            end

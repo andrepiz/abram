@@ -4,7 +4,6 @@ light:
 body:
   radius: 1737400.0          # [m]
   albedo: 0.12               # [-]
-  albedo_type: normal     # ['bond'/'geometric'/'normal']
   maps: 
     albedo: {filename: moon/lroc_cgi/lroc_color_poles_2k.tif, depth: 8.0, domain: [0.12, 0.48], gamma: 2.8}                       # Albedo map
     displacement: {filename: moon/ldem_4.tif, depth: 1, scale: 1000.0}                                      # Displacement map (BW = -+)

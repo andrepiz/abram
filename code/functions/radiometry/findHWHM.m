@@ -4,6 +4,12 @@ function [hwhm, lambda_eff] = findHWHM(lambda, val)
 % The half-maximum of the spectrum is found at lambda_eff + hwhm and
 % lambda_eff - hwhm by definition.
 
+if all(val == max(val))
+    lambda_eff = 0.5*min(lambda) + 0.5*max(lambda);
+    hwhm = lambda_eff - min(lambda); 
+    return
+end
+
 % Find the maximum value and its index
 [val_max, idx_max] = max(val);
 x_center = lambda(idx_max);

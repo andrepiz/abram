@@ -16,6 +16,7 @@ classdef body < abram.CRenderInput
         pGeom
         pBond
         pNorm
+        pSSA
         H
     end
 
@@ -76,9 +77,14 @@ classdef body < abram.CRenderInput
                 % missing as well
                 obj.albedo      = extract_struct(inputs.body, 'albedo');
             end
-            obj.albedo_type = extract_struct(inputs.body, 'albedo_type', 'geometric', true);
             obj.maps        = extract_struct(inputs.body, 'maps', []);
             obj.radiometry  = extract_struct(inputs.body, 'radiometry');
+            if any(strcmp(obj.radiometry.model, {'hapke','hapke1981'}))
+                albedo_type_default = 'ssa';
+            else
+                albedo_type_default = 'normal';
+            end
+            obj.albedo_type = extract_struct(inputs.body, 'albedo_type', albedo_type_default);
             obj.lon_lims  = extract_struct(inputs.body, 'lon_lims', []);
             obj.lat_lims  = extract_struct(inputs.body, 'lat_lims', []);
         end
@@ -90,15 +96,19 @@ classdef body < abram.CRenderInput
         end
 
         function val = get.pGeom(obj)
-            [val, ~, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
+            [val] = convertAlbedo(obj.albedo, obj.albedo_type, obj.radiometry.model, obj.radiometry.parameters);
         end
         
         function val = get.pNorm(obj)
-            [~, val, ~] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
+            [~, val] = convertAlbedo(obj.albedo, obj.albedo_type, obj.radiometry.model, obj.radiometry.parameters);
         end
 
         function val = get.pBond(obj)
-            [~, ~, val] = extrapolate_albedo(obj.albedo, obj.albedo_type, obj.radiometry.model);
+            [~, ~, val] = convertAlbedo(obj.albedo, obj.albedo_type, obj.radiometry.model, obj.radiometry.parameters);
+        end
+
+        function val = get.pSSA(obj)
+            [~, ~, ~, val] = convertAlbedo(obj.albedo, obj.albedo_type, obj.radiometry.model, obj.radiometry.parameters);
         end
 
         function val = get.adim(obj)
@@ -123,6 +133,18 @@ classdef body < abram.CRenderInput
         end
         
         %% SETTERS
+        function obj = set.albedo_type(obj, in)
+            if any(strcmp(obj.radiometry.model, {'hapke','hapke1981'})) && ~any(strcmp(in, {'singlescattering','ssa'}))
+                warning([char(in) ,' albedo is not applicable for the ',char(obj.radiometry.model),' model. The albedo type will be set to ssa. Change the reflection model, otherwise.'])
+                obj.albedo_type = 'ssa';
+            elseif ~any(strcmp(obj.radiometry.model, {'hapke','hapke1981'})) && any(strcmp(in, {'singlescattering','ssa'}))
+                warning([char(in) ,' albedo is not applicable for the ',char(obj.radiometry.model),' model. The albedo type will be set to normal. Change the reflection model, otherwise.'])
+                obj.albedo_type = 'normal';
+            else
+                obj.albedo_type = in;
+            end
+        end
+        
         function obj = set.radiometry(obj, in)
             obj.radiometry.model = extract_struct(in, 'model','lambert',true);
             obj.radiometry.roughness = extract_struct(in, 'roughness', 0.5);
@@ -130,15 +152,18 @@ classdef body < abram.CRenderInput
             obj.radiometry.weight_lambert = extract_struct(in, 'weight_lambert', 0.5);
             obj.radiometry.weight_specular = extract_struct(in, 'weight_specular', 0.5);
             obj.radiometry.parameters = extract_struct(in, 'parameters', [0.25, 0.3, 0, 1, 2.2, 0.07, 0.4, 0]);
+            obj.radiometry.type = extract_struct(in, 'type', []);
         end
 
         function obj = set.maps(obj, in)
             f = fields(in);
             for ix = 1:length(f)
                 obj.maps.(f{ix}).filename = extract_struct(in.(f{ix}), 'filename',[]);
+                obj.maps.(f{ix}).label = [];
                 obj.maps.(f{ix}).F = extract_struct(in.(f{ix}), 'F',[]);
                 obj.maps.(f{ix}).dimension = extract_struct(in.(f{ix}), 'dimension',[]);
                 obj.maps.(f{ix}).depth = extract_struct(in.(f{ix}), 'depth',1);
+                obj.maps.(f{ix}).encoding = extract_struct(in.(f{ix}), 'encoding','linear');
                 obj.maps.(f{ix}).scale = extract_struct(in.(f{ix}), 'scale',[]);
                 obj.maps.(f{ix}).gamma = extract_struct(in.(f{ix}), 'gamma',[]);
                 obj.maps.(f{ix}).shift = extract_struct(in.(f{ix}), 'shift',[]);
@@ -150,11 +175,32 @@ classdef body < abram.CRenderInput
                 obj.maps.(f{ix}).max = extract_struct(in.(f{ix}), 'max',[]);
                 obj.maps.(f{ix}).adim = extract_struct(in.(f{ix}), 'adim',[]);
                 obj.maps.(f{ix}).lambda_min = extract_struct(in.(f{ix}), 'lambda_min',[]);
+                obj.maps.(f{ix}).lambda_mid = extract_struct(in.(f{ix}), 'lambda_mid',[]);
                 obj.maps.(f{ix}).lambda_max = extract_struct(in.(f{ix}), 'lambda_max',[]);
-                obj.maps.(f{ix}).bandwidth = extract_struct(in.(f{ix}), 'bandwidth',[0 inf]);
                 obj.maps.(f{ix}).res_lonlat = extract_struct(in.(f{ix}), 'res_lonlat',[0 0]);
             end
         end
+
+        function obj = setRadiometryParameters(obj, spectrum)
+            %SETRADIOMETRYPARAMETERS Integrate the radiance of the light using a
+            %given spectrum
+            
+            if isempty(obj.radiometry.type)
+                % Do nothing
+                return
+            else
+                switch obj.radiometry.type
+                    case 'moon'
+                        hapkeParams = getMedianHapkeParamsAtSpectrum(spectrum, 'moon', 'linear', 'nearest', false);
+                        obj.radiometry.model = 'hapke';
+                        obj.albedo = hapkeParams(1);
+                        obj.radiometry.parameters = hapkeParams(2:end); % exlude SSA
+                        obj.albedo_type = 'ssa';
+                end
+            end
+
+        end
+
     end
 
 end

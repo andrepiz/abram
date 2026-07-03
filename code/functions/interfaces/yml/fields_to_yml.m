@@ -2,9 +2,9 @@ function fields_to_yml(filename_yml, format, light, body, camera, scene, setting
 
 switch format
 
-    case 'abram'
+    case {'abram','abram_legacy'}
 
-        % STAR
+        % LIGHT
         inputs.light = extract_fields(light, {'temperature','radius','shape','type'});
         if strcmp(inputs.light.type,'spectrum')
             inputs.light.radiance = extract_fields(light.L, {'lambda_min','lambda_max','values','sampling'});
@@ -55,18 +55,25 @@ switch format
         inputs.camera.amplification = camera.amplification;     
         inputs.camera.offset = camera.offset;   
         inputs.camera.uv_upperLeftPixel = camera.uv_upperLeftPixel;
-        inputs.camera.quantum_efficiency = extract_fields(camera.QE, {'lambda_min','lambda_max','values','sampling'});
-        inputs.camera.transmittance = extract_fields(camera.T, {'lambda_min','lambda_max','values','sampling'});
+        inputs.camera.quantum_efficiency = extract_fields(camera.QE, {'lambda_mid','values'});
+        inputs.camera.transmittance = extract_fields(camera.T, {'lambda_mid','values'});
         inputs.camera.distortion = camera.distortion;
         inputs.camera.noise = camera.noise;
 
         % SCENE
-        inputs.scene.d_body2light = scene.d_body2light;
-        inputs.scene.d_body2cam = scene.d_body2cam;
-        inputs.scene.phase_angle = scene.phase_angle;
-        inputs.scene.rpy_CAMI2CAM = scene.rpy_CAMI2CAM;
-        inputs.scene.rpy_CSF2IAU = scene.rpy_CSF2IAU;
-
+        if strcmp(format,'abram')
+            inputs.scene.pos_body2light_IAU = scene.pos_body2light_IAU;
+            inputs.scene.pos_body2cam_IAU = scene.pos_body2cam_IAU;
+            inputs.scene.q_IAU2CAM = scene.q_IAU2CAM;
+        else
+            % SCENE
+            inputs.scene.d_body2light = scene.d_body2light;
+            inputs.scene.d_body2cam = scene.d_body2cam;
+            inputs.scene.phase_angle = scene.phase_angle;
+            inputs.scene.rpy_CAMI2CAM = scene.rpy_CAMI2CAM;
+            inputs.scene.rpy_CSF2IAU = scene.rpy_CSF2IAU;
+        end
+        
         % SETTING
         inputs.setting = extract_fields(setting, {'general','discretization','sampling','culling','integration','gridding','reconstruction','processing','saving'});
 

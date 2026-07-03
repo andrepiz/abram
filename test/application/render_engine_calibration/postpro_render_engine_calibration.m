@@ -1,10 +1,14 @@
 %%
 cmap = 'turbo';
+saving_depth = rend.setting.saving.depth;
+G_DA = rend.camera.G_DA;                                
+img = rend.img;
+ec = rend.ec;
 
 img_render_engine = imread(image_filepath_render_engine);
 image_depth_render_engine = imfinfo(image_filepath_render_engine).BitDepth;
 img_render_engine = double(img_render_engine)*(2^saving_depth-1)/(2^image_depth_render_engine-1);
-imdiff = imabsdiff(img_render_engine, img);
+imdiff = imabsdiff(img_render_engine, rend.img);
 
 %% POSTPRO
 figure()
