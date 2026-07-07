@@ -4,6 +4,7 @@ classdef render
     % Rendering is performed calling the rendering() method.
     % -------------------------------------------------------------------------------------------------------------
     %% CHANGELOG
+    % 07-07-2026        Andrea Pizzetti        ABRAM v1.8 - Added postpro visualization methods
     % 01-01-2026        Andrea Pizzetti        ABRAM v1.7 - Added footprint, coverage, geometric_albedo, magnitude
     % 30-07-2025        Andrea Pizzetti        ABRAM v1.6 - Added depth map. Added default initialization
     % 29-11-2024        Andrea Pizzetti        ABRAM v1.3 - Added smart calling of submethods to increase efficiency
@@ -604,6 +605,7 @@ classdef render
            end
         end
 
+        %% I/O
         function to_yml(obj, filename_yml, format)
             % Create an inputs file in yml format using different
             % formats copying the current properties
@@ -618,6 +620,85 @@ classdef render
             fields_to_yml(filename_yml, format, obj.light, obj.body, obj.camera, obj.scene, obj.setting)
         end
 
+        %% VISUALIZE
+        function fh = postpro(obj)
+            % Visualize the rendered image
+            if isempty(obj.img)
+                error('Please first render the image by calling the rendering method.')
+            end
+            fh = figure();
+            grid on, hold on
+            imshow(obj.img)
+            colormap('gray')
+            colorbar
+            clim([0, 2^obj.setting.saving.depth-1])
+            xlabel('u [px]')
+            ylabel('v [px]')
+            title([num2str(obj.setting.saving.depth),'-bit Image [DN]']);
+            pbaspect([1, 1, 10])
+            xlim([0 obj.camera.res_px(1)]) 
+            ylim([0 obj.camera.res_px(2)])
+        end
+
+        function [active, infov, observable, lit] = postpro_visibility(obj)
+            % Check visibility of the scenario in terms of FOV, geometry observability
+            % and illumination from the sun
+            [latMidGrid_CSF, lonMidGrid_CSF] = meshgrid(obj.body.sampling.latMid_CSF, obj.body.sampling.lonMid_CSF);
+            [active, infov, observable, lit] = get_sphere_visibility_masks(latMidGrid_CSF, lonMidGrid_CSF, ...
+                    obj.scene.pos_cam2body_CSF, obj.scene.pos_light2body_CSF, obj.scene.dcm_CSF2CAM, ...
+                    obj.body.radius, obj.camera.fov, obj.setting.general.workers, true);   
+        end
+
+        function fh = postpro_saturation(obj)
+            % Image segmentation based on pixel saturation status
+            if isempty(obj.img)
+                error('Please first render the image by calling the rendering method.')
+            end
+            [x_pixel, y_pixel] = meshgrid([1:obj.camera.res_px(1)], [1:obj.camera.res_px(2)]);
+            % Maximum exposure time to avoid saturation
+            tSat_pixel = obj.camera.fwc./obj.ecr;
+            tSat_pixel(tSat_pixel == inf) = nan;
+            % Segmentation masks
+            tSat_segmentation_mask = tSat_pixel;
+            tSat_segmentation_mask(obj.camera.tExp < tSat_segmentation_mask) = 1;
+            tSat_segmentation_mask(obj.camera.tExp >= tSat_segmentation_mask) = 2;
+            tSat_segmentation_mask(isnan(tSat_pixel)) = 0;
+            fh = figure();
+            grid on, hold on
+            surf(x_pixel, y_pixel, tSat_segmentation_mask, 'EdgeColor','none')
+            set(gca,'YDir','reverse')
+            colormap('parula')
+            col = colorbar;
+            col.Ticks = [0 1 2];
+            col.TickLabels = {'Not Active','Not Saturated','Saturated'};
+            xlabel('u [px]')
+            ylabel('v [px]')
+            title('Pixel saturation');
+            pbaspect([1, 1, 10])
+            xlim([0 obj.camera.res_px(1)]) 
+            ylim([0 obj.camera.res_px(2)])
+        end
+
+        function fh = postpro_scene(obj)
+            % Plot scene geometry in 3D
+            R_frames2ref(:,:,1) = eye(3);
+            R_frames2ref(:,:,2) = obj.scene.dcm_CSF2IAU';
+            R_frames2ref(:,:,3) = obj.scene.dcm_CSF2CAMI';
+            R_frames2ref(:,:,4) = obj.scene.dcm_CSF2CAM';
+            R_pos_ref = 3*[zeros(3, 2), obj.scene.dir_body2cam_CSF, obj.scene.dir_body2cam_CSF];
+            v_ref = 1.5*[obj.scene.dir_body2light_CSF, obj.scene.dir_body2cam_CSF];
+            v_pos_ref = zeros(3, 2);
+            fh  = figure(); 
+            grid on; hold on; axis equal
+            plot_frames_and_vectors(R_frames2ref, R_pos_ref, v_ref, v_pos_ref, fh, {'CSF','IAU','CAMI','CAM'},{'light','cam'});
+            [xS, yS, zS] = sphere(100);
+            surf(0.3*xS, 0.3*yS, 0.3*zS,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none','AlphaData',0.4);
+            cameratoolbar
+            xlabel('x')
+            ylabel('y')
+            zlabel('z')
+            view([10,30])
+        end
     end
 
 end

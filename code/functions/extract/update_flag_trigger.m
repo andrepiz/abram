@@ -21,7 +21,7 @@ if ~any(strcmp({st.name}, 'render.rendering'))% && ~isempty(obj)
         % Compare each field of the object
         for ix = 1:length(fields)
             field_temp = fields{ix};
-            if ~isfield(obj, field_temp) || ~isfield(objInput, field_temp)
+            if ~isprop(obj, field_temp) || ~isprop(objInput, field_temp)
                 % do nothing
             else
                 update_flag = update_flag_trigger(obj.(field_temp), objInput.(field_temp), update_flag);
